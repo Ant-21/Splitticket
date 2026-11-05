@@ -19,7 +19,7 @@
   --ink:#14202b; --muted:#5d6874; --accent:#1f5fd1; --accent-soft:rgba(31,95,209,.12); --on-accent:#ffffff;
   --ok:#1d8a55; --warn:#b4660f; --av-off:#a7b1bd; --seg:#dfe5ed; --seg-on:#ffffff;
   --glass:rgba(255,255,255,.58); --glass-line:rgba(255,255,255,.75); --glass-shadow:0 10px 30px rgba(20,32,50,.16), inset 0 1px 0 rgba(255,255,255,.95);
-  --qr-bg:#1f5fd1; --dim:rgba(8,14,22,.5);
+  --qr-bg:#1f5fd1; --dim:rgba(8,14,22,.5); --headbg:rgba(238,241,246,.93);
   --display:"Bricolage Grotesque",-apple-system,system-ui,sans-serif;
   --body:-apple-system,"SF Pro Text",system-ui,sans-serif;
   --mono:"JetBrains Mono",ui-monospace,Menlo,monospace;
@@ -30,19 +30,29 @@
   --ink:#e7edf2; --muted:#9aa7b4; --accent:#8fb2ff; --accent-soft:rgba(143,178,255,.16); --on-accent:#0d1217;
   --ok:#4cc38a; --warn:#f0a54a; --av-off:#4a5664; --seg:#1f2a35; --seg-on:#3a4757;
   --glass:rgba(36,46,58,.62); --glass-line:rgba(255,255,255,.12); --glass-shadow:0 10px 30px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.12);
-  --qr-bg:#1b3f86; --dim:rgba(0,0,0,.6); color-scheme:dark}}
+  --qr-bg:#1b3f86; --dim:rgba(0,0,0,.6); --headbg:rgba(13,18,23,.92); color-scheme:dark}}
 :root[data-app="dark"]{
   --bg:#0d1217; --card:#171f28; --line:#26323f; --divider:#26323f; --track:#26323f;
   --ink:#e7edf2; --muted:#9aa7b4; --accent:#8fb2ff; --accent-soft:rgba(143,178,255,.16); --on-accent:#0d1217;
   --ok:#4cc38a; --warn:#f0a54a; --av-off:#4a5664; --seg:#1f2a35; --seg-on:#3a4757;
   --glass:rgba(36,46,58,.62); --glass-line:rgba(255,255,255,.12); --glass-shadow:0 10px 30px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.12);
-  --qr-bg:#1b3f86; --dim:rgba(0,0,0,.6); color-scheme:dark}
+  --qr-bg:#1b3f86; --dim:rgba(0,0,0,.6); --headbg:rgba(13,18,23,.92); color-scheme:dark}
 *{box-sizing:border-box}
+[hidden]{display:none!important}
 html{-webkit-text-size-adjust:100%;overscroll-behavior-y:none}
 body{overscroll-behavior-y:none}
 body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.4 var(--body);
   padding:calc(20px + env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) calc(130px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
 #app{max-width:520px;margin:0 auto;display:flex;flex-direction:column;gap:14px}
+.lbody{display:flex;flex-direction:column;gap:14px}
+.lhead{position:sticky;top:0;z-index:3;display:flex;flex-direction:column;gap:10px;
+  margin:calc(-20px - env(safe-area-inset-top,0px)) calc(-1 * max(16px,env(safe-area-inset-right,0px))) 0 calc(-1 * max(16px,env(safe-area-inset-left,0px)));
+  padding:calc(20px + env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) 12px max(16px,env(safe-area-inset-left,0px));
+  background:var(--headbg);-webkit-backdrop-filter:saturate(1.8) blur(18px);backdrop-filter:saturate(1.8) blur(18px);border-bottom:1px solid transparent;transition:border-color .2s}
+.lhead .topbar{margin:-8px 0 -6px}
+body.scrolled .lhead{border-bottom-color:var(--line)}
+body.swiping{background:var(--seg)}
+body.swiping #app{box-shadow:-14px 0 28px rgba(0,0,0,.14)}
 h1{margin:0;font:800 34px/1.05 var(--display);letter-spacing:-.02em;text-wrap:balance}
 .lead{margin:0;font-size:15px;color:var(--muted)}
 .lead b{color:var(--ink);font-family:var(--mono)}
@@ -145,6 +155,34 @@ input.n{font-family:var(--mono);text-align:right}
 .layer.sheet{background:var(--bg);justify-content:center}
 .layer.dim{background:var(--dim);justify-content:flex-end}
 .layer.read{background:#101418;color:#fff;justify-content:center}
+/* live camera */
+#camera{position:fixed;inset:0;z-index:40;background:#000;color:#fff;overflow:hidden;touch-action:none}
+body.cam-open{overflow:hidden}
+.cam-stage{position:absolute;inset:0;transform-origin:50% 50%;transition:transform .55s cubic-bezier(.2,.8,.2,1)}
+#camVideo{display:block;width:100%;height:100%;object-fit:cover}
+.cam-frame{position:absolute;left:12%;top:16%;width:76%;height:58%;border-radius:16px;box-shadow:0 0 0 200vmax rgba(0,0,0,.28);
+  transition:left .38s cubic-bezier(.2,.8,.2,1),top .38s cubic-bezier(.2,.8,.2,1),width .38s cubic-bezier(.2,.8,.2,1),height .38s cubic-bezier(.2,.8,.2,1),box-shadow .3s}
+.cam-frame i{position:absolute;width:30px;height:30px;border:4px solid #ffd60a;transition:border-color .2s}
+.cam-frame i:nth-child(1){left:0;top:0;border-right:0;border-bottom:0;border-top-left-radius:16px}
+.cam-frame i:nth-child(2){right:0;top:0;border-left:0;border-bottom:0;border-top-right-radius:16px}
+.cam-frame i:nth-child(3){left:0;bottom:0;border-right:0;border-top:0;border-bottom-left-radius:16px}
+.cam-frame i:nth-child(4){right:0;bottom:0;border-left:0;border-top:0;border-bottom-right-radius:16px}
+.cam-frame.found{box-shadow:0 0 0 200vmax rgba(0,0,0,.5)}
+.cam-frame.found i{border-color:#34c759;width:18px;height:18px;border-width:3px}
+.cam-top{position:absolute;left:0;right:0;top:0;display:flex;justify-content:space-between;align-items:center;gap:10px;
+  padding:calc(env(safe-area-inset-top,0px) + 14px) max(16px,env(safe-area-inset-right,0px)) 0 max(16px,env(safe-area-inset-left,0px))}
+.cam-bottom{position:absolute;left:0;right:0;bottom:0;display:flex;justify-content:space-between;align-items:center;
+  padding:0 max(24px,env(safe-area-inset-right,0px)) calc(env(safe-area-inset-bottom,0px) + 30px) max(24px,env(safe-area-inset-left,0px))}
+.cam-glass{width:48px;height:48px;min-height:0;padding:0;border-radius:24px;color:#fff;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.25);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);flex:none}
+.cam-glass.sq{border-radius:14px}
+.cam-pill{font-size:14px;font-weight:600;padding:9px 14px;border-radius:18px;background:rgba(0,0,0,.4);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);text-align:center;min-width:0}
+.cam-pill.good{background:rgba(29,138,85,.85)}
+.shutter{width:82px;height:82px;min-height:0;border-radius:41px;border:5px solid #fff;background:transparent;padding:5px;flex:none}
+.shutter span{display:block;width:100%;height:100%;border-radius:50%;background:#fff;transition:transform .12s}
+.shutter:active span{transform:scale(.86)}
+.cam-flash{position:absolute;inset:0;background:#fff;opacity:0;pointer-events:none}
+.cam-flash.go{animation:camflash .4s ease-out}
+@keyframes camflash{0%{opacity:.9}100%{opacity:0}}
 .readbox{position:relative;overflow:hidden;border-radius:16px;max-width:min(320px,80vw)}
 .readbox img{display:block;width:100%;max-height:52vh;object-fit:cover;opacity:.8}
 .readbox::after{content:"";position:absolute;left:0;right:0;top:0;height:3px;background:#ffd60a;box-shadow:0 0 18px 4px rgba(255,214,10,.55);animation:scanline 1.6s ease-in-out infinite alternate}
@@ -172,11 +210,12 @@ input.n{font-family:var(--mono);text-align:right}
 .chip.pop{animation:pop .3s cubic-bezier(.2,1.4,.4,1)}
 
 /* screen changes and sheets */
-#app.enter>*{animation:viewin .26s cubic-bezier(.2,.8,.2,1) both}
-#app.enter>*:nth-child(2){animation-delay:.025s}
-#app.enter>*:nth-child(3){animation-delay:.05s}
-#app.enter>*:nth-child(4){animation-delay:.075s}
-#app.enter>*:nth-child(n+5){animation-delay:.1s}
+#app.enter .lhead{animation:fade .22s ease both}
+#app.enter .lbody>*{animation:viewin .26s cubic-bezier(.2,.8,.2,1) both}
+#app.enter .lbody>*:nth-child(2){animation-delay:.025s}
+#app.enter .lbody>*:nth-child(3){animation-delay:.05s}
+#app.enter .lbody>*:nth-child(4){animation-delay:.075s}
+#app.enter .lbody>*:nth-child(n+5){animation-delay:.1s}
 .layer.anim{animation:fade .2s ease}
 .layer.anim .sheetcard{animation:sheetup .34s cubic-bezier(.2,.8,.2,1)}
 .layer.anim .qrbox{animation:pop .4s cubic-bezier(.2,1.3,.4,1)}
@@ -187,7 +226,7 @@ input.n{font-family:var(--mono);text-align:right}
 .sk{display:block;height:14px;border-radius:7px;background:linear-gradient(90deg,var(--track) 0%,var(--bg) 50%,var(--track) 100%);background-size:200% 100%;animation:shimmer 1.3s linear infinite}
 
 /* pull to refresh */
-#ptr{position:fixed;left:50%;top:calc(env(safe-area-inset-top,0px) + 10px);z-index:4;width:28px;height:28px;opacity:0;transform:translate(-50%,0);pointer-events:none}
+#ptr{position:fixed;left:50%;top:calc(env(safe-area-inset-top,0px) + 10px);z-index:2;width:28px;height:28px;opacity:0;transform:translate(-50%,0);pointer-events:none}
 #ptr svg{display:block;transition:transform .2s cubic-bezier(.2,1.4,.4,1)}
 #ptr .trk{stroke:var(--track)}
 #ptr .arc{stroke:var(--accent)}
@@ -216,6 +255,25 @@ input.n{font-family:var(--mono);text-align:right}
 <div id="app"><div class="card empty"><p>Splitticket laden…</p></div></div>
 <div class="tabbar" id="tabbar"></div>
 <div id="layer"></div>
+<div id="camera" hidden role="dialog" aria-label="Camera">
+  <div class="cam-stage" id="camStage">
+    <video id="camVideo" playsinline muted autoplay></video>
+    <div class="cam-frame" id="camFrame"><i></i><i></i><i></i><i></i></div>
+  </div>
+  <div class="cam-flash" id="camFlash"></div>
+  <div class="cam-top">
+    <button class="cam-glass" data-cam="close" aria-label="Sluit camera"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+    <span class="cam-pill" id="camHint" aria-live="polite">Richt op een ticket of een QR-code</span>
+    <button class="cam-glass" data-cam="torch" id="camTorch" aria-label="Zaklamp" hidden><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M13 2 4 14h7l-1 8 9-12h-7z"/></svg></button>
+    <span id="camSpacer" style="width:44px"></span>
+  </div>
+  <div class="cam-bottom">
+    <button class="cam-glass sq" data-cam="gallery" aria-label="Kies een foto"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="2"/><path d="m21 16-5-5-9 9"/></svg></button>
+    <button class="shutter" data-cam="shoot" aria-label="Neem foto van ticket"><span></span></button>
+    <button class="cam-glass" data-cam="manual" style="font-size:12px;font-weight:700">Zelf</button>
+  </div>
+</div>
+<input type="file" id="gal" accept="image/*" hidden>
 <div class="toast" id="toast" hidden></div>
 <input type="file" id="cam" accept="image/*" capture="environment" hidden>
 
@@ -357,7 +415,7 @@ function setFlash(el, state){
 const wait = ms => new Promise(r=>setTimeout(r,ms));
 async function withFlash(el, fn){
   setFlash(el,"busy"); const t0=Date.now();
-  try{ const r=await fn(); await wait(Math.max(0,380-(Date.now()-t0))); setFlash(el,"done"); try{ navigator.vibrate?.(8); }catch{} return r; }
+  try{ const r=await fn(); await wait(Math.max(0,380-(Date.now()-t0))); setFlash(el,"done"); haptic(); return r; }
   catch(e){ setFlash(el,"err"); throw e; }
 }
 const skel = n => Array.from({length:n},()=>`<div class="card skel" aria-hidden="true"><span class="sk" style="width:58%"></span><span class="sk" style="width:36%;height:10px"></span><span class="sk" style="height:6px"></span></div>`).join("");
@@ -413,8 +471,9 @@ async function readHash(){
 window.addEventListener("hashchange", readHash);
 
 /* ---------- camera + Live Text ---------- */
-$("cam").onchange = e => {
-  const f=e.target.files[0]; if(!f) return;
+$("cam").onchange = e => { const f=e.target.files[0]; if(f) usePhoto(f); };
+$("gal").onchange = e => { const f=e.target.files[0]; if(f){ closeCamera(); usePhoto(f); } };
+function usePhoto(f){
   if(S.photo) URL.revokeObjectURL(S.photo);
   S.photo = URL.createObjectURL(f); S.photoFile = f; S.pasted=""; S.aiErr="";
   if(home.ai){ readWithAI(); return; }
@@ -445,7 +504,7 @@ async function readWithAI(){
     if(run!==readRun) return;
     S.layer=null;
     if(!r.items?.length){ S.aiErr="Claude vond geen lijnen op deze foto. Probeer een scherpere foto, of plak de tekst zelf."; S.view="scan"; render(); window.scrollTo(0,0); return; }
-    try{ navigator.vibrate?.(10); }catch{}
+    haptic();
     startNew(r.items, r.title, r.total, true);
   }catch(e){
     if(run!==readRun) return;
@@ -481,10 +540,13 @@ async function saveSetup(el){
     render();
     try{
       const r = await withFlash(el, ()=>api("createTicket",{ title:S.draft.title.trim()||"Ticket", items:st.items, ticketTotal:S.draft.ticketTotal||0, people:st.people, ownerQ:st.ownerQ }));
-      await wait(350); S.setup=null; S.draft=null; await refresh(); S.justMade=r.id; go("ticket", r.id);
+      await wait(350);
+      // eerst naar het ticket gaan, daarna pas verversen
+      S.justMade=r.id; S.setup=null; S.draft=null; NAV="replace"; go("ticket", r.id);
+      await refresh();
     }catch(e){ S.err=e.message; render(); }
   }else{
-    try{ await withFlash(el, ()=>api("setSetup",{ id:S.id, people:st.people, ownerQ:st.ownerQ })); await wait(350); S.setup=null; await refresh(); go("ticket",S.id); toast("Opgeslagen."); }
+    try{ await withFlash(el, ()=>api("setSetup",{ id:S.id, people:st.people, ownerQ:st.ownerQ })); await wait(350); S.setup=null; NAV="up"; go("ticket",S.id); toast("Opgeslagen."); await refresh(); }
     catch(e){ S.err=e.message; render(); }
   }
 }
@@ -518,7 +580,7 @@ function editorRows(d){
     </div>`;
 }
 function viewScan(){
-  return `<div class="topbar"><button class="btn-link" data-act="cancelScan">Annuleer</button><button class="btn-link" data-act="manual">Zelf invullen</button></div>
+  return `<div class="topbar"><button class="btn-link" data-act="cancelScan">Annuleer</button><button class="btn-link" data-act="manual">Zelf invullen</button></div><!--head-->
     <div class="head"><h1 style="font-size:28px">Lees je ticket</h1></div>
     ${S.aiErr?`<div class="notice">${esc(S.aiErr)}</div>`:""}
     ${home.ai?`<button class="btn-p btn-big" data-act="aiRetry">✦ ${S.aiErr?"Probeer opnieuw met AI":"Lees met AI"}</button><span class="cap" style="padding:0 4px">Of zelf kopiëren</span>`:""}
@@ -529,17 +591,18 @@ function viewScan(){
     <p class="t2" style="margin:0">Lukt kopiëren niet? Open de foto in de Foto's-app en kopieer de tekst daar.</p>`;
 }
 function viewNew(){
-  return `<div class="topbar"><button class="btn-link" data-act="cancelNew">Annuleer</button><button class="btn-link" style="font-weight:600" data-act="next">Volgende</button></div>
+  return `<div class="topbar"><button class="btn-link" data-act="cancelNew">Annuleer</button><button class="btn-link" style="font-weight:600" data-act="next">Volgende</button></div><!--head-->
     <div class="head">${S.draft.byAI?`<span class="status">✦ Gelezen door AI · ${S.draft.items.length} lijnen</span>`:`<span class="cap">Stap 1 van 2</span>`}<h1 style="font-size:28px">Controleer de lijnen</h1><p class="lead">Pas aan wat niet klopt. Prijs is per stuk.</p></div>
     ${editorRows(S.draft)}
     <button class="btn-p btn-big" data-act="next">Volgende</button>`;
 }
 function viewSetup(){
+  if(!S.setup){ S.view = S.id ? "ticket" : "krijgen"; return S.view==="ticket" ? viewTicket() : viewKrijgen(); }
   const st=S.setup, items=st.items;
   const total=r2(items.reduce((s,i)=>s+i.qty*i.unitPrice,0)), own=partTotal({items}, st.ownerQ), rest=r2(total-own);
   const added=new Set(st.people.map(p=>p.name.toLowerCase()));
   const sugg=recentNames().filter(n=>!added.has(n.toLowerCase())).slice(0,8);
-  return `<div class="topbar"><button class="btn-link" data-act="setupBack">‹ ${st.isNew?"Lijnen":"Ticket"}</button></div>
+  return `<div class="topbar"><button class="btn-link" data-act="setupBack">‹ ${st.isNew?"Lijnen":"Ticket"}</button></div><!--head-->
     <div class="head">${st.isNew?`<span class="cap">Stap 2 van 2</span>`:""}<h1 style="font-size:28px">Wie was erbij?</h1><p class="lead">Duid aan voor wie je betaalde en wat je zelf had.</p></div>
     <div class="card"><span class="cap">Betaald voor</span>
       ${st.people.length?`<div class="chips">${st.people.map((p,i)=>`<span class="chip${p.pid===S.popPid?" pop":""}">${esc(p.name)}<button class="x" aria-label="Verwijder ${esc(p.name)}" data-act="rmPerson" data-i="${i}">×</button></span>`).join("")}</div>`:`<span class="t2">Nog niemand toegevoegd.</span>`}
@@ -557,10 +620,10 @@ function viewSetup(){
     <button class="btn-p btn-big" data-act="saveSetup" data-done="Opgeslagen">${st.isNew?"Maak ticket":"Bewaar"}</button>`;
 }
 function viewKrijgen(){
-  if(loadErr && !loaded) return `<div class="head"><h1>Te krijgen</h1></div><div class="card empty"><p>${esc(loadErr)}</p><button data-act="retry" data-done="Bijgewerkt">Opnieuw</button></div>`;
+  if(loadErr && !loaded) return `<div class="head"><h1>Owed to me</h1></div><!--head--><div class="card empty"><p>${esc(loadErr)}</p><button data-act="retry" data-done="Bijgewerkt">Opnieuw</button></div>`;
   let open=0; const waitingNames=new Set();
   const cards = home.mine.map(t=>{ const rows=rowsOf(t); const o=openAmount(t,rows); open+=o; rows.filter(r=>!r.paid).forEach(r=>waitingNames.add(r.name.toLowerCase())); return {t,rows,o}; });
-  let h = `<div class="head"><h1>Te krijgen</h1><p class="lead">${!loaded?"Laden…":open>0?`Nog <b>${eur(open)}</b> open bij ${waitingNames.size} ${waitingNames.size===1?"persoon":"personen"}`:"Iedereen heeft je terugbetaald"}</p></div>`;
+  let h = `<div class="head"><h1>Owed to me</h1><p class="lead">${!loaded?"Laden…":open>0?`Nog <b>${eur(open)}</b> open bij ${waitingNames.size} ${waitingNames.size===1?"persoon":"personen"}`:"Iedereen heeft je terugbetaald"}</p></div><!--head-->`;
   if(!loaded) return h + skel(3);
   if(!home.mine.length) return h + `<div class="card empty"><p>Fotografeer je eerste ticket met de camera-knop onderaan. Je vrienden kiezen daarna zelf hun deel.</p><button class="btn-p" data-act="camera">${ICON.cam} Scan ticket</button></div>`;
   for(const {t,rows,o} of cards){
@@ -581,9 +644,9 @@ function viewKrijgen(){
 function viewDelen(){
   const list = home.shares||[];
   const due = r2(list.filter(x=>!x.claim.paid).reduce((s,x)=>s+x.claim.total,0));
-  let h = `<div class="head"><h1>Mijn delen</h1><p class="lead">${!loaded?"Laden…":due>0?`Je moet nog <b style="color:var(--warn)">${eur(due)}</b> betalen`:"Je bent niemand iets schuldig"}</p></div>`;
+  let h = `<div class="head"><h1>I owe</h1><p class="lead">${!loaded?"Laden…":due>0?`Je moet nog <b style="color:var(--warn)">${eur(due)}</b> betalen`:"Je bent niemand iets schuldig"}</p></div><!--head-->`;
   if(!loaded) return h + skel(2);
-  if(!list.length) return h + `<div class="card empty"><p>Scan de QR-code van een vriend met je camera of open zijn link. Zijn ticket verschijnt dan hier.</p></div>`;
+  if(!list.length) return h + `<div class="card empty"><p>Scan de QR-code van een vriend met de camera-knop, of open zijn link. Zijn ticket verschijnt dan hier.</p></div>`;
   for(const x of list){
     const t=x.ticket, c=x.claim, what=(t.items||[]).map((it,i)=>c.q?.[i]?`${c.q[i]}× ${it.name}`:null).filter(Boolean).join(" · ");
     h += `<div class="card">
@@ -613,16 +676,16 @@ function personRow(t, r){
 }
 function viewTicket(){
   const t=myTicket(S.id);
-  if(!t) return `<div class="topbar"><button class="btn-link" data-act="back">‹ Te krijgen</button></div><div class="card empty"><p>${loaded?"Dit ticket bestaat niet meer.":"Laden…"}</p></div>`;
+  if(!t) return `<div class="topbar"><button class="btn-link" data-act="back">‹ Owed to me</button></div><!--head-->${!loaded||S.justMade===S.id?skel(2):`<div class="card empty"><p>Dit ticket bestaat niet meer.</p></div>`}`;
   if(S.editing){
-    return `<div class="topbar"><button class="btn-link" data-act="cancelEdit">Annuleer</button><button class="btn-link" style="font-weight:600" data-act="saveEdit" data-done="Opgeslagen">Bewaar</button></div>
+    return `<div class="topbar"><button class="btn-link" data-act="cancelEdit">Annuleer</button><button class="btn-link" style="font-weight:600" data-act="saveEdit" data-done="Opgeslagen">Bewaar</button></div><!--head-->
       ${editorRows(S.draft)}
       <div>${S.confirmDel?`<span class="t2">Zeker?</span> <button data-act="delYes">Ja, verwijder ticket</button> <button class="btn-link" style="font-size:15px" data-act="delNo">Nee</button>`:`<button data-act="del" class="warn">Verwijder ticket</button>`}</div>`;
   }
   const rows=rowsOf(t), own=ownerPart(t), open=openAmount(t,rows), fresh=S.justMade===t.id;
   const claims=t.claims||[];
   const left=(t.items||[]).map((it,i)=>({it, n:it.qty-(t.ownerQ?.[i]||0)-claims.reduce((s,c)=>s+(c.q?.[i]||0),0)})).filter(x=>x.n>0);
-  return `<div class="topbar"><button class="btn-link" data-act="back">‹ Te krijgen</button><button class="btn-link" data-act="edit">Wijzig lijnen</button></div>
+  return `<div class="topbar"><button class="btn-link" data-act="back">‹ Owed to me</button><button class="btn-link" data-act="edit">Wijzig lijnen</button></div><!--head-->
     <div class="head">${fresh?`<span class="status">✓ Ticket klaar · ${t.items.length} lijnen</span>`:""}<h1 style="font-size:30px">${esc(t.title)}</h1><p class="lead">${day(t.createdAt)} · totaal <b>${eur(sum(t))}</b>${rows.length?` · nog open <b>${eur(open)}</b>`:""}</p></div>
     <div class="grid2"><button class="btn-p btn-big" data-act="shareLink">${ICON.up} Deel link</button><button class="btn-dark btn-big" data-act="showQR">${ICON.qr} Toon QR</button></div>
     <div class="card list"><div class="row" style="padding:12px 0 0;align-items:center"><span class="cap">Betaald voor</span><button class="linkbtn" data-act="setup">Aanpassen</button></div>
@@ -640,10 +703,10 @@ function viewTicket(){
 function viewSelect(){
   const e=cache[S.id];
   if(!e) return `<div class="card empty"><p>Ticket laden…</p></div>`;
-  if(e.error||!e.ticket) return `<div class="topbar"><button class="btn-link" data-act="toDelen">‹ Mijn delen</button></div><div class="card empty"><p>${esc(e.error||"Dit ticket werd niet gevonden.")}</p></div>`;
+  if(e.error||!e.ticket) return `<div class="topbar"><button class="btn-link" data-act="toDelen">‹ I owe</button></div><!--head--><div class="card empty"><p>${esc(e.error||"Dit ticket werd niet gevonden.")}</p></div>`;
   const t=e.ticket, claims=e.claims||[], mineClaim=claims.find(c=>c.userId===me.id);
   const people=t.people||[], free=people.filter(p=>!claims.some(c=>c.userId!==me.id && c.pid===p.pid));
-  return `<div class="topbar"><button class="btn-link" data-act="toDelen">‹ Mijn delen</button></div>
+  return `<div class="topbar"><button class="btn-link" data-act="toDelen">‹ I owe</button></div><!--head-->
     <div style="display:flex;gap:12px;align-items:center;padding:0 4px"><span class="av big" style="background:${colorFor(t.ownerId)}">${esc(initials(e.ownerName))}</span>
       <div class="col"><h1 style="font-size:26px">${esc(t.title)}</h1><span class="t2" style="font-size:14px">${esc(e.ownerName||"Je vriend")} betaalde · ${day(t.createdAt)}</span></div></div>
     ${people.length?`<div class="card" style="gap:10px"><span class="cap">Wie ben jij?</span><div class="chips">
@@ -662,7 +725,7 @@ function viewProfiel(){
   const adv=r2(mt.reduce((s,t)=>s+sum(t)-ownerPart(t),0));
   const back=r2(mt.reduce((s,t)=>s+rowsOf(t).filter(r=>r.paid).reduce((u,r)=>u+r.total,0),0));
   const th=getTheme(), inApp=standalone();
-  return `<div class="head"><h1>Profiel</h1></div>
+  return `<div class="head"><h1>Profile</h1></div><!--head-->
     <div class="card" style="flex-direction:row;align-items:center;gap:14px"><span class="av big" style="width:56px;height:56px;border-radius:28px;font-size:20px;background:${colorFor(me.id)}">${esc(initials(me.name))}</span>
       <div class="col"><span style="font-size:19px;font-weight:600">${esc(me.name)}</span><span class="t2" style="font-size:14px">${me.bunq?`bunq.me/${esc(me.bunq)}`:me.iban?esc(me.iban):"Nog geen betaalgegevens"}</span></div></div>
     ${inApp?"":`<div class="card" style="flex-direction:row;align-items:center;gap:12px"><div class="col grow"><span class="t1">Zet op beginscherm</span><span class="t2">Open Splitticket voortaan als app.</span></div><button class="btn-p" data-act="install">Installeer</button></div>`}
@@ -686,9 +749,10 @@ function render(){
   const html = v==="krijgen"?viewKrijgen(): v==="delen"?viewDelen(): v==="profiel"?viewProfiel(): v==="ticket"?viewTicket(): v==="select"?viewSelect(): v==="scan"?viewScan(): v==="setup"?viewSetup(): viewNew();
   const focused = document.activeElement && document.activeElement.id;
   const app=$("app");
-  app.innerHTML = html;
+  const cut = html.indexOf("<!--head-->");
+  app.innerHTML = cut<0 ? `<div class="lbody">${html}</div>` : `<div class="lhead">${html.slice(0,cut)}</div><div class="lbody">${html.slice(cut+11)}</div>`;
   S.popPid = null;
-  if(v!==lastView){ lastView=v; app.classList.remove("enter"); void app.offsetWidth; app.classList.add("enter"); clearTimeout(enterT); enterT=setTimeout(()=>app.classList.remove("enter"),420); }
+  if(v!==lastView){ if(lastView && DETAIL.includes(v) && !NAV) pushLevel(); NAV=""; lastView=v; app.classList.remove("enter"); void app.offsetWidth; app.classList.add("enter"); clearTimeout(enterT); enterT=setTimeout(()=>app.classList.remove("enter"),420); }
   if(focused && $(focused) && /INPUT|TEXTAREA/.test($(focused).tagName)) $(focused).focus();
   renderBar(); renderLayer(); applyFlash();
   if(bumpSel){ document.querySelectorAll(bumpSel).forEach(x=>{ x.classList.remove("bump"); void x.offsetWidth; x.classList.add("bump"); }); bumpSel=null; }
@@ -705,7 +769,7 @@ function renderBar(){
   }
   if(["ticket","scan","new","setup"].includes(v)){ bar.innerHTML=""; return; }
   const tab=(id,icon,label)=>`<button class="tab" data-act="tab" data-v="${id}" ${v===id?'aria-current="page"':""}>${icon}${label}</button>`;
-  bar.innerHTML=`<div class="in"><nav class="tabs glass" aria-label="Hoofdmenu">${tab("krijgen",ICON.get,"Te krijgen")}${tab("delen",ICON.share,"Mijn delen")}${tab("profiel",ICON.me,"Profiel")}</nav>
+  bar.innerHTML=`<div class="in"><nav class="tabs glass" aria-label="Hoofdmenu">${tab("krijgen",ICON.get,"Owed to me")}${tab("delen",ICON.share,"I owe")}${tab("profiel",ICON.me,"Profile")}</nav>
     <button class="cam" data-act="camera" aria-label="Scan ticket">${ICON.cam}</button></div>`;
 }
 function renderLayer(){
@@ -774,8 +838,8 @@ document.addEventListener("click", async ev=>{
     case "doImport": try{ await withFlash(el, ()=>importCode($("obCode").value)); await wait(250); S.showImport=false; render(); await refresh(); readHash(); toast("Profiel gekoppeld."); }catch(e){ toast(e.message); } break;
     case "retry": await withFlash(el, refresh); break;
     case "tab": go(el.dataset.v); break;
-    case "camera": $("cam").value=""; $("cam").click(); break;
-    case "cancelScan": go("krijgen"); break;
+    case "camera": openCamera(); break;
+    case "cancelScan": navBack(); break;
     case "aiRetry": S.aiErr=""; readWithAI(); break;
     case "aiCancel": readRun++; S.layer=null; S.aiErr=""; S.view="scan"; render(); break;
     case "manual": startNew([], "", 0); break;
@@ -784,15 +848,15 @@ document.addEventListener("click", async ev=>{
     case "cancelNew": S.draft=null; go("krijgen"); break;
     case "next": openSetup(true); break;
     case "setup": openSetup(false); break;
-    case "setupBack": if(S.setup?.isNew){ S.setup=null; S.view="new"; render(); } else { S.setup=null; go("ticket",S.id); } break;
+    case "setupBack": navBack(); break;
     case "addPerson": addPerson($("addName")?.value); break;
     case "addSug": addPerson(el.dataset.v); break;
     case "rmPerson": S.setup.people.splice(i,1); render(); break;
     case "oinc": case "odec": { const q=(S.setup.ownerQ[i]||0)+(a==="oinc"?1:-1); if(q>0) S.setup.ownerQ[i]=q; else delete S.setup.ownerQ[i]; bumpSel=`[data-k="o${i}"],#owntotal`; render(); break; }
     case "saveSetup": saveSetup(el); break;
     case "open": S.justMade=null; go("ticket", el.dataset.id); break;
-    case "back": clearHash(); go("krijgen"); break;
-    case "toDelen": clearHash(); go("delen"); break;
+    case "back": navBack(); break;
+    case "toDelen": navBack(); break;
     case "remind": { const t=myTicket(el.dataset.id), w=rowsOf(t).filter(r=>!r.paid);
       if(!w.length){ shareText(`Duid aan wat je had bij ${t.title} en betaal je deel:`, linkFor(t)); break; }
       if(w.length===1){ remindRow(t,w[0]); break; }
@@ -855,19 +919,189 @@ document.addEventListener("keydown", ev=>{
   if((ev.key==="Enter"||ev.key===" ") && ev.target.getAttribute("role")==="button" && ev.target.dataset.act){ ev.preventDefault(); ev.target.click(); }
 });
 
+/* ---------- haptic ---------- */
+// Android: trillen. iPhone (iOS 18+): Safari geeft een tik als een schakelaar omspringt; die gebruiken we onzichtbaar.
+function haptic(){
+  try{ if(typeof navigator.vibrate==="function"){ navigator.vibrate(12); return; } }catch{}
+  try{
+    const l=document.createElement("label"), i=document.createElement("input");
+    i.type="checkbox"; i.setAttribute("switch",""); l.setAttribute("aria-hidden","true");
+    l.style.cssText="position:fixed;opacity:0;pointer-events:none;left:-99px"; l.appendChild(i); document.body.appendChild(l);
+    l.click(); setTimeout(()=>l.remove(),50);
+  }catch{}
+}
+
+/* ---------- live camera: QR-codes en tickets ---------- */
+const CAM = { stream:null, track:null, raf:0, last:0, found:false, torch:false, canvas:null, ctx:null, wrongAt:0, hintT:0 };
+const CAM_HINT = "Richt op een ticket of een QR-code";
+let jsqrLoading=null;
+function loadJsQR(){
+  if(window.jsQR) return Promise.resolve();
+  return jsqrLoading ||= new Promise((ok,fail)=>{ const s=document.createElement("script"); s.src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"; s.onload=ok; s.onerror=fail; document.head.appendChild(s); });
+}
+function camHint(text, good){ const h=$("camHint"); h.textContent=text; h.classList.toggle("good", !!good); }
+function camReset(){
+  const st=$("camStage"), fr=$("camFrame");
+  st.style.transition="none"; st.style.transform=""; void st.offsetWidth; st.style.transition="";
+  fr.removeAttribute("style"); fr.classList.remove("found"); camHint(CAM_HINT);
+}
+async function openCamera(){
+  if(!navigator.mediaDevices?.getUserMedia){ $("cam").value=""; $("cam").click(); return; } // oude browsers: gewone foto-camera
+  const box=$("camera"); box.hidden=false; document.body.classList.add("cam-open"); camReset(); CAM.found=false;
+  loadJsQR().catch(()=>{});
+  try{
+    CAM.stream = await navigator.mediaDevices.getUserMedia({ audio:false, video:{ facingMode:{ ideal:"environment" }, width:{ ideal:1920 }, height:{ ideal:1080 } } });
+    if(box.hidden){ CAM.stream.getTracks().forEach(t=>t.stop()); return; }
+    const v=$("camVideo"); v.srcObject=CAM.stream; await v.play().catch(()=>{});
+    CAM.track=CAM.stream.getVideoTracks()[0];
+    const caps=CAM.track.getCapabilities?.()||{}; $("camTorch").hidden=!caps.torch; $("camSpacer").hidden=!!caps.torch;
+    cancelAnimationFrame(CAM.raf); CAM.raf=requestAnimationFrame(camLoop);
+  }catch(e){
+    camHint("Geen toegang tot de camera. Sta het toe in je instellingen, of kies een foto.");
+  }
+}
+function closeCamera(){
+  cancelAnimationFrame(CAM.raf);
+  CAM.stream?.getTracks().forEach(t=>t.stop()); CAM.stream=null; CAM.track=null; CAM.torch=false;
+  $("camVideo").srcObject=null; $("camera").hidden=true; document.body.classList.remove("cam-open");
+}
+function camLoop(now){
+  CAM.raf=requestAnimationFrame(camLoop);
+  if(CAM.found || now-CAM.last<130) return;
+  CAM.last=now;
+  const v=$("camVideo"); if(!v.videoWidth || !window.jsQR) return;
+  const k=Math.min(1, 720/Math.max(v.videoWidth,v.videoHeight)), w=Math.round(v.videoWidth*k), h=Math.round(v.videoHeight*k);
+  if(!CAM.canvas){ CAM.canvas=document.createElement("canvas"); CAM.ctx=CAM.canvas.getContext("2d",{ willReadFrequently:true }); }
+  if(CAM.canvas.width!==w||CAM.canvas.height!==h){ CAM.canvas.width=w; CAM.canvas.height=h; }
+  CAM.ctx.drawImage(v,0,0,w,h);
+  const code=jsQR(CAM.ctx.getImageData(0,0,w,h).data, w, h, { inversionAttempts:"dontInvert" });
+  if(code && code.data) onQR(code, k);
+}
+function onQR(code, k){
+  const m=/#t=([a-z0-9]+)(?:&p=([a-z0-9]+))?/i.exec(code.data);
+  if(!m){
+    if(Date.now()-CAM.wrongAt>2500){ CAM.wrongAt=Date.now(); haptic(); camHint("Dit is geen Splitticket-code"); clearTimeout(CAM.hintT); CAM.hintT=setTimeout(()=>{ if(!CAM.found) camHint(CAM_HINT); },1800); }
+    return;
+  }
+  CAM.found=true;
+  // QR-hoeken van videobeeld naar schermcoördinaten (video staat in "cover")
+  const v=$("camVideo"), st=$("camStage"), cw=st.clientWidth, ch=st.clientHeight;
+  const s=Math.max(cw/v.videoWidth, ch/v.videoHeight), ox=(cw-v.videoWidth*s)/2, oy=(ch-v.videoHeight*s)/2;
+  const L=code.location, pts=[L.topLeftCorner,L.topRightCorner,L.bottomLeftCorner,L.bottomRightCorner].map(p=>({ x:p.x/k*s+ox, y:p.y/k*s+oy }));
+  const pad=10, x0=Math.min(...pts.map(p=>p.x))-pad, x1=Math.max(...pts.map(p=>p.x))+pad, y0=Math.min(...pts.map(p=>p.y))-pad, y1=Math.max(...pts.map(p=>p.y))+pad;
+  const fr=$("camFrame");
+  fr.classList.add("found");
+  Object.assign(fr.style,{ left:x0+"px", top:y0+"px", width:(x1-x0)+"px", height:(y1-y0)+"px" });
+  // inzoomen: de code naar het midden en groter
+  const cx=(x0+x1)/2, cy=(y0+y1)/2, z=Math.max(1.25, Math.min(2.8, (cw*0.62)/(x1-x0)));
+  // zo dicht mogelijk naar het midden, zonder dat er een zwarte rand verschijnt
+  const clamp=(t,c,size)=>Math.max(size-c-(size-c)*z, Math.min(c*z-c, t));
+  const tx=clamp(cw/2-cx, cx, cw), ty=clamp(ch/2-cy, cy, ch);
+  st.style.transformOrigin=`${cx}px ${cy}px`;
+  st.style.transform=`translate(${tx}px, ${ty}px) scale(${z})`;
+  haptic(); camHint("Ticket gevonden", true);
+  const id=m[1], p=m[2]||"";
+  setTimeout(()=>{
+    closeCamera();
+    try{ history.replaceState(null,"",location.pathname+location.search+"#t="+id+(p?"&p="+p:"")); }catch{}
+    readHash();
+  }, 750);
+}
+async function camShoot(){
+  const v=$("camVideo"); if(!v.videoWidth) return;
+  const fl=$("camFlash"); fl.classList.remove("go"); void fl.offsetWidth; fl.classList.add("go"); haptic();
+  const c=document.createElement("canvas"); c.width=v.videoWidth; c.height=v.videoHeight; c.getContext("2d").drawImage(v,0,0);
+  const blob=await new Promise(r=>c.toBlob(r,"image/jpeg",0.9));
+  setTimeout(()=>{ closeCamera(); usePhoto(new File([blob],"ticket.jpg",{ type:"image/jpeg" })); }, 220);
+}
+document.addEventListener("click", async ev=>{
+  const b=ev.target.closest("[data-cam]"); if(!b) return;
+  switch(b.dataset.cam){
+    case "close": closeCamera(); break;
+    case "shoot": camShoot(); break;
+    case "gallery": $("gal").value=""; $("gal").click(); break;
+    case "manual": closeCamera(); startNew([], "", 0); break;
+    case "torch": try{ CAM.torch=!CAM.torch; await CAM.track.applyConstraints({ advanced:[{ torch:CAM.torch }] }); b.style.background=CAM.torch?"rgba(255,214,10,.9)":""; b.style.color=CAM.torch?"#000":""; }catch{} break;
+  }
+});
+document.addEventListener("visibilitychange", ()=>{ if(document.visibilityState==="hidden" && !$("camera").hidden) closeCamera(); });
+
+/* ---------- terug: knop, iPhone-veeg en browsergeschiedenis ---------- */
+const DETAIL = ["ticket","select","setup","scan","new"];
+let NAV = "";   // "up" of "replace": dan geen nieuwe stap in de geschiedenis
+function pushLevel(){ try{ history.pushState({ st:1 }, "", location.href); }catch{} }
+function navBack(){ if(history.state && history.state.st) history.back(); else goBack(); }
+window.addEventListener("popstate", ()=>goBack());
+function goBack(){
+  if(!$("camera").hidden){ closeCamera(); return; }
+  if(S.layer){ if(S.layer.kind==="reading"){ readRun++; S.layer=null; S.aiErr=""; NAV="up"; S.view="scan"; render(); return; } S.layer=null; render(); return; }
+  NAV="up";
+  switch(S.view){
+    case "ticket": if(S.editing){ S.editing=false; S.err=""; NAV=""; render(); return; } clearHash(); go("krijgen"); break;
+    case "select": clearHash(); go("delen"); break;
+    case "setup": if(S.setup?.isNew){ S.setup=null; S.view="new"; render(); } else { S.setup=null; go("ticket",S.id); } break;
+    case "new": S.draft=null; if(S.photo){ S.view="scan"; render(); } else go("krijgen"); break;
+    case "scan": go("krijgen"); break;
+    default: NAV="";
+  }
+}
+// In de app op je beginscherm heeft iOS geen eigen veeg-terug; Safari zelf wel (die gaat via de geschiedenis hierboven).
+const edgeSwipeOn = () => isIOS && standalone();
+const canBack = () => !$("camera").hidden || !!S.layer || DETAIL.includes(S.view);
+const SW = { x0:null, y0:0, on:false, dx:0, t0:0 };
+function swipeTargets(){
+  if(!$("camera").hidden) return [$("camera")];
+  if(S.layer) return [$("layer").firstElementChild].filter(Boolean);
+  return [$("app"), $("tabbar")];
+}
+function setSwipe(x, mode){
+  const ease = mode==="drag"||mode==="reset" ? "none" : "transform .24s cubic-bezier(.2,.8,.2,1)";
+  swipeTargets().forEach(el=>{ el.style.transition=ease; el.style.transform = x ? `translateX(${x}px)` : ""; });
+  document.body.classList.toggle("swiping", mode==="drag" || mode==="out");
+}
+document.addEventListener("touchstart", e=>{
+  if(!edgeSwipeOn() || e.touches.length!==1 || !canBack()) return;
+  const t=e.touches[0]; if(t.clientX>26) return;
+  SW.x0=t.clientX; SW.y0=t.clientY; SW.on=false; SW.dx=0; SW.t0=performance.now();
+},{ passive:true });
+document.addEventListener("touchmove", e=>{
+  if(SW.x0===null) return;
+  const t=e.touches[0], dx=t.clientX-SW.x0, dy=t.clientY-SW.y0;
+  if(!SW.on){
+    if(Math.abs(dy)>12 && Math.abs(dy)>dx){ SW.x0=null; return; }
+    if(dx<8) return;
+    SW.on=true;
+  }
+  e.preventDefault();
+  SW.dx=Math.max(0,dx); setSwipe(SW.dx,"drag");
+},{ passive:false });
+document.addEventListener("touchend", ()=>{
+  if(SW.x0===null) return;
+  SW.x0=null; if(!SW.on) return; SW.on=false;
+  const speed = SW.dx / Math.max(1, performance.now()-SW.t0);
+  if(SW.dx > innerWidth*0.33 || (speed>0.5 && SW.dx>40)){
+    setSwipe(innerWidth,"out"); haptic();
+    setTimeout(()=>{ setSwipe(0,"reset"); navBack(); }, 240);
+  } else setSwipe(0,"back");
+});
+document.addEventListener("touchcancel", ()=>{ if(SW.on){ SW.x0=null; SW.on=false; setSwipe(0,"back"); } });
+addEventListener("scroll", ()=>document.body.classList.toggle("scrolled", scrollY>4), { passive:true });
+
 /* ---------- pull to refresh ---------- */
 const PTR = { y0:null, x0:0, dy:0, on:false, busy:false, ready:false };
 const PTR_GO = 62, PTR_MAX = 100, PTR_HOLD = 52;
-const ptrAllowed = () => me.name && !S.layer && (S.view==="krijgen" || S.view==="delen" || (S.view==="ticket" && !S.editing));
+const ptrAllowed = () => me.name && !S.layer && $("camera").hidden && (S.view==="krijgen" || S.view==="delen" || (S.view==="ticket" && !S.editing));
 function setPull(y, mode){ // mode: "drag" | "spin" | "back"
-  const app=$("app"), el=$("ptr"), arc=el.querySelector(".arc");
+  const app=$("app").querySelector(".lbody")||$("app"), el=$("ptr"), arc=el.querySelector(".arc");
+  const hb=$("app").querySelector(".lhead")?.getBoundingClientRect().bottom || 0;
+  el.style.top = (hb+8)+"px";
   const ease = mode==="drag" ? "none" : "transform .34s cubic-bezier(.2,.8,.2,1)";
   app.style.transition = ease;
   app.style.transform = y ? `translateY(${y}px)` : "";
   const p = Math.min(1, y/PTR_GO);
   el.style.transition = mode==="drag" ? "none" : "opacity .25s, transform .34s cubic-bezier(.2,.8,.2,1)";
   el.style.opacity = mode==="back" ? 0 : (y ? Math.max(.2,p) : 0);
-  el.style.transform = `translate(-50%, ${Math.max(0, y*0.42)}px)`;
+  el.style.transform = `translate(-50%, ${Math.max(0, y*0.5-16)}px)`;
   el.classList.toggle("spin", mode==="spin");
   el.classList.toggle("ready", mode==="drag" && p>=1);
   if(mode!=="spin") arc.style.strokeDashoffset = String(62.83*(1-p*0.82));
@@ -875,6 +1109,7 @@ function setPull(y, mode){ // mode: "drag" | "spin" | "back"
 document.addEventListener("touchstart", e=>{
   if(PTR.busy || !ptrAllowed() || window.scrollY>0 || e.touches.length!==1) return;
   if(e.target.closest("input,textarea")) return;
+  if(edgeSwipeOn() && e.touches[0].clientX<26) return;
   PTR.y0=e.touches[0].clientY; PTR.x0=e.touches[0].clientX; PTR.dy=0; PTR.on=false; PTR.ready=false;
 },{ passive:true });
 document.addEventListener("touchmove", e=>{
@@ -885,7 +1120,7 @@ document.addEventListener("touchmove", e=>{
   PTR.on=true; e.preventDefault();
   const raw = Math.max(0,dy)*0.55; PTR.dy = raw<PTR_GO ? raw : Math.min(PTR_MAX, PTR_GO + (raw-PTR_GO)*0.35); // na de drempel: zwaarder
   const ready = PTR.dy>=PTR_GO;
-  if(ready && !PTR.ready){ try{ navigator.vibrate?.(6); }catch{} }
+  if(ready && !PTR.ready){ haptic(); }
   PTR.ready = ready;
   setPull(PTR.dy, "drag");
 },{ passive:false });

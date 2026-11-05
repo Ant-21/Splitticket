@@ -54,7 +54,7 @@ Je vrienden hebben geen account nodig. Ze openen de link, typen hun voornaam en 
 4. Voeg toe **voor wie je betaalde** en duid aan wat **je eigen deel** was. Tik op **Maak ticket**.
 5. Tik op **Deel link** (WhatsApp, Berichten…) of **Toon QR** als je samen bent.
 6. Je vrienden kiezen wie ze zijn, tikken op + bij hun items en op **Betaal via bank**.
-7. Onder **Te krijgen** zie je wie nog moet betalen. **Herinner** stuurt een persoonlijk bericht met naam en bedrag, enkel naar wie nog niet betaalde. Betaalde iemand buiten de app om? Open het ticket en tik bij die persoon op **Markeer als betaald**.
+7. Onder **Owed to me** zie je wie nog moet betalen. **Herinner** stuurt een persoonlijk bericht met naam en bedrag, enkel naar wie nog niet betaalde. Betaalde iemand buiten de app om? Open het ticket en tik bij die persoon op **Markeer als betaald**.
 
 ## Tickets laten lezen met AI (optioneel)
 
