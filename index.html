@@ -1,0 +1,531 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Splitticket">
+<meta name="theme-color" content="#eef1f6">
+<title>Splitticket</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=JetBrains+Mono:wght@500;600&display=swap">
+<style>
+:root{
+  --bg:#eef1f6; --card:#ffffff; --line:#dde3eb; --divider:#e6ebf1; --track:#e4e9f0;
+  --ink:#14202b; --muted:#5d6874; --accent:#1f5fd1; --accent-soft:rgba(31,95,209,.12); --on-accent:#ffffff;
+  --ok:#1d8a55; --warn:#b4660f; --av-off:#a7b1bd; --seg:#dfe5ed; --seg-on:#ffffff;
+  --glass:rgba(255,255,255,.58); --glass-line:rgba(255,255,255,.75); --glass-shadow:0 10px 30px rgba(20,32,50,.16), inset 0 1px 0 rgba(255,255,255,.95);
+  --qr-bg:#1f5fd1;
+  --display:"Bricolage Grotesque",-apple-system,system-ui,sans-serif;
+  --body:-apple-system,"SF Pro Text",system-ui,sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,Menlo,monospace;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){:root:not([data-app="light"]){
+  --bg:#0d1217; --card:#171f28; --line:#26323f; --divider:#26323f; --track:#26323f;
+  --ink:#e7edf2; --muted:#9aa7b4; --accent:#8fb2ff; --accent-soft:rgba(143,178,255,.16); --on-accent:#0d1217;
+  --ok:#4cc38a; --warn:#f0a54a; --av-off:#4a5664; --seg:#1f2a35; --seg-on:#3a4757;
+  --glass:rgba(36,46,58,.62); --glass-line:rgba(255,255,255,.12); --glass-shadow:0 10px 30px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.12);
+  --qr-bg:#1b3f86; color-scheme:dark}}
+:root[data-app="dark"]{
+  --bg:#0d1217; --card:#171f28; --line:#26323f; --divider:#26323f; --track:#26323f;
+  --ink:#e7edf2; --muted:#9aa7b4; --accent:#8fb2ff; --accent-soft:rgba(143,178,255,.16); --on-accent:#0d1217;
+  --ok:#4cc38a; --warn:#f0a54a; --av-off:#4a5664; --seg:#1f2a35; --seg-on:#3a4757;
+  --glass:rgba(36,46,58,.62); --glass-line:rgba(255,255,255,.12); --glass-shadow:0 10px 30px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.12);
+  --qr-bg:#1b3f86; color-scheme:dark}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.4 var(--body);
+  padding:calc(20px + env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) calc(130px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
+#app{max-width:520px;margin:0 auto;display:flex;flex-direction:column;gap:14px}
+h1{margin:0;font:800 34px/1.05 var(--display);letter-spacing:-.02em;text-wrap:balance}
+.lead{margin:0;font-size:15px;color:var(--muted)}
+.lead b{color:var(--ink);font-family:var(--mono)}
+.head{display:flex;flex-direction:column;gap:4px;padding:0 4px}
+.cap{font-size:12px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--muted)}
+.num{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:12px}
+.row{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.col{display:flex;flex-direction:column;gap:2px;min-width:0}
+.right{align-items:flex-end;text-align:right}
+.t1{font-size:17px;font-weight:600}
+.t2{font-size:13px;color:var(--muted)}
+.amt{font:600 17px var(--mono)}
+.bar{height:6px;border-radius:3px;background:var(--track);overflow:hidden}
+.bar>span{display:block;height:100%;border-radius:3px;background:var(--accent)}
+.bar>span.full{background:var(--ok)}
+.avs{display:flex}
+.av{width:28px;height:28px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;border:2px solid var(--card);flex:none}
+.avs .av+.av{margin-left:-8px}
+.av.off{background:var(--av-off)}
+.av.big{width:44px;height:44px;border-radius:22px;font-size:15px;border:none}
+.foot{display:flex;align-items:center;gap:10px;border-top:1px solid var(--divider);padding-top:12px}
+.foot .t2{flex:1;min-width:0}
+button,.btn{font:600 15px var(--body);border-radius:22px;min-height:44px;padding:0 16px;display:inline-flex;align-items:center;justify-content:center;gap:8px;cursor:pointer;text-decoration:none;border:1px solid var(--line);background:var(--card);color:var(--ink);-webkit-tap-highlight-color:transparent}
+button:focus-visible,.btn:focus-visible,input:focus-visible,textarea:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+button:disabled{opacity:.5}
+.btn-p{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
+.btn-dark{background:var(--ink);border-color:var(--ink);color:var(--bg)}
+.btn-soft{background:var(--accent-soft);border-color:transparent;color:var(--accent);min-height:40px}
+.btn-link{border:none;background:none;color:var(--accent);padding:0 4px;min-height:44px;font-size:17px;font-weight:400}
+.btn-big{height:64px;border-radius:16px;font-size:17px}
+.grow{flex:1}
+.plain{all:unset;cursor:pointer;display:flex;flex-direction:column;gap:2px;min-width:0;border-radius:6px}
+.grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.pill{align-self:flex-start;font-size:12px;font-weight:700;padding:3px 10px;border-radius:999px;border:1px solid currentColor}
+.ok{color:var(--ok)} .warn{color:var(--warn)}
+.list{padding:4px 16px;gap:0}
+.line{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 0}
+.line+.line{border-top:1px dashed var(--line)}
+.line .name{font-size:16px;font-weight:600}
+.line.mine .name{color:var(--accent)}
+.line.gone{opacity:.5}
+.step{display:flex;align-items:center;gap:8px}
+.step button{width:40px;height:40px;min-height:40px;padding:0;border-radius:20px;font-size:20px;background:var(--accent-soft);border-color:transparent;color:var(--accent)}
+.step button:disabled{opacity:.35}
+.step .q{min-width:20px;text-align:center;font:600 17px var(--mono)}
+.empty{padding:28px 20px;text-align:center;align-items:center}
+.empty p{margin:0;color:var(--muted);max-width:30ch}
+.topbar{display:flex;justify-content:space-between;align-items:center;margin:-8px 0 -4px}
+.status{font-size:13px;font-weight:600;color:var(--ok)}
+.edit{display:grid;grid-template-columns:minmax(0,1fr) 3.6rem 5.2rem 2.6rem;gap:6px;align-items:center}
+input,textarea{font:16px var(--body);color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px;width:100%;min-width:0}
+textarea{min-height:120px;resize:vertical}
+input.n{font-family:var(--mono);text-align:right}
+.x{width:2.6rem;height:2.6rem;min-height:0;padding:0;border-radius:50%}
+.field{display:flex;flex-direction:column;gap:6px}
+.seg{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px;padding:4px;border-radius:14px;background:var(--seg)}
+.seg button{border:none;background:none;border-radius:10px;min-height:40px;color:var(--muted)}
+.seg button[aria-pressed="true"]{background:var(--seg-on);color:var(--ink);box-shadow:0 1px 3px rgba(20,32,50,.12)}
+.set{padding:0;gap:0}
+.set>div{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 16px;min-height:52px}
+.set>div+div{border-top:1px solid var(--divider)}
+.stat .v{font:600 22px var(--mono)}
+.photo{width:100%;border-radius:12px;display:block;-webkit-user-select:auto;user-select:auto}
+.how{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:4px;color:var(--muted);font-size:14px}
+
+.tabbar{position:fixed;left:0;right:0;bottom:0;z-index:5;pointer-events:none;
+  padding:0 max(16px,env(safe-area-inset-right,0px)) calc(18px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
+.tabbar .in{max-width:520px;margin:0 auto;display:flex;gap:12px;align-items:center;pointer-events:auto}
+.glass{background:var(--glass);-webkit-backdrop-filter:blur(20px) saturate(1.8);backdrop-filter:blur(20px) saturate(1.8);border:1px solid var(--glass-line);box-shadow:var(--glass-shadow)}
+.tabs{flex:1;height:64px;border-radius:32px;display:flex;align-items:center;padding:4px;gap:2px}
+.tab{flex:1;height:56px;min-height:0;border-radius:28px;border:none;background:none;flex-direction:column;gap:2px;font-size:11px;font-weight:600;color:var(--muted);padding:0}
+.tab[aria-current="page"]{background:var(--accent-soft);color:var(--accent)}
+.cam{width:64px;height:64px;min-height:0;padding:0;border-radius:32px;background:var(--accent);color:var(--on-accent);border:1px solid var(--glass-line);box-shadow:0 10px 30px rgba(31,95,209,.35),inset 0 1px 0 rgba(255,255,255,.45);flex:none}
+.paybar{flex:1;border-radius:32px;padding:10px 10px 10px 20px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.paybar .v{font:600 24px var(--mono)}
+.paybar .btn{height:52px;border-radius:26px;font-size:17px}
+
+.layer{position:fixed;inset:0;z-index:20;display:flex;flex-direction:column;align-items:center;gap:22px;overflow:auto;
+  padding:calc(20px + env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) calc(24px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
+.layer.qr{background:var(--qr-bg);color:#fff}
+.layer.qr .btn-link{color:#fff}
+.layer.sheet{background:var(--bg);justify-content:center}
+.qrbox{padding:20px;background:#fff;border-radius:24px;box-shadow:0 20px 50px rgba(8,22,60,.35)}
+.qrbox img,.qrbox canvas{display:block;width:240px;height:240px}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(100px + env(safe-area-inset-bottom,0px));z-index:30;background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:14px;font-size:14px;max-width:calc(100% - 32px);text-align:center}
+.notice{background:var(--accent-soft);color:var(--ink);border-radius:14px;padding:12px 14px;font-size:14px}
+.copyrow{display:flex;justify-content:space-between;align-items:center;gap:10px}
+</style>
+</head>
+<body>
+<div id="app"><div class="card empty"><p>Splitticket laden…</p></div></div>
+<div class="tabbar" id="tabbar"></div>
+<div id="layer"></div>
+<div class="toast" id="toast" hidden></div>
+<input type="file" id="cam" accept="image/*" capture="environment" hidden>
+
+<script src="config.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="parser.js"></script>
+<script>
+const API = (window.SPLIT_CONFIG||{}).API_URL || "";
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const eur = n => new Intl.NumberFormat("nl-BE",{style:"currency",currency:"EUR"}).format(n||0);
+const r2 = n => Math.round((n+Number.EPSILON)*100)/100;
+const day = t => new Date(t).toLocaleDateString("nl-BE",{weekday:"short",day:"numeric",month:"short"});
+const sum = t => r2((t.items||[]).reduce((s,i)=>s+i.qty*i.unitPrice,0));
+const rand = n => Array.from(crypto.getRandomValues(new Uint8Array(n)),b=>b.toString(16).padStart(2,"0")).join("");
+const PALETTE = ["#1f5fd1","#b4660f","#1d8a55","#8a3fbf","#c2386a","#0f7f8c"];
+const colorFor = id => { let h=0; for (const c of String(id)) h=(h*31+c.charCodeAt(0))>>>0; return PALETTE[h%PALETTE.length]; };
+const initials = n => (n||"?").trim().split(/\s+/).map(w=>w[0]).slice(0,2).join("").toUpperCase();
+const linkFor = t => location.origin + location.pathname + "#t=" + t.id;
+
+const ICON = {
+  get:'<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v11"/><path d="m7.5 9.5 4.5 4.5 4.5-4.5"/><path d="M4 15v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"/></svg>',
+  share:'<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3h12v18l-3-2-3 2-3-2-3 2z"/><path d="M9 8h6"/><path d="M9 12h6"/></svg>',
+  me:'<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg>',
+  cam:'<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8a2 2 0 0 1 2-2h2l1.5-2h5L16 6h2a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z"/><circle cx="12" cy="13" r="3.5"/></svg>',
+  up:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="m7 8 5-5 5 5"/><path d="M5 13v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6"/></svg>',
+  qr:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3h-3zM18 18h3v3h-3z"/></svg>',
+  link:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></svg>'
+};
+
+/* ---------- local storage: this device's identity ---------- */
+const store = {
+  get(k,d){ try{ const v=localStorage.getItem(k); return v?JSON.parse(v):d; }catch{ return d; } },
+  set(k,v){ try{ localStorage.setItem(k,JSON.stringify(v)); }catch{} }
+};
+let me = store.get("me", null);
+if(!me){ me = { id:"u"+rand(8), key:rand(16), name:"", bunq:"", iban:"" }; store.set("me", me); }
+
+/* ---------- theme ---------- */
+const getTheme = () => store.get("theme","auto");
+function applyTheme(t){ if(t==="auto") delete document.documentElement.dataset.app; else document.documentElement.dataset.app=t; }
+applyTheme(getTheme());
+
+/* ---------- server ---------- */
+async function api(action, data={}){
+  if(!API || API.startsWith("PLAK")) throw new Error("De app is nog niet gekoppeld aan je Google Sheet. Vul je Apps Script-link in config.js in.");
+  const res = await fetch(API, { method:"POST", headers:{ "Content-Type":"text/plain;charset=utf-8" },
+    body: JSON.stringify({ action, userId:me.id, userKey:me.key, name:me.name, ...data }) });
+  const j = await res.json();
+  if(j.error) throw new Error(j.error);
+  return j;
+}
+
+/* ---------- state ---------- */
+let home = { mine:[], shares:[] }, loaded=false, loadErr="";
+const cache = {};   // ticketId -> { ticket, claims, ownerName }
+const S = { view:"krijgen", id:null, editing:false, draft:null, mine:{}, justMade:null, layer:null, confirmDel:false, err:"", photo:null, pasted:"" };
+
+async function refresh(){
+  if(!me.name) return;
+  try{ home = await api("home"); loaded=true; loadErr=""; }
+  catch(e){ loadErr = e.message; }
+  render();
+}
+async function loadTicket(id){
+  try{ const r = await api("getTicket",{ id }); cache[id] = r; }
+  catch(e){ cache[id] = { error:e.message }; }
+  render(); return cache[id];
+}
+setInterval(()=>{ if(document.visibilityState==="visible"){ refresh(); if(S.view==="select"&&S.id&&!saving) loadTicket(S.id); } }, 20000);
+document.addEventListener("visibilitychange", ()=>{ if(document.visibilityState==="visible") refresh(); });
+
+/* ---------- helpers ---------- */
+function myTicket(id){ return home.mine.find(t=>t.id===id) || null; }
+function claimsOf(t){ return (t.claims||[]).filter(c=>c.total>0); }
+function takenByOthers(entry, i){ return (entry.claims||[]).filter(c=>c.userId!==me.id).reduce((s,c)=>s+(c.q?.[i]||0),0); }
+function partTotal(t, q){ return r2((t.items||[]).reduce((s,it,i)=>s+(q[i]||0)*it.unitPrice,0)); }
+function payUrl(t, amount){ return `https://bunq.me/${encodeURIComponent(t.payee||"")}/${amount.toFixed(2)}/${encodeURIComponent((t.title||"Ticket").slice(0,60))}`; }
+
+let toastT;
+function toast(msg){ const t=$("toast"); t.textContent=msg; t.hidden=false; clearTimeout(toastT); toastT=setTimeout(()=>t.hidden=true,3200); }
+async function copy(text, msg){ try{ await navigator.clipboard.writeText(text); toast(msg||"Gekopieerd."); }catch{ S.layer={kind:"copy", text}; render(); } }
+async function shareText(text, url){
+  try{ if(navigator.share){ await navigator.share({ text, url }); return; } }catch(e){ if(e && e.name==="AbortError") return; }
+  copy(text+" "+url, "Bericht met link gekopieerd. Plak het in WhatsApp of Berichten.");
+}
+
+let saving=false, saveT;
+function queueClaim(id, extra){
+  clearTimeout(saveT);
+  saveT = setTimeout(()=>saveClaim(id, extra), extra?0:700);
+}
+async function saveClaim(id, extra){
+  saving=true;
+  try{ const r = await api("saveClaim",{ ticketId:id, q:S.mine, ...(extra||{}) }); cache[id]=r; refresh(); }
+  catch(e){ toast(e.message); }
+  saving=false; render();
+}
+
+/* ---------- navigation ---------- */
+function go(view, id){
+  S.view=view; S.id=id||null; S.editing=false; S.confirmDel=false; S.err="";
+  if(view==="select"){ const e=cache[id]; S.mine={...((e?.claims||[]).find(c=>c.userId===me.id)?.q||{})}; }
+  render(); window.scrollTo(0,0);
+}
+function clearHash(){ try{ history.replaceState(null,"",location.pathname+location.search); }catch{} }
+async function readHash(){
+  const m = /^#t=([a-z0-9]+)$/i.exec(location.hash||""); if(!m || !me.name) return;
+  const id=m[1];
+  if(myTicket(id)){ go("ticket",id); return; }
+  S.view="select"; S.id=id; render();
+  const e = await loadTicket(id);
+  if(e?.ticket?.ownerId===me.id){ go("ticket",id); return; }
+  go("select",id);
+}
+window.addEventListener("hashchange", readHash);
+
+/* ---------- camera + Live Text ---------- */
+$("cam").onchange = e => {
+  const f=e.target.files[0]; if(!f) return;
+  if(S.photo) URL.revokeObjectURL(S.photo);
+  S.photo = URL.createObjectURL(f); S.pasted=""; S.view="scan"; render(); window.scrollTo(0,0);
+};
+function startNew(items, title, total){
+  S.draft = { title: title || "Ticket "+new Date().toLocaleDateString("nl-BE",{day:"numeric",month:"numeric"}), items: items.length?items:[{name:"",qty:1,unitPrice:0}], ticketTotal: total||0, isNew:true };
+  S.view="new"; S.err=""; render(); window.scrollTo(0,0);
+}
+async function createTicket(){
+  const items = cleanItems(S.draft.items);
+  if(!items.length){ S.err="Voeg minstens één lijn met een prijs toe."; render(); return; }
+  if(!me.bunq && !me.iban){ S.err="Vul eerst je bunq.me-naam of rekeningnummer in onder Profiel."; render(); return; }
+  S.err="Opslaan…"; render();
+  try{
+    const r = await api("createTicket",{ title:S.draft.title.trim()||"Ticket", items, ticketTotal:S.draft.ticketTotal||0 });
+    await refresh(); S.justMade=r.id; S.draft=null; go("ticket", r.id);
+  }catch(e){ S.err=e.message; render(); }
+}
+function cleanItems(items){ return items.filter(i=>i.name.trim() && i.unitPrice!==0).map(i=>({ name:i.name.trim().slice(0,60), qty:Math.max(1,Math.min(99,parseInt(i.qty)||1)), unitPrice:r2(i.unitPrice) })); }
+async function saveEdit(){
+  const t=myTicket(S.id), items=cleanItems(S.draft.items);
+  if(!items.length){ S.err="Voeg minstens één lijn met een prijs toe."; render(); return; }
+  try{ await api("updateTicket",{ id:t.id, title:S.draft.title.trim()||"Ticket", items }); S.editing=false; S.err=""; await refresh(); }
+  catch(e){ S.err=e.message; render(); }
+}
+async function deleteTicket(){ try{ await api("deleteTicket",{ id:S.id }); await refresh(); go("krijgen"); toast("Ticket verwijderd."); }catch(e){ toast(e.message); } }
+
+/* ---------- views ---------- */
+function viewOnboard(){
+  return `<div class="head" style="padding-top:20px"><h1>Splitticket</h1><p class="lead">Rekeningen delen zonder rekenwerk.</p></div>
+    <div class="card"><div class="field"><label class="cap" for="obName">Hoe heet je?</label><input id="obName" autocomplete="given-name" placeholder="Voornaam"></div>
+    <p class="t2" style="margin:0">Je vrienden zien deze naam wanneer je je deel kiest.</p>
+    <button class="btn-p" data-act="onboard">Start</button></div>`;
+}
+function editorRows(d){
+  const t=r2(d.items.reduce((s,i)=>s+i.qty*i.unitPrice,0));
+  return `<div class="field"><label class="cap" for="et">Naam</label><input id="et" data-in="title" value="${esc(d.title)}"></div>
+    <div class="card" style="gap:8px"><div class="edit cap"><span>Item</span><span>Aantal</span><span>Prijs/st.</span><span></span></div>
+      ${d.items.map((it,i)=>`<div class="edit"><input id="en${i}" aria-label="Item" data-in="name" data-i="${i}" value="${esc(it.name)}"><input id="eq${i}" class="n" aria-label="Aantal" inputmode="numeric" data-in="qty" data-i="${i}" value="${it.qty}"><input id="ep${i}" class="n" aria-label="Prijs per stuk" inputmode="decimal" data-in="price" data-i="${i}" value="${String(it.unitPrice).replace(".",",")}"><button class="x" aria-label="Verwijder lijn" data-act="delRow" data-i="${i}">×</button></div>`).join("")}
+      <div class="row" style="align-items:center"><button data-act="addRow">+ Lijn</button><span>Totaal <b class="num" id="etot">${eur(t)}</b></span></div>
+      ${d.ticketTotal && Math.abs(d.ticketTotal-t)>0.01?`<span class="t2 warn" id="echeck">Op het ticket staat ${eur(d.ticketTotal)}. Controleer de lijnen.</span>`:""}
+      ${S.err?`<span class="t2 warn">${esc(S.err)}</span>`:""}
+    </div>`;
+}
+function viewScan(){
+  return `<div class="topbar"><button class="btn-link" data-act="cancelScan">Annuleer</button><button class="btn-link" data-act="manual">Zelf invullen</button></div>
+    <div class="head"><h1 style="font-size:28px">Lees je ticket</h1></div>
+    <ol class="how"><li>Houd je vinger op de tekst in de foto.</li><li>Tik op <b>Selecteer alles</b> en dan <b>Kopieer</b>.</li><li>Plak de tekst in het vak hieronder.</li></ol>
+    <img class="photo" src="${S.photo}" alt="Foto van je ticket">
+    <div class="field"><label class="cap" for="paste">Tekst van het ticket</label><textarea id="paste" data-in="paste" placeholder="Plak hier…">${esc(S.pasted)}</textarea></div>
+    <button class="btn-p btn-big" data-act="parse">Lees lijnen</button>
+    <p class="t2" style="margin:0">Lukt kopiëren niet? Open de foto in de Foto's-app en kopieer de tekst daar.</p>`;
+}
+function viewNew(){
+  return `<div class="topbar"><button class="btn-link" data-act="cancelNew">Annuleer</button><button class="btn-link" style="font-weight:600" data-act="create">Maak ticket</button></div>
+    <div class="head"><h1 style="font-size:28px">Controleer de lijnen</h1><p class="lead">Pas aan wat niet klopt. Prijs is per stuk.</p></div>
+    ${editorRows(S.draft)}
+    <button class="btn-p btn-big" data-act="create">Maak ticket</button>`;
+}
+function viewKrijgen(){
+  if(loadErr && !loaded) return `<div class="head"><h1>Te krijgen</h1></div><div class="card empty"><p>${esc(loadErr)}</p><button data-act="retry">Opnieuw</button></div>`;
+  const open = home.mine.reduce((s,t)=>s+claimsOf(t).reduce((u,c)=>u+(c.paid?0:c.total),0),0);
+  const people = new Set(); home.mine.forEach(t=>claimsOf(t).forEach(c=>{ if(!c.paid) people.add(c.userId); }));
+  let h = `<div class="head"><h1>Te krijgen</h1><p class="lead">${!loaded?"Laden…":open>0?`Nog <b>${eur(open)}</b> open bij ${people.size} ${people.size===1?"vriend":"vrienden"}`:"Iedereen heeft je terugbetaald"}</p></div>`;
+  if(loaded && !home.mine.length) return h + `<div class="card empty"><p>Fotografeer je eerste ticket met de camera-knop onderaan. Je vrienden kiezen daarna zelf hun deel.</p><button class="btn-p" data-act="camera">${ICON.cam} Scan ticket</button></div>`;
+  for(const t of home.mine){
+    const cs=claimsOf(t), paid=cs.filter(c=>c.paid), waiting=cs.filter(c=>!c.paid);
+    const openAmt=r2(waiting.reduce((s,c)=>s+c.total,0)), pct=cs.length?Math.round(paid.length/cs.length*100):0, full=cs.length&&!waiting.length;
+    h += `<div class="card">
+      <div class="row"><button class="plain" data-act="open" data-id="${esc(t.id)}"><span class="t1">${esc(t.title)}</span><span class="t2">${day(t.createdAt)} · totaal ${eur(sum(t))}</span></button>
+        <div class="col right"><span class="amt ${full?"ok":""}">${cs.length?(full?"✓":eur(openAmt)):"—"}</span><span class="t2">${cs.length?(full?"alles terug":"nog open"):"nog niemand"}</span></div></div>
+      <div class="bar"><span class="${full?"full":""}" style="width:${pct}%"></span></div>
+      <div class="row" style="align-items:center"><div class="avs">${cs.map(c=>`<span class="av ${c.paid?"":"off"}" style="${c.paid?`background:${colorFor(c.userId)}`:""}" title="${esc(c.name)}">${esc(initials(c.name))}</span>`).join("")}</div>
+        <span class="t2">${cs.length?`${paid.length} van ${cs.length} betaald`:"Deel het ticket"}</span></div>
+      ${full?"":`<div class="foot"><span class="t2">${waiting.length?`Wacht op ${esc(waiting.map(c=>c.name).join(", "))}`:"Nog niemand koos zijn deel"}</span>
+        <button class="btn-soft" data-act="remind" data-id="${esc(t.id)}">${ICON.link} ${waiting.length?"Herinner":"Deel"}</button></div>`}
+    </div>`;
+  }
+  return h;
+}
+function viewDelen(){
+  const list = home.shares||[];
+  const due = r2(list.filter(x=>!x.claim.paid).reduce((s,x)=>s+x.claim.total,0));
+  let h = `<div class="head"><h1>Mijn delen</h1><p class="lead">${!loaded?"Laden…":due>0?`Je moet nog <b style="color:var(--warn)">${eur(due)}</b> betalen`:"Je bent niemand iets schuldig"}</p></div>`;
+  if(loaded && !list.length) return h + `<div class="card empty"><p>Scan de QR-code van een vriend met je camera of open zijn link. Zijn ticket verschijnt dan hier.</p></div>`;
+  for(const x of list){
+    const t=x.ticket, c=x.claim, what=(t.items||[]).map((it,i)=>c.q?.[i]?`${c.q[i]}× ${it.name}`:null).filter(Boolean).join(" · ");
+    h += `<div class="card">
+      <div class="row"><div style="display:flex;gap:12px;align-items:center;min-width:0"><span class="av big" style="background:${colorFor(t.ownerId)}">${esc(initials(x.ownerName))}</span>
+        <div class="col"><span class="t1">${esc(t.title)}</span><span class="t2">van ${esc(x.ownerName||"een vriend")} · ${day(t.createdAt)}</span></div></div>
+        <div class="col right"><span class="amt">${c.total>0?eur(c.total):"—"}</span><span class="t2">jouw deel</span></div></div>
+      ${c.total>0?`<span class="t2">${esc(what)}</span>`:`<span class="t2">Je hebt nog niet gekozen wat van jou is.</span>`}
+      ${!(c.total>0)?`<button class="btn-p" data-act="adjust" data-id="${esc(t.id)}">Kies je deel</button>`
+      : c.paid?`<div class="row" style="align-items:center"><span class="pill ok">✓ Betaald</span><button class="btn-link" style="font-size:15px" data-act="setPaid" data-v="0" data-id="${esc(t.id)}">Toch niet</button></div>`
+      : `<div style="display:flex;gap:8px">${payButton(t,c.total,"grow")}<button data-act="adjust" data-id="${esc(t.id)}">Aanpassen</button></div>
+         <button class="btn-link" style="font-size:15px;align-self:flex-start" data-act="setPaid" data-v="1" data-id="${esc(t.id)}">Ik heb al betaald</button>`}
+    </div>`;
+  }
+  return h;
+}
+function payButton(t, amount, cls){
+  if(t.payee) return `<a class="btn btn-p ${cls||""}" href="${esc(payUrl(t,amount))}" target="_blank" rel="noopener" data-act="pay" data-id="${esc(t.id)}">Betaal ${eur(amount)}</a>`;
+  return `<button class="btn-p ${cls||""}" data-act="payIban" data-id="${esc(t.id)}" data-amt="${amount}">Betaal ${eur(amount)}</button>`;
+}
+function viewTicket(){
+  const t=myTicket(S.id);
+  if(!t) return `<div class="topbar"><button class="btn-link" data-act="back">‹ Te krijgen</button></div><div class="card empty"><p>${loaded?"Dit ticket bestaat niet meer.":"Laden…"}</p></div>`;
+  if(S.editing){
+    return `<div class="topbar"><button class="btn-link" data-act="cancelEdit">Annuleer</button><button class="btn-link" style="font-weight:600" data-act="saveEdit">Bewaar</button></div>
+      ${editorRows(S.draft)}
+      <div>${S.confirmDel?`<span class="t2">Zeker?</span> <button data-act="delYes">Ja, verwijder ticket</button> <button class="btn-link" style="font-size:15px" data-act="delNo">Nee</button>`:`<button data-act="del" class="warn">Verwijder ticket</button>`}</div>`;
+  }
+  const cs=claimsOf(t), fresh=S.justMade===t.id;
+  const left=(t.items||[]).map((it,i)=>({it, n:it.qty-cs.reduce((s,c)=>s+(c.q?.[i]||0),0)})).filter(x=>x.n>0);
+  return `<div class="topbar"><button class="btn-link" data-act="back">‹ Te krijgen</button><button class="btn-link" data-act="edit">Wijzig</button></div>
+    <div class="head">${fresh?`<span class="status">✓ Ticket klaar · ${t.items.length} lijnen</span>`:""}<h1 style="font-size:30px">${esc(t.title)}</h1><p class="lead">${day(t.createdAt)} · totaal <b>${eur(sum(t))}</b></p></div>
+    <div class="grid2"><button class="btn-p btn-big" data-act="shareLink">${ICON.up} Deel link</button><button class="btn-dark btn-big" data-act="showQR">${ICON.qr} Toon QR</button></div>
+    <div class="card list">${(t.items||[]).map((it,i)=>{
+      const who=cs.filter(c=>c.q?.[i]).map(c=>`${c.name} ${c.q[i]}`);
+      return `<div class="line"><div class="col"><span class="name">${it.qty}× ${esc(it.name)}</span><span class="t2">${who.length?esc(who.join(" · ")):"Nog niemand gekozen"}</span></div><span class="num">${eur(it.qty*it.unitPrice)}</span></div>`;}).join("")}</div>
+    <p class="lead" style="padding:0 4px;font-size:13px">${left.length?`Nog niet gekozen: ${esc(left.map(x=>`${x.n}× ${x.it.name}`).join(", "))}. Wat overblijft, is jouw deel.`:"Alles is verdeeld."}</p>`;
+}
+function viewSelect(){
+  const e=cache[S.id];
+  if(!e) return `<div class="card empty"><p>Ticket laden…</p></div>`;
+  if(e.error||!e.ticket) return `<div class="topbar"><button class="btn-link" data-act="toDelen">‹ Mijn delen</button></div><div class="card empty"><p>${esc(e.error||"Dit ticket werd niet gevonden.")}</p></div>`;
+  const t=e.ticket, mineClaim=(e.claims||[]).find(c=>c.userId===me.id);
+  return `<div class="topbar"><button class="btn-link" data-act="toDelen">‹ Mijn delen</button></div>
+    <div style="display:flex;gap:12px;align-items:center;padding:0 4px"><span class="av big" style="background:${colorFor(t.ownerId)}">${esc(initials(e.ownerName))}</span>
+      <div class="col"><h1 style="font-size:26px">${esc(t.title)}</h1><span class="t2" style="font-size:14px">${esc(e.ownerName||"Je vriend")} betaalde · ${day(t.createdAt)}</span></div></div>
+    <p class="lead" style="padding:0 4px;color:var(--ink)">Tik op + bij alles wat van jou is.</p>
+    <div class="card list">${(t.items||[]).map((it,i)=>{
+      const max=it.qty-takenByOthers(e,i), q=S.mine[i]||0, left=max-q;
+      return `<div class="line ${q?"mine":""} ${max<=0&&!q?"gone":""}"><div class="col"><span class="name">${esc(it.name)}</span><span class="t2 num">${eur(it.unitPrice)}/st · ${left>0?`nog ${left} vrij`:"alles verdeeld"}</span></div>
+        <div class="step"><button aria-label="Minder ${esc(it.name)}" data-act="dec" data-i="${i}" ${q<=0?"disabled":""}>−</button><span class="q">${q}</span><button aria-label="Meer ${esc(it.name)}" data-act="inc" data-i="${i}" ${q>=max?"disabled":""}>+</button></div></div>`;}).join("")}</div>
+    ${mineClaim?.paid?`<span class="pill ok" style="margin-left:4px">✓ Je hebt dit betaald</span>`:""}`;
+}
+function viewProfiel(){
+  const now=new Date(), m0=new Date(now.getFullYear(),now.getMonth(),1).getTime();
+  const mt=home.mine.filter(t=>t.createdAt>=m0);
+  const adv=r2(mt.reduce((s,t)=>s+sum(t),0)), back=r2(mt.reduce((s,t)=>s+claimsOf(t).reduce((u,c)=>u+(c.paid?c.total:0),0),0));
+  const th=getTheme();
+  return `<div class="head"><h1>Profiel</h1></div>
+    <div class="card" style="flex-direction:row;align-items:center;gap:14px"><span class="av big" style="width:56px;height:56px;border-radius:28px;font-size:20px;background:${colorFor(me.id)}">${esc(initials(me.name))}</span>
+      <div class="col"><span style="font-size:19px;font-weight:600">${esc(me.name)}</span><span class="t2" style="font-size:14px">${me.bunq?`bunq.me/${esc(me.bunq)}`:me.iban?esc(me.iban):"Nog geen betaalgegevens"}</span></div></div>
+    <div class="grid2"><div class="card stat" style="gap:4px"><span class="cap">Voorgeschoten</span><span class="v">${eur(adv)}</span><span class="t2">deze maand</span></div>
+      <div class="card stat" style="gap:4px"><span class="cap">Terugbetaald</span><span class="v ok">${eur(back)}</span><span class="t2">${adv?Math.round(back/adv*100)+"% binnen":"deze maand"}</span></div></div>
+    <div class="card">
+      <div class="field"><label class="cap" for="pName">Naam</label><input id="pName" value="${esc(me.name)}" autocomplete="given-name"></div>
+      <div class="field"><label class="cap" for="pBunq">bunq.me-naam</label><input id="pBunq" value="${esc(me.bunq)}" placeholder="bv. JanPeeters" autocapitalize="off" autocomplete="off"><span class="t2">Met bunq.me opent de bankapp van je vrienden met het bedrag al ingevuld.</span></div>
+      <div class="field"><label class="cap" for="pIban">Rekeningnummer (reserve)</label><input id="pIban" value="${esc(me.iban)}" placeholder="BE68 5390 0754 7034" autocapitalize="characters" autocomplete="off"><span class="t2">Wordt gebruikt als je geen bunq.me hebt.</span></div>
+      <button class="btn-p" data-act="saveProfile">Bewaar</button></div>
+    <div class="field"><span class="cap" style="padding:0 4px">Weergave</span>
+      <div class="seg" role="group" aria-label="Weergave">${[["light","Licht"],["dark","Donker"],["auto","Automatisch"]].map(([v,l])=>`<button aria-pressed="${th===v}" data-act="theme" data-v="${v}">${l}</button>`).join("")}</div></div>
+    <div class="card set"><div><span>Zet op beginscherm</span><span class="t2">Deel-knop › Zet op beginscherm</span></div><div><span>Wero</span><span class="pill warn" style="align-self:center">binnenkort</span></div></div>`;
+}
+
+/* ---------- render ---------- */
+function render(){
+  const v=S.view;
+  if(!me.name){ $("app").innerHTML=viewOnboard(); $("tabbar").innerHTML=""; $("layer").innerHTML=""; return; }
+  const html = v==="krijgen"?viewKrijgen(): v==="delen"?viewDelen(): v==="profiel"?viewProfiel(): v==="ticket"?viewTicket(): v==="select"?viewSelect(): v==="scan"?viewScan(): viewNew();
+  const focused = document.activeElement && document.activeElement.id;
+  $("app").innerHTML = html;
+  if(focused && $(focused) && /INPUT|TEXTAREA/.test($(focused).tagName)) $(focused).focus();
+  renderBar(); renderLayer();
+}
+function renderBar(){
+  const bar=$("tabbar"), v=S.view;
+  if(v==="select"){
+    const e=cache[S.id]; if(!e?.ticket){ bar.innerHTML=""; return; }
+    const t=e.ticket, total=partTotal(t,S.mine), mc=(e.claims||[]).find(c=>c.userId===me.id);
+    bar.innerHTML=`<div class="in"><div class="paybar glass"><div class="col"><span class="cap">Jouw deel</span><span class="v">${eur(total)}</span></div>
+      <div style="display:flex;gap:8px;align-items:center">${mc&&!mc.paid&&total>0?`<button class="btn-link" style="font-size:14px" data-act="setPaid" data-v="1" data-id="${esc(t.id)}">Al betaald</button>`:""}
+      ${total>0?payButton(t,total).replace(`Betaal ${eur(total)}`,"Betaal via bank"):`<span class="btn btn-p" style="opacity:.5">Betaal via bank</span>`}</div></div></div>`;
+    return;
+  }
+  if(["ticket","scan","new"].includes(v)){ bar.innerHTML=""; return; }
+  const tab=(id,icon,label)=>`<button class="tab" data-act="tab" data-v="${id}" ${v===id?'aria-current="page"':""}>${icon}${label}</button>`;
+  bar.innerHTML=`<div class="in"><nav class="tabs glass" aria-label="Hoofdmenu">${tab("krijgen",ICON.get,"Te krijgen")}${tab("delen",ICON.share,"Mijn delen")}${tab("profiel",ICON.me,"Profiel")}</nav>
+    <button class="cam" data-act="camera" aria-label="Scan ticket">${ICON.cam}</button></div>`;
+}
+function renderLayer(){
+  const L=$("layer"), l=S.layer;
+  if(!l){ L.innerHTML=""; return; }
+  if(l.kind==="copy"){ L.innerHTML=`<div class="layer sheet"><div class="card" style="max-width:420px;width:100%"><span class="t1">Kopieer dit</span><textarea id="copybox" readonly>${esc(l.text)}</textarea><button class="btn-p" data-act="closeLayer">Klaar</button></div></div>`; setTimeout(()=>$("copybox")?.select(),0); return; }
+  if(l.kind==="iban"){
+    L.innerHTML=`<div class="layer sheet"><div class="card" style="max-width:420px;width:100%"><span class="t1">Schrijf over via je bankapp</span>
+      <div class="copyrow"><div class="col"><span class="cap">Naar</span><span>${esc(l.name)}</span><span class="num">${esc(l.iban)}</span></div><button data-act="copyVal" data-v="${esc(l.iban.replace(/\s/g,""))}">Kopieer</button></div>
+      <div class="copyrow"><div class="col"><span class="cap">Bedrag</span><span class="num">${eur(l.amount)}</span></div><button data-act="copyVal" data-v="${l.amount.toFixed(2).replace(".",",")}">Kopieer</button></div>
+      <div class="copyrow"><div class="col"><span class="cap">Mededeling</span><span>${esc(l.msg)}</span></div><button data-act="copyVal" data-v="${esc(l.msg)}">Kopieer</button></div>
+      <button class="btn-p" data-act="closeLayer">Klaar</button></div></div>`; return;
+  }
+  if(l.kind==="qr"){
+    const t=myTicket(S.id); if(!t){ S.layer=null; L.innerHTML=""; return; }
+    const cs=claimsOf(t);
+    L.innerHTML=`<div class="layer qr"><div style="align-self:stretch;max-width:520px;width:100%;margin:0 auto"><button class="btn-link" data-act="closeLayer">‹ Ticket</button></div>
+      <div style="text-align:center;display:flex;flex-direction:column;gap:6px"><h1 style="font-size:30px">${esc(t.title)}</h1><span style="color:rgba(255,255,255,.85)">Laat je vrienden deze code scannen met hun camera</span></div>
+      <div class="qrbox" role="img" aria-label="QR-code naar dit ticket"><div id="qr"></div></div>
+      <span>${cs.length?esc(cs.map(c=>c.name).join(", "))+(cs.length===1?" koos":" kozen")+" al een deel":"Nog niemand koos een deel"}</span>
+      <button class="btn" style="background:rgba(255,255,255,.16);border-color:rgba(255,255,255,.35);color:#fff;width:100%;max-width:360px;height:56px;border-radius:28px" data-act="shareLink">${ICON.up} Of deel de link</button></div>`;
+    if(window.QRCode) new QRCode($("qr"),{text:linkFor(t),width:240,height:240,colorDark:"#14202b",colorLight:"#ffffff",correctLevel:QRCode.CorrectLevel.M});
+    try{ navigator.wakeLock?.request("screen").catch(()=>{}); }catch{}
+  }
+}
+
+/* ---------- events ---------- */
+document.addEventListener("click", async ev=>{
+  const el=ev.target.closest("[data-act]"); if(!el) return;
+  const a=el.dataset.act, i=+el.dataset.i;
+  switch(a){
+    case "onboard": { const n=$("obName").value.trim(); if(!n){ $("obName").focus(); return; } me.name=n.slice(0,30); store.set("me",me);
+      try{ await api("hello",{ bunq:me.bunq, iban:me.iban }); }catch{} render(); await refresh(); readHash(); break; }
+    case "retry": refresh(); break;
+    case "tab": go(el.dataset.v); break;
+    case "camera": $("cam").value=""; $("cam").click(); break;
+    case "cancelScan": go("krijgen"); break;
+    case "manual": startNew([], "", 0); break;
+    case "parse": { const txt=($("paste")?.value||"").trim(); if(!txt){ toast("Plak eerst de tekst van het ticket."); return; }
+      const r=parseReceipt(txt); if(!r.items.length) toast("Geen lijnen gevonden. Vul ze zelf in."); startNew(r.items, r.title, r.total); break; }
+    case "cancelNew": S.draft=null; go("krijgen"); break;
+    case "create": createTicket(); break;
+    case "open": S.justMade=null; go("ticket", el.dataset.id); break;
+    case "back": clearHash(); go("krijgen"); break;
+    case "toDelen": clearHash(); go("delen"); break;
+    case "remind": { const t=myTicket(el.dataset.id), w=claimsOf(t).filter(c=>!c.paid);
+      shareText(w.length?`Hoi! Je moet nog je deel betalen van ${t.title}. Tik op de link en betaal in één keer:`:`Duid aan wat je had bij ${t.title} en betaal je deel:`, linkFor(t)); break; }
+    case "shareLink": { const t=myTicket(S.id); shareText(`Duid aan wat je had bij ${t.title} en betaal je deel:`, linkFor(t)); break; }
+    case "showQR": S.layer={kind:"qr"}; render(); break;
+    case "closeLayer": S.layer=null; render(); break;
+    case "copyVal": copy(el.dataset.v); break;
+    case "edit": { const t=myTicket(S.id); S.editing=true; S.draft={ title:t.title, items:t.items.map(x=>({...x})), ticketTotal:t.ticketTotal||0 }; render(); break; }
+    case "cancelEdit": S.editing=false; S.err=""; render(); break;
+    case "saveEdit": saveEdit(); break;
+    case "addRow": S.draft.items.push({name:"",qty:1,unitPrice:0}); render(); break;
+    case "delRow": S.draft.items.splice(i,1); render(); break;
+    case "del": S.confirmDel=true; render(); break;
+    case "delNo": S.confirmDel=false; render(); break;
+    case "delYes": deleteTicket(); break;
+    case "inc": case "dec": S.mine[i]=(S.mine[i]||0)+(a==="inc"?1:-1); if(S.mine[i]<=0) delete S.mine[i]; render(); queueClaim(S.id); break;
+    case "adjust": if(!cache[el.dataset.id]) await loadTicket(el.dataset.id); go("select", el.dataset.id); break;
+    case "pay": if(S.view==="select") saveClaim(el.dataset.id); break;
+    case "payIban": { const id=el.dataset.id, e=cache[id] || { ticket:(home.shares.find(x=>x.ticket.id===id)||{}).ticket, ownerName:(home.shares.find(x=>x.ticket.id===id)||{}).ownerName };
+      if(S.view==="select") saveClaim(id);
+      S.layer={ kind:"iban", iban:e.ticket?.iban||"", name:e.ownerName||"", amount:+el.dataset.amt, msg:`${me.name} – ${e.ticket?.title||"Ticket"}`.slice(0,60) }; render(); break; }
+    case "setPaid": { const id=el.dataset.id; if(!cache[id]) await loadTicket(id);
+      if(S.view!=="select"){ S.mine={...((cache[id]?.claims||[]).find(c=>c.userId===me.id)?.q||{})}; }
+      await saveClaim(id,{ paid: el.dataset.v==="1" }); toast(el.dataset.v==="1"?"Gemarkeerd als betaald.":"Weer op open gezet."); break; }
+    case "theme": store.set("theme", el.dataset.v); applyTheme(el.dataset.v); render(); break;
+    case "saveProfile": { const n=$("pName").value.trim(), b=$("pBunq").value.trim().replace(/^https?:\/\/(www\.)?bunq\.me\//i,"").replace(/\/.*$/,""), ib=$("pIban").value.trim().toUpperCase();
+      if(!n){ toast("Vul je naam in."); return; }
+      if(b && !/^[A-Za-z0-9._-]+$/.test(b)){ toast("Vul alleen je bunq.me-naam in, bv. JanPeeters."); return; }
+      if(ib && !/^[A-Z]{2}\d{2}[A-Z0-9 ]{10,30}$/.test(ib)){ toast("Dat rekeningnummer lijkt niet te kloppen."); return; }
+      me.name=n.slice(0,30); me.bunq=b; me.iban=ib; store.set("me",me);
+      try{ await api("hello",{ bunq:b, iban:ib }); toast("Opgeslagen."); await refresh(); }catch(e){ toast(e.message); } break; }
+  }
+});
+document.addEventListener("input", ev=>{
+  const el=ev.target, k=el.dataset.in; if(!k) return;
+  if(k==="paste"){ S.pasted=el.value; return; }
+  if(!S.draft) return;
+  if(k==="title"){ S.draft.title=el.value; return; }
+  const it=S.draft.items[+el.dataset.i];
+  if(k==="name") it.name=el.value;
+  if(k==="qty") it.qty=Math.max(1,parseInt(el.value)||1);
+  if(k==="price") it.unitPrice=parseFloat(el.value.replace(",","."))||0;
+  const tot=r2(S.draft.items.reduce((s,x)=>s+x.qty*x.unitPrice,0));
+  if($("etot")) $("etot").textContent=eur(tot);
+  if($("echeck")) $("echeck").hidden = Math.abs(S.draft.ticketTotal-tot)<=0.01;
+});
+document.addEventListener("keydown", ev=>{ if(ev.key==="Enter" && ev.target.id==="obName"){ ev.preventDefault(); document.querySelector('[data-act="onboard"]').click(); } });
+
+/* ---------- boot ---------- */
+render();
+if(me.name){ refresh().then(readHash); }
+</script>
+</body>
+</html>
