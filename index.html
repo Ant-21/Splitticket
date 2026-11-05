@@ -4,10 +4,14 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Splitticket">
 <meta name="theme-color" content="#eef1f6">
 <title>Splitticket</title>
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" type="image/png" href="icon-192.png">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=JetBrains+Mono:wght@500;600&display=swap">
 <style>
 :root{
@@ -15,7 +19,7 @@
   --ink:#14202b; --muted:#5d6874; --accent:#1f5fd1; --accent-soft:rgba(31,95,209,.12); --on-accent:#ffffff;
   --ok:#1d8a55; --warn:#b4660f; --av-off:#a7b1bd; --seg:#dfe5ed; --seg-on:#ffffff;
   --glass:rgba(255,255,255,.58); --glass-line:rgba(255,255,255,.75); --glass-shadow:0 10px 30px rgba(20,32,50,.16), inset 0 1px 0 rgba(255,255,255,.95);
-  --qr-bg:#1f5fd1;
+  --qr-bg:#1f5fd1; --dim:rgba(8,14,22,.5);
   --display:"Bricolage Grotesque",-apple-system,system-ui,sans-serif;
   --body:-apple-system,"SF Pro Text",system-ui,sans-serif;
   --mono:"JetBrains Mono",ui-monospace,Menlo,monospace;
@@ -26,15 +30,16 @@
   --ink:#e7edf2; --muted:#9aa7b4; --accent:#8fb2ff; --accent-soft:rgba(143,178,255,.16); --on-accent:#0d1217;
   --ok:#4cc38a; --warn:#f0a54a; --av-off:#4a5664; --seg:#1f2a35; --seg-on:#3a4757;
   --glass:rgba(36,46,58,.62); --glass-line:rgba(255,255,255,.12); --glass-shadow:0 10px 30px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.12);
-  --qr-bg:#1b3f86; color-scheme:dark}}
+  --qr-bg:#1b3f86; --dim:rgba(0,0,0,.6); color-scheme:dark}}
 :root[data-app="dark"]{
   --bg:#0d1217; --card:#171f28; --line:#26323f; --divider:#26323f; --track:#26323f;
   --ink:#e7edf2; --muted:#9aa7b4; --accent:#8fb2ff; --accent-soft:rgba(143,178,255,.16); --on-accent:#0d1217;
   --ok:#4cc38a; --warn:#f0a54a; --av-off:#4a5664; --seg:#1f2a35; --seg-on:#3a4757;
   --glass:rgba(36,46,58,.62); --glass-line:rgba(255,255,255,.12); --glass-shadow:0 10px 30px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.12);
-  --qr-bg:#1b3f86; color-scheme:dark}
+  --qr-bg:#1b3f86; --dim:rgba(0,0,0,.6); color-scheme:dark}
 *{box-sizing:border-box}
-html{-webkit-text-size-adjust:100%}
+html{-webkit-text-size-adjust:100%;overscroll-behavior-y:none}
+body{overscroll-behavior-y:none}
 body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.4 var(--body);
   padding:calc(20px + env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) calc(130px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
 #app{max-width:520px;margin:0 auto;display:flex;flex-direction:column;gap:14px}
@@ -45,6 +50,9 @@ h1{margin:0;font:800 34px/1.05 var(--display);letter-spacing:-.02em;text-wrap:ba
 .cap{font-size:12px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--muted)}
 .num{font-family:var(--mono);font-variant-numeric:tabular-nums}
 .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:12px}
+.tap{cursor:pointer;-webkit-tap-highlight-color:transparent;transition:transform .12s ease}
+.tap:active{transform:scale(.985)}
+.tap:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
 .row{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
 .col{display:flex;flex-direction:column;gap:2px;min-width:0}
 .right{align-items:flex-end;text-align:right}
@@ -59,20 +67,26 @@ h1{margin:0;font:800 34px/1.05 var(--display);letter-spacing:-.02em;text-wrap:ba
 .avs .av+.av{margin-left:-8px}
 .av.off{background:var(--av-off)}
 .av.big{width:44px;height:44px;border-radius:22px;font-size:15px;border:none}
+.av.mid{width:36px;height:36px;border-radius:18px;font-size:13px;border:none}
 .foot{display:flex;align-items:center;gap:10px;border-top:1px solid var(--divider);padding-top:12px}
 .foot .t2{flex:1;min-width:0}
-button,.btn{font:600 15px var(--body);border-radius:22px;min-height:44px;padding:0 16px;display:inline-flex;align-items:center;justify-content:center;gap:8px;cursor:pointer;text-decoration:none;border:1px solid var(--line);background:var(--card);color:var(--ink);-webkit-tap-highlight-color:transparent}
+button,.btn{--spin:var(--accent);position:relative;font:600 15px var(--body);border-radius:22px;min-height:44px;padding:0 16px;display:inline-flex;align-items:center;justify-content:center;gap:8px;cursor:pointer;text-decoration:none;border:1px solid var(--line);background:var(--card);color:var(--ink);-webkit-tap-highlight-color:transparent;
+  transition:transform .14s cubic-bezier(.2,.8,.2,1),background-color .22s,border-color .22s,color .22s,filter .14s,opacity .2s}
+button:active:not(:disabled),.btn:active{transform:scale(.96);filter:brightness(.9)}
+.tab:active:not(:disabled){transform:scale(.93)}
+.cam:active{transform:scale(.9)}
+.step button:active:not(:disabled){transform:scale(.86)}
 button:focus-visible,.btn:focus-visible,input:focus-visible,textarea:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
 button:disabled{opacity:.5}
 .btn-p{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
 .btn-dark{background:var(--ink);border-color:var(--ink);color:var(--bg)}
-.btn-soft{background:var(--accent-soft);border-color:transparent;color:var(--accent);min-height:40px}
+.btn-soft{background:var(--accent-soft);border-color:transparent;color:var(--accent);min-height:40px;flex:none}
 .btn-link{border:none;background:none;color:var(--accent);padding:0 4px;min-height:44px;font-size:17px;font-weight:400}
+.linkbtn{border:none;background:none;padding:4px 0;min-height:0;color:var(--accent);font-size:13px;font-weight:600;align-self:flex-start}
 .btn-big{height:64px;border-radius:16px;font-size:17px}
-.grow{flex:1}
-.plain{all:unset;cursor:pointer;display:flex;flex-direction:column;gap:2px;min-width:0;border-radius:6px}
+.grow{flex:1;min-width:0}
 .grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
-.pill{align-self:flex-start;font-size:12px;font-weight:700;padding:3px 10px;border-radius:999px;border:1px solid currentColor}
+.pill{align-self:flex-start;font-size:12px;font-weight:700;padding:3px 10px;border-radius:999px;border:1px solid currentColor;flex:none}
 .ok{color:var(--ok)} .warn{color:var(--warn)}
 .list{padding:4px 16px;gap:0}
 .line{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 0}
@@ -84,6 +98,13 @@ button:disabled{opacity:.5}
 .step button{width:40px;height:40px;min-height:40px;padding:0;border-radius:20px;font-size:20px;background:var(--accent-soft);border-color:transparent;color:var(--accent)}
 .step button:disabled{opacity:.35}
 .step .q{min-width:20px;text-align:center;font:600 17px var(--mono)}
+.person{display:flex;align-items:center;gap:12px;padding:12px 0}
+.person+.person{border-top:1px solid var(--divider)}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{min-height:38px;border-radius:19px;padding:0 14px;font-size:15px;font-weight:600;border:1px solid transparent;background:var(--accent-soft);color:var(--accent);display:inline-flex;align-items:center;gap:4px}
+.chip.sug{background:var(--seg);color:var(--ink)}
+.chip[aria-pressed="true"]{background:var(--accent);color:var(--on-accent)}
+.chip .x{width:28px;height:28px;min-height:0;padding:0;margin-right:-8px;border:none;border-radius:14px;background:none;color:inherit;font-size:18px}
 .empty{padding:28px 20px;text-align:center;align-items:center}
 .empty p{margin:0;color:var(--muted);max-width:30ch}
 .topbar{display:flex;justify-content:space-between;align-items:center;margin:-8px 0 -4px}
@@ -92,17 +113,18 @@ button:disabled{opacity:.5}
 input,textarea{font:16px var(--body);color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px;width:100%;min-width:0}
 textarea{min-height:120px;resize:vertical}
 input.n{font-family:var(--mono);text-align:right}
-.x{width:2.6rem;height:2.6rem;min-height:0;padding:0;border-radius:50%}
+.edit .x{width:2.6rem;height:2.6rem;min-height:0;padding:0;border-radius:50%}
 .field{display:flex;flex-direction:column;gap:6px}
 .seg{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px;padding:4px;border-radius:14px;background:var(--seg)}
 .seg button{border:none;background:none;border-radius:10px;min-height:40px;color:var(--muted)}
 .seg button[aria-pressed="true"]{background:var(--seg-on);color:var(--ink);box-shadow:0 1px 3px rgba(20,32,50,.12)}
-.set{padding:0;gap:0}
-.set>div{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 16px;min-height:52px}
-.set>div+div{border-top:1px solid var(--divider)}
 .stat .v{font:600 22px var(--mono)}
-.photo{width:100%;border-radius:12px;display:block;-webkit-user-select:auto;user-select:auto}
+.photo{width:100%;border-radius:12px;display:block}
 .how{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:4px;color:var(--muted);font-size:14px}
+.code{font:500 12px var(--mono);color:var(--muted);word-break:break-all;background:var(--bg);border-radius:10px;padding:10px}
+.isteps{display:flex;flex-direction:column;gap:14px}
+.istep{display:flex;gap:12px;align-items:flex-start}
+.istep .ic{width:40px;height:40px;border-radius:12px;flex:none;display:flex;align-items:center;justify-content:center;background:var(--accent-soft);color:var(--accent)}
 
 .tabbar{position:fixed;left:0;right:0;bottom:0;z-index:5;pointer-events:none;
   padding:0 max(16px,env(safe-area-inset-right,0px)) calc(18px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
@@ -121,14 +143,76 @@ input.n{font-family:var(--mono);text-align:right}
 .layer.qr{background:var(--qr-bg);color:#fff}
 .layer.qr .btn-link{color:#fff}
 .layer.sheet{background:var(--bg);justify-content:center}
+.layer.dim{background:var(--dim);justify-content:flex-end}
+.layer.read{background:#101418;color:#fff;justify-content:center}
+.readbox{position:relative;overflow:hidden;border-radius:16px;max-width:min(320px,80vw)}
+.readbox img{display:block;width:100%;max-height:52vh;object-fit:cover;opacity:.8}
+.readbox::after{content:"";position:absolute;left:0;right:0;top:0;height:3px;background:#ffd60a;box-shadow:0 0 18px 4px rgba(255,214,10,.55);animation:scanline 1.6s ease-in-out infinite alternate}
+@keyframes scanline{to{top:calc(100% - 3px)}}
+.backdrop{position:fixed;inset:0;border:none;border-radius:0;background:none;min-height:0;padding:0}
+.sheetcard{position:relative;max-width:520px;width:100%;border-radius:20px}
 .qrbox{padding:20px;background:#fff;border-radius:24px;box-shadow:0 20px 50px rgba(8,22,60,.35)}
 .qrbox img,.qrbox canvas{display:block;width:240px;height:240px}
 .toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(100px + env(safe-area-inset-bottom,0px));z-index:30;background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:14px;font-size:14px;max-width:calc(100% - 32px);text-align:center}
 .notice{background:var(--accent-soft);color:var(--ink);border-radius:14px;padding:12px 14px;font-size:14px}
 .copyrow{display:flex;justify-content:space-between;align-items:center;gap:10px}
+/* feedback after a tap: busy → done (green ✓) or error (shake) */
+.btn-p,.btn-dark{--spin:var(--on-accent)}
+.btn-dark{--spin:var(--bg)}
+.is-busy,.is-done{color:transparent!important;pointer-events:none}
+.is-busy svg,.is-done svg{visibility:hidden}
+.is-busy::after{content:"";position:absolute;left:50%;top:50%;width:18px;height:18px;margin:-9px 0 0 -9px;border-radius:50%;border:2.5px solid var(--spin);border-right-color:transparent;animation:spin .7s linear infinite}
+.is-done{background:var(--ok)!important;border-color:var(--ok)!important}
+.is-done::after{content:"✓\00a0" attr(data-done);position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#fff;font:700 16px var(--body);white-space:nowrap;animation:pop .32s cubic-bezier(.2,1.4,.4,1)}
+.btn-link.is-done,.linkbtn.is-done{background:none!important;border-color:transparent!important}
+.btn-link.is-done::after,.linkbtn.is-done::after{color:var(--ok);justify-content:flex-start}
+.btn-link.is-busy::after,.linkbtn.is-busy::after{left:12px}
+.is-err{animation:shake .36s;border-color:var(--warn)!important}
+.bump{animation:bump .3s cubic-bezier(.2,1.4,.4,1)}
+.chip.pop{animation:pop .3s cubic-bezier(.2,1.4,.4,1)}
+
+/* screen changes and sheets */
+#app.enter>*{animation:viewin .26s cubic-bezier(.2,.8,.2,1) both}
+#app.enter>*:nth-child(2){animation-delay:.025s}
+#app.enter>*:nth-child(3){animation-delay:.05s}
+#app.enter>*:nth-child(4){animation-delay:.075s}
+#app.enter>*:nth-child(n+5){animation-delay:.1s}
+.layer.anim{animation:fade .2s ease}
+.layer.anim .sheetcard{animation:sheetup .34s cubic-bezier(.2,.8,.2,1)}
+.layer.anim .qrbox{animation:pop .4s cubic-bezier(.2,1.3,.4,1)}
+.toast{animation:toastin .26s cubic-bezier(.2,.8,.2,1)}
+
+/* loading placeholders */
+.skel{gap:10px}
+.sk{display:block;height:14px;border-radius:7px;background:linear-gradient(90deg,var(--track) 0%,var(--bg) 50%,var(--track) 100%);background-size:200% 100%;animation:shimmer 1.3s linear infinite}
+
+/* pull to refresh */
+#ptr{position:fixed;left:50%;top:calc(env(safe-area-inset-top,0px) + 10px);z-index:4;width:28px;height:28px;opacity:0;transform:translate(-50%,0);pointer-events:none}
+#ptr svg{display:block;transition:transform .2s cubic-bezier(.2,1.4,.4,1)}
+#ptr .trk{stroke:var(--track)}
+#ptr .arc{stroke:var(--accent)}
+#ptr.ready svg{transform:scale(1.12)}
+#ptr.spin svg{animation:spin .75s linear infinite}
+#ptr.spin .arc{stroke-dashoffset:42!important}
+
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes pop{0%{transform:scale(.6);opacity:0}100%{transform:scale(1);opacity:1}}
+@keyframes bump{40%{transform:scale(1.28)}}
+@keyframes shake{20%,60%{transform:translateX(-5px)}40%,80%{transform:translateX(5px)}}
+@keyframes viewin{from{opacity:0;transform:translateY(8px)}}
+@keyframes fade{from{opacity:0}}
+@keyframes sheetup{from{transform:translateY(40px);opacity:0}}
+@keyframes toastin{from{transform:translate(-50%,12px);opacity:0}}
+@keyframes shimmer{to{background-position:-200% 0}}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
+  .tap:active,button:active,.btn:active{transform:none!important}
+  #ptr.spin svg,.is-busy::after,.sk{animation:none}
+}
 </style>
 </head>
 <body>
+<div id="ptr" aria-hidden="true"><svg width="28" height="28" viewBox="0 0 28 28"><circle class="trk" cx="14" cy="14" r="10" fill="none" stroke-width="2.5"/><circle class="arc" cx="14" cy="14" r="10" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-dasharray="62.83" stroke-dashoffset="62.83" transform="rotate(-90 14 14)"/></svg></div>
 <div id="app"><div class="card empty"><p>Splitticket laden…</p></div></div>
 <div class="tabbar" id="tabbar"></div>
 <div id="layer"></div>
@@ -150,7 +234,8 @@ const rand = n => Array.from(crypto.getRandomValues(new Uint8Array(n)),b=>b.toSt
 const PALETTE = ["#1f5fd1","#b4660f","#1d8a55","#8a3fbf","#c2386a","#0f7f8c"];
 const colorFor = id => { let h=0; for (const c of String(id)) h=(h*31+c.charCodeAt(0))>>>0; return PALETTE[h%PALETTE.length]; };
 const initials = n => (n||"?").trim().split(/\s+/).map(w=>w[0]).slice(0,2).join("").toUpperCase();
-const linkFor = t => location.origin + location.pathname + "#t=" + t.id;
+const linkFor = (t, pid) => location.origin + location.pathname + "#t=" + t.id + (pid ? "&p=" + pid : "");
+const listNames = a => a.length<=1 ? a.join("") : a.slice(0,-1).join(", ") + " en " + a[a.length-1];
 
 const ICON = {
   get:'<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v11"/><path d="m7.5 9.5 4.5 4.5 4.5-4.5"/><path d="M4 15v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"/></svg>',
@@ -159,36 +244,54 @@ const ICON = {
   cam:'<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8a2 2 0 0 1 2-2h2l1.5-2h5L16 6h2a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z"/><circle cx="12" cy="13" r="3.5"/></svg>',
   up:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="m7 8 5-5 5 5"/><path d="M5 13v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6"/></svg>',
   qr:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3h-3zM18 18h3v3h-3z"/></svg>',
-  link:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></svg>'
+  link:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></svg>',
+  plus:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="4"/><path d="M12 8v8M8 12h8"/></svg>',
+  check:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>'
 };
 
-/* ---------- local storage: this device's identity ---------- */
+/* ---------- this device's profile ---------- */
 const store = {
   get(k,d){ try{ const v=localStorage.getItem(k); return v?JSON.parse(v):d; }catch{ return d; } },
   set(k,v){ try{ localStorage.setItem(k,JSON.stringify(v)); }catch{} }
 };
 let me = store.get("me", null);
 if(!me){ me = { id:"u"+rand(8), key:rand(16), name:"", bunq:"", iban:"" }; store.set("me", me); }
+const codeOf = () => me.id + "." + me.key;
+function parseCode(s){ const m=/^(u[0-9a-f]{16})\.([0-9a-f]{32})$/.exec(String(s||"").trim()); return m?{id:m[1],key:m[2]}:null; }
 
 /* ---------- theme ---------- */
 const getTheme = () => store.get("theme","auto");
 function applyTheme(t){ if(t==="auto") delete document.documentElement.dataset.app; else document.documentElement.dataset.app=t; }
 applyTheme(getTheme());
 
+/* ---------- home screen ---------- */
+let installEvt = null;
+window.addEventListener("beforeinstallprompt", e=>{ e.preventDefault(); installEvt=e; if(S.view==="profiel") render(); });
+const standalone = () => { try{ return matchMedia("(display-mode: standalone)").matches || navigator.standalone===true; }catch{ return false; } };
+const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform==="MacIntel" && navigator.maxTouchPoints>1);
+
 /* ---------- server ---------- */
-async function api(action, data={}){
+async function api(action, data={}, ident){
   if(!API || API.startsWith("PLAK")) throw new Error("De app is nog niet gekoppeld aan je Google Sheet. Vul je Apps Script-link in config.js in.");
+  const who = ident || me;
   const res = await fetch(API, { method:"POST", headers:{ "Content-Type":"text/plain;charset=utf-8" },
-    body: JSON.stringify({ action, userId:me.id, userKey:me.key, name:me.name, ...data }) });
+    body: JSON.stringify({ action, userId:who.id, userKey:who.key, name: ident ? "" : me.name, ...data }) });
   const j = await res.json();
   if(j.error) throw new Error(j.error);
   return j;
 }
+async function importCode(code){
+  const c = parseCode(code);
+  if(!c) throw new Error("Deze code klopt niet. Kopieer ze opnieuw onder Profiel op je andere toestel.");
+  const r = await api("me", {}, c);
+  me = { id:c.id, key:c.key, name:r.name||"", bunq:r.bunq||"", iban:r.iban||"" };
+  store.set("me", me);
+}
 
 /* ---------- state ---------- */
-let home = { mine:[], shares:[] }, loaded=false, loadErr="";
-const cache = {};   // ticketId -> { ticket, claims, ownerName }
-const S = { view:"krijgen", id:null, editing:false, draft:null, mine:{}, justMade:null, layer:null, confirmDel:false, err:"", photo:null, pasted:"" };
+let home = { mine:[], shares:[], ai:false }, loaded=false, loadErr="";
+const cache = {};
+const S = { view:"krijgen", id:null, editing:false, draft:null, setup:null, mine:{}, pid:null, pidHint:null, justMade:null, layer:null, confirmDel:false, err:"", photo:null, pasted:"", showImport:false };
 
 async function refresh(){
   if(!me.name) return;
@@ -197,19 +300,68 @@ async function refresh(){
   render();
 }
 async function loadTicket(id){
-  try{ const r = await api("getTicket",{ id }); cache[id] = r; }
+  try{ cache[id] = await api("getTicket",{ id }); }
   catch(e){ cache[id] = { error:e.message }; }
   render(); return cache[id];
 }
-setInterval(()=>{ if(document.visibilityState==="visible"){ refresh(); if(S.view==="select"&&S.id&&!saving) loadTicket(S.id); } }, 20000);
-document.addEventListener("visibilitychange", ()=>{ if(document.visibilityState==="visible") refresh(); });
+setInterval(()=>{ if(document.visibilityState==="visible" && !S.setup && !S.editing){ refresh(); if(S.view==="select"&&S.id&&!saving) loadTicket(S.id); } }, 20000);
+document.addEventListener("visibilitychange", ()=>{ if(document.visibilityState==="visible" && !S.setup && !S.editing) refresh(); });
 
-/* ---------- helpers ---------- */
+/* ---------- money logic ---------- */
 function myTicket(id){ return home.mine.find(t=>t.id===id) || null; }
-function claimsOf(t){ return (t.claims||[]).filter(c=>c.total>0); }
-function takenByOthers(entry, i){ return (entry.claims||[]).filter(c=>c.userId!==me.id).reduce((s,c)=>s+(c.q?.[i]||0),0); }
 function partTotal(t, q){ return r2((t.items||[]).reduce((s,it,i)=>s+(q[i]||0)*it.unitPrice,0)); }
+const ownerPart = t => partTotal(t, t.ownerQ||{});
+function personName(t, c){ return ((t.people||[]).find(p=>p.pid===c.pid)||{}).name || c.name; }
+// Everyone who should pay you back for this ticket, with their status.
+function rowsOf(t){
+  const claims = t.claims||[], people = t.people||[];
+  const rows = people.map(p=>{
+    const c = claims.find(x=>x.pid===p.pid) || null;
+    return { key:"p-"+p.pid, pid:p.pid, name:p.name, claim:c, manual:!!p.paid, paid:!!(p.paid || c?.paid), total:c?.total||0, chose:!!(c && c.total>0) };
+  });
+  claims.filter(c=>c.total>0 && !people.some(p=>p.pid===c.pid)).forEach(c=>rows.push(
+    { key:"u-"+c.userId, pid:null, name:c.name, claim:c, manual:false, paid:!!c.paid, total:c.total, chose:true }));
+  return rows;
+}
+function openAmount(t, rows){
+  const claimed = (t.claims||[]).reduce((s,c)=>s+(c.total||0),0);
+  const unclaimed = Math.max(0, r2(sum(t) - ownerPart(t) - claimed));
+  const chosenUnpaid = rows.filter(r=>!r.paid).reduce((s,r)=>s+r.total,0);
+  const someoneMustStillChoose = rows.some(r=>!r.paid && !r.chose);
+  return r2(chosenUnpaid + (someoneMustStillChoose ? unclaimed : 0));
+}
+function takenByOthers(t, claims, i){ return (t.ownerQ?.[i]||0) + (claims||[]).filter(c=>c.userId!==me.id).reduce((s,c)=>s+(c.q?.[i]||0),0); }
+function recentNames(){
+  const seen = new Map();
+  for(const t of home.mine){
+    for(const p of t.people||[]) if(!seen.has(p.name.toLowerCase())) seen.set(p.name.toLowerCase(), p.name);
+    for(const c of t.claims||[]) if(c.total>0 && !seen.has(c.name.toLowerCase())) seen.set(c.name.toLowerCase(), c.name);
+  }
+  return [...seen.values()].filter(n=>n.toLowerCase()!==(me.name||"").toLowerCase());
+}
 function payUrl(t, amount){ return `https://bunq.me/${encodeURIComponent(t.payee||"")}/${amount.toFixed(2)}/${encodeURIComponent((t.title||"Ticket").slice(0,60))}`; }
+
+/* ---------- share / toast ---------- */
+/* ---------- tap feedback ---------- */
+let flash=null, flashT, bumpSel=null, lastView=null, lastLayer=null, enterT;
+const flashKey = el => el.dataset.pid || el.dataset.key || el.dataset.id || el.dataset.v || "";
+function applyFlash(){
+  document.querySelectorAll(".is-busy,.is-done,.is-err").forEach(b=>b.classList.remove("is-busy","is-done","is-err"));
+  if(!flash) return;
+  document.querySelectorAll(`[data-act="${flash.act}"]`).forEach(b=>{ if(flashKey(b)===flash.key) b.classList.add("is-"+flash.state); });
+}
+function setFlash(el, state){
+  clearTimeout(flashT); flash={ act:el.dataset.act, key:flashKey(el), state }; applyFlash();
+  if(state!=="busy") flashT=setTimeout(()=>{ flash=null; applyFlash(); }, state==="done"?1300:600);
+}
+const wait = ms => new Promise(r=>setTimeout(r,ms));
+async function withFlash(el, fn){
+  setFlash(el,"busy"); const t0=Date.now();
+  try{ const r=await fn(); await wait(Math.max(0,380-(Date.now()-t0))); setFlash(el,"done"); try{ navigator.vibrate?.(8); }catch{} return r; }
+  catch(e){ setFlash(el,"err"); throw e; }
+}
+const skel = n => Array.from({length:n},()=>`<div class="card skel" aria-hidden="true"><span class="sk" style="width:58%"></span><span class="sk" style="width:36%;height:10px"></span><span class="sk" style="height:6px"></span></div>`).join("");
+document.addEventListener("touchstart",()=>{},{passive:true}); // laat :active werken op iPhone
 
 let toastT;
 function toast(msg){ const t=$("toast"); t.textContent=msg; t.hidden=false; clearTimeout(toastT); toastT=setTimeout(()=>t.hidden=true,3200); }
@@ -218,15 +370,20 @@ async function shareText(text, url){
   try{ if(navigator.share){ await navigator.share({ text, url }); return; } }catch(e){ if(e && e.name==="AbortError") return; }
   copy(text+" "+url, "Bericht met link gekopieerd. Plak het in WhatsApp of Berichten.");
 }
+function remindRow(t, r){
+  const msg = r.chose
+    ? `Hoi ${r.name}! Je moet nog ${eur(r.total)} terugbetalen voor ${t.title}. Tik op de link om te betalen:`
+    : `Hoi ${r.name}! Duid aan wat je had bij ${t.title} en betaal je deel:`;
+  shareText(msg, linkFor(t, r.pid));
+}
 
 let saving=false, saveT;
-function queueClaim(id, extra){
-  clearTimeout(saveT);
-  saveT = setTimeout(()=>saveClaim(id, extra), extra?0:700);
-}
+function queueClaim(id){ clearTimeout(saveT); saveT=setTimeout(()=>saveClaim(id),700); }
 async function saveClaim(id, extra){
-  saving=true;
-  try{ const r = await api("saveClaim",{ ticketId:id, q:S.mine, ...(extra||{}) }); cache[id]=r; refresh(); }
+  clearTimeout(saveT); saving=true;
+  const body = { ticketId:id, q:S.mine, ...(extra||{}) };
+  if(typeof S.pid === "string") body.pid = S.pid;
+  try{ cache[id] = await api("saveClaim", body); refresh(); }
   catch(e){ toast(e.message); }
   saving=false; render();
 }
@@ -234,13 +391,19 @@ async function saveClaim(id, extra){
 /* ---------- navigation ---------- */
 function go(view, id){
   S.view=view; S.id=id||null; S.editing=false; S.confirmDel=false; S.err="";
-  if(view==="select"){ const e=cache[id]; S.mine={...((e?.claims||[]).find(c=>c.userId===me.id)?.q||{})}; }
+  if(view==="select"){
+    const e=cache[id], mc=(e?.claims||[]).find(c=>c.userId===me.id);
+    S.mine = {...(mc?.q||{})};
+    const free = (e?.ticket?.people||[]).filter(p=>!(e.claims||[]).some(c=>c.userId!==me.id && c.pid===p.pid)).map(p=>p.pid);
+    S.pid = mc?.pid || (S.pidHint && free.includes(S.pidHint) ? S.pidHint : null);
+    S.pidHint = null;
+  }
   render(); window.scrollTo(0,0);
 }
 function clearHash(){ try{ history.replaceState(null,"",location.pathname+location.search); }catch{} }
 async function readHash(){
-  const m = /^#t=([a-z0-9]+)$/i.exec(location.hash||""); if(!m || !me.name) return;
-  const id=m[1];
+  const m = /^#t=([a-z0-9]+)(?:&p=([a-z0-9]+))?$/i.exec(location.hash||""); if(!m || !me.name) return;
+  const id=m[1]; S.pidHint=m[2]||null;
   if(myTicket(id)){ go("ticket",id); return; }
   S.view="select"; S.id=id; render();
   const e = await loadTicket(id);
@@ -253,43 +416,102 @@ window.addEventListener("hashchange", readHash);
 $("cam").onchange = e => {
   const f=e.target.files[0]; if(!f) return;
   if(S.photo) URL.revokeObjectURL(S.photo);
-  S.photo = URL.createObjectURL(f); S.pasted=""; S.view="scan"; render(); window.scrollTo(0,0);
+  S.photo = URL.createObjectURL(f); S.photoFile = f; S.pasted=""; S.aiErr="";
+  if(home.ai){ readWithAI(); return; }
+  S.view="scan"; render(); window.scrollTo(0,0);
 };
-function startNew(items, title, total){
-  S.draft = { title: title || "Ticket "+new Date().toLocaleDateString("nl-BE",{day:"numeric",month:"numeric"}), items: items.length?items:[{name:"",qty:1,unitPrice:0}], ticketTotal: total||0, isNew:true };
+function startNew(items, title, total, byAI){
+  S.draft = { title: title || "Ticket "+new Date().toLocaleDateString("nl-BE",{day:"numeric",month:"numeric"}), items: items.length?items:[{name:"",qty:1,unitPrice:0}], ticketTotal: total||0, byAI: !!byAI && items.length>0 };
   S.view="new"; S.err=""; render(); window.scrollTo(0,0);
 }
-async function createTicket(){
-  const items = cleanItems(S.draft.items);
-  if(!items.length){ S.err="Voeg minstens één lijn met een prijs toe."; render(); return; }
-  if(!me.bunq && !me.iban){ S.err="Vul eerst je bunq.me-naam of rekeningnummer in onder Profiel."; render(); return; }
-  S.err="Opslaan…"; render();
+// Verklein de foto voor het versturen: sneller en goedkoper, nog scherp genoeg om te lezen.
+async function shrinkPhoto(file, max=1800, quality=0.82){
+  const url=URL.createObjectURL(file);
   try{
-    const r = await api("createTicket",{ title:S.draft.title.trim()||"Ticket", items, ticketTotal:S.draft.ticketTotal||0 });
-    await refresh(); S.justMade=r.id; S.draft=null; go("ticket", r.id);
-  }catch(e){ S.err=e.message; render(); }
+    const img=await new Promise((ok,fail)=>{ const i=new Image(); i.onload=()=>ok(i); i.onerror=()=>fail(new Error("De foto kon niet geopend worden.")); i.src=url; });
+    const s=Math.min(1, max/Math.max(img.naturalWidth,img.naturalHeight));
+    const c=document.createElement("canvas"); c.width=Math.round(img.naturalWidth*s); c.height=Math.round(img.naturalHeight*s);
+    c.getContext("2d").drawImage(img,0,0,c.width,c.height);
+    return c.toDataURL("image/jpeg",quality).split(",")[1];
+  } finally { URL.revokeObjectURL(url); }
+}
+let readRun=0;
+async function readWithAI(){
+  const run=++readRun;
+  S.layer={kind:"reading"}; render();
+  try{
+    const image = await shrinkPhoto(S.photoFile);
+    const r = await api("readReceipt",{ image });
+    if(run!==readRun) return;
+    S.layer=null;
+    if(!r.items?.length){ S.aiErr="Claude vond geen lijnen op deze foto. Probeer een scherpere foto, of plak de tekst zelf."; S.view="scan"; render(); window.scrollTo(0,0); return; }
+    try{ navigator.vibrate?.(10); }catch{}
+    startNew(r.items, r.title, r.total, true);
+  }catch(e){
+    if(run!==readRun) return;
+    S.layer=null; S.aiErr=e.message; S.view="scan"; render(); window.scrollTo(0,0);
+  }
 }
 function cleanItems(items){ return items.filter(i=>i.name.trim() && i.unitPrice!==0).map(i=>({ name:i.name.trim().slice(0,60), qty:Math.max(1,Math.min(99,parseInt(i.qty)||1)), unitPrice:r2(i.unitPrice) })); }
-async function saveEdit(){
+
+/* ---------- setup: who you paid for + your own part ---------- */
+function openSetup(isNew){
+  if(isNew){
+    const items=cleanItems(S.draft.items);
+    if(!items.length){ S.err="Voeg minstens één lijn met een prijs toe."; render(); return; }
+    S.setup={ isNew:true, items, people:[], ownerQ:{}, claims:[] };
+  }else{
+    const t=myTicket(S.id); if(!t) return;
+    S.setup={ isNew:false, items:t.items, people:(t.people||[]).map(p=>({...p})), ownerQ:{...(t.ownerQ||{})}, claims:t.claims||[] };
+  }
+  S.view="setup"; S.err=""; render(); window.scrollTo(0,0);
+}
+function addPerson(name){
+  const n=String(name||"").trim().replace(/\s+/g," ").slice(0,30); if(!n) return;
+  if(S.setup.people.some(p=>p.name.toLowerCase()===n.toLowerCase())){ toast(`${n} staat er al bij.`); return; }
+  const pid="p"+rand(4); S.setup.people.push({ pid, name:n }); S.popPid=pid;
+  render(); const inp=$("addName"); if(inp){ inp.value=""; inp.focus(); }
+}
+async function saveSetup(el){
+  const st=S.setup;
+  const pending=($("addName")?.value||"").trim(); if(pending) addPerson(pending);
+  S.err="";
+  if(st.isNew){
+    if(!me.bunq && !me.iban){ S.err="Vul eerst je bunq.me-naam of rekeningnummer in onder Profiel."; render(); setFlash(el,"err"); return; }
+    render();
+    try{
+      const r = await withFlash(el, ()=>api("createTicket",{ title:S.draft.title.trim()||"Ticket", items:st.items, ticketTotal:S.draft.ticketTotal||0, people:st.people, ownerQ:st.ownerQ }));
+      await wait(350); S.setup=null; S.draft=null; await refresh(); S.justMade=r.id; go("ticket", r.id);
+    }catch(e){ S.err=e.message; render(); }
+  }else{
+    try{ await withFlash(el, ()=>api("setSetup",{ id:S.id, people:st.people, ownerQ:st.ownerQ })); await wait(350); S.setup=null; await refresh(); go("ticket",S.id); toast("Opgeslagen."); }
+    catch(e){ S.err=e.message; render(); }
+  }
+}
+async function saveEdit(el){
   const t=myTicket(S.id), items=cleanItems(S.draft.items);
-  if(!items.length){ S.err="Voeg minstens één lijn met een prijs toe."; render(); return; }
-  try{ await api("updateTicket",{ id:t.id, title:S.draft.title.trim()||"Ticket", items }); S.editing=false; S.err=""; await refresh(); }
+  if(!items.length){ S.err="Voeg minstens één lijn met een prijs toe."; render(); setFlash(el,"err"); return; }
+  try{ await withFlash(el, ()=>api("updateTicket",{ id:t.id, title:S.draft.title.trim()||"Ticket", items })); await wait(300); S.editing=false; S.err=""; await refresh(); }
   catch(e){ S.err=e.message; render(); }
 }
-async function deleteTicket(){ try{ await api("deleteTicket",{ id:S.id }); await refresh(); go("krijgen"); toast("Ticket verwijderd."); }catch(e){ toast(e.message); } }
+async function deleteTicket(el){ try{ await withFlash(el, ()=>api("deleteTicket",{ id:S.id })); await refresh(); go("krijgen"); toast("Ticket verwijderd."); }catch(e){ toast(e.message); } }
 
 /* ---------- views ---------- */
 function viewOnboard(){
+  if(S.showImport) return `<div class="head" style="padding-top:20px"><h1>Splitticket</h1><p class="lead">Koppel je bestaande profiel.</p></div>
+    <div class="card"><div class="field"><label class="cap" for="obCode">Koppelcode</label><input id="obCode" autocapitalize="off" autocomplete="off" spellcheck="false" placeholder="u1234….abcd…"></div>
+    <p class="t2" style="margin:0">Je vindt de code onder Profiel › Ander toestel, op het toestel waar je Splitticket al gebruikt.</p>
+    <button class="btn-p" data-act="doImport" data-done="Gekoppeld">Koppel</button><button class="btn-link" style="font-size:15px" data-act="toggleImport">Nieuw profiel maken</button></div>`;
   return `<div class="head" style="padding-top:20px"><h1>Splitticket</h1><p class="lead">Rekeningen delen zonder rekenwerk.</p></div>
     <div class="card"><div class="field"><label class="cap" for="obName">Hoe heet je?</label><input id="obName" autocomplete="given-name" placeholder="Voornaam"></div>
     <p class="t2" style="margin:0">Je vrienden zien deze naam wanneer je je deel kiest.</p>
-    <button class="btn-p" data-act="onboard">Start</button></div>`;
+    <button class="btn-p" data-act="onboard">Start</button><button class="btn-link" style="font-size:15px" data-act="toggleImport">Ik heb al een profiel</button></div>`;
 }
 function editorRows(d){
   const t=r2(d.items.reduce((s,i)=>s+i.qty*i.unitPrice,0));
   return `<div class="field"><label class="cap" for="et">Naam</label><input id="et" data-in="title" value="${esc(d.title)}"></div>
     <div class="card" style="gap:8px"><div class="edit cap"><span>Item</span><span>Aantal</span><span>Prijs/st.</span><span></span></div>
-      ${d.items.map((it,i)=>`<div class="edit"><input id="en${i}" aria-label="Item" data-in="name" data-i="${i}" value="${esc(it.name)}"><input id="eq${i}" class="n" aria-label="Aantal" inputmode="numeric" data-in="qty" data-i="${i}" value="${it.qty}"><input id="ep${i}" class="n" aria-label="Prijs per stuk" inputmode="decimal" data-in="price" data-i="${i}" value="${String(it.unitPrice).replace(".",",")}"><button class="x" aria-label="Verwijder lijn" data-act="delRow" data-i="${i}">×</button></div>`).join("")}
+      ${d.items.map((it,i)=>`<div class="edit"><input id="en${i}" aria-label="Item" data-in="name" data-i="${i}" value="${esc(it.name)}"><input id="eq${i}" class="n" aria-label="Aantal" inputmode="numeric" data-in="qty" data-i="${i}" value="${it.qty}"><input id="ep${i}" class="n" aria-label="Prijs per stuk" inputmode="decimal" data-in="price" data-i="${i}" value="${it.unitPrice?it.unitPrice.toFixed(2).replace(".",","):""}"><button class="x" aria-label="Verwijder lijn" data-act="delRow" data-i="${i}">×</button></div>`).join("")}
       <div class="row" style="align-items:center"><button data-act="addRow">+ Lijn</button><span>Totaal <b class="num" id="etot">${eur(t)}</b></span></div>
       ${d.ticketTotal && Math.abs(d.ticketTotal-t)>0.01?`<span class="t2 warn" id="echeck">Op het ticket staat ${eur(d.ticketTotal)}. Controleer de lijnen.</span>`:""}
       ${S.err?`<span class="t2 warn">${esc(S.err)}</span>`:""}
@@ -298,34 +520,59 @@ function editorRows(d){
 function viewScan(){
   return `<div class="topbar"><button class="btn-link" data-act="cancelScan">Annuleer</button><button class="btn-link" data-act="manual">Zelf invullen</button></div>
     <div class="head"><h1 style="font-size:28px">Lees je ticket</h1></div>
+    ${S.aiErr?`<div class="notice">${esc(S.aiErr)}</div>`:""}
+    ${home.ai?`<button class="btn-p btn-big" data-act="aiRetry">✦ ${S.aiErr?"Probeer opnieuw met AI":"Lees met AI"}</button><span class="cap" style="padding:0 4px">Of zelf kopiëren</span>`:""}
     <ol class="how"><li>Houd je vinger op de tekst in de foto.</li><li>Tik op <b>Selecteer alles</b> en dan <b>Kopieer</b>.</li><li>Plak de tekst in het vak hieronder.</li></ol>
     <img class="photo" src="${S.photo}" alt="Foto van je ticket">
     <div class="field"><label class="cap" for="paste">Tekst van het ticket</label><textarea id="paste" data-in="paste" placeholder="Plak hier…">${esc(S.pasted)}</textarea></div>
-    <button class="btn-p btn-big" data-act="parse">Lees lijnen</button>
+    <button class="${home.ai?"":"btn-p "}btn-big" data-act="parse">Lees geplakte tekst</button>
     <p class="t2" style="margin:0">Lukt kopiëren niet? Open de foto in de Foto's-app en kopieer de tekst daar.</p>`;
 }
 function viewNew(){
-  return `<div class="topbar"><button class="btn-link" data-act="cancelNew">Annuleer</button><button class="btn-link" style="font-weight:600" data-act="create">Maak ticket</button></div>
-    <div class="head"><h1 style="font-size:28px">Controleer de lijnen</h1><p class="lead">Pas aan wat niet klopt. Prijs is per stuk.</p></div>
+  return `<div class="topbar"><button class="btn-link" data-act="cancelNew">Annuleer</button><button class="btn-link" style="font-weight:600" data-act="next">Volgende</button></div>
+    <div class="head">${S.draft.byAI?`<span class="status">✦ Gelezen door AI · ${S.draft.items.length} lijnen</span>`:`<span class="cap">Stap 1 van 2</span>`}<h1 style="font-size:28px">Controleer de lijnen</h1><p class="lead">Pas aan wat niet klopt. Prijs is per stuk.</p></div>
     ${editorRows(S.draft)}
-    <button class="btn-p btn-big" data-act="create">Maak ticket</button>`;
+    <button class="btn-p btn-big" data-act="next">Volgende</button>`;
+}
+function viewSetup(){
+  const st=S.setup, items=st.items;
+  const total=r2(items.reduce((s,i)=>s+i.qty*i.unitPrice,0)), own=partTotal({items}, st.ownerQ), rest=r2(total-own);
+  const added=new Set(st.people.map(p=>p.name.toLowerCase()));
+  const sugg=recentNames().filter(n=>!added.has(n.toLowerCase())).slice(0,8);
+  return `<div class="topbar"><button class="btn-link" data-act="setupBack">‹ ${st.isNew?"Lijnen":"Ticket"}</button></div>
+    <div class="head">${st.isNew?`<span class="cap">Stap 2 van 2</span>`:""}<h1 style="font-size:28px">Wie was erbij?</h1><p class="lead">Duid aan voor wie je betaalde en wat je zelf had.</p></div>
+    <div class="card"><span class="cap">Betaald voor</span>
+      ${st.people.length?`<div class="chips">${st.people.map((p,i)=>`<span class="chip${p.pid===S.popPid?" pop":""}">${esc(p.name)}<button class="x" aria-label="Verwijder ${esc(p.name)}" data-act="rmPerson" data-i="${i}">×</button></span>`).join("")}</div>`:`<span class="t2">Nog niemand toegevoegd.</span>`}
+      <div style="display:flex;gap:8px"><input id="addName" placeholder="Naam van een vriend" autocomplete="off" autocapitalize="words" enterkeyhint="done"><button data-act="addPerson">Voeg toe</button></div>
+      ${sugg.length?`<div class="col" style="gap:8px"><span class="t2">Recent</span><div class="chips">${sugg.map(n=>`<button class="chip sug" data-act="addSug" data-v="${esc(n)}">+ ${esc(n)}</button>`).join("")}</div></div>`:""}
+    </div>
+    <div class="card list"><div style="padding:12px 0 4px"><span class="cap">Jouw eigen deel</span></div>
+      ${items.map((it,i)=>{ const others=(st.claims||[]).reduce((s,c)=>s+(c.q?.[i]||0),0), max=it.qty-others, q=st.ownerQ[i]||0;
+        return `<div class="line ${q?"mine":""}"><div class="col"><span class="name">${it.qty}× ${esc(it.name)}</span><span class="t2 num">${eur(it.unitPrice)}/st${others?` · ${others} al gekozen door vrienden`:""}</span></div>
+          <div class="step"><button aria-label="Minder ${esc(it.name)}" data-act="odec" data-i="${i}" ${q<=0?"disabled":""}>−</button><span class="q" data-k="o${i}">${q}</span><button aria-label="Meer ${esc(it.name)}" data-act="oinc" data-i="${i}" ${q>=max?"disabled":""}>+</button></div></div>`;}).join("")}
+    </div>
+    <div class="card" style="gap:6px"><div class="row"><span>Jouw deel</span><b class="num" id="owntotal" style="display:inline-block">${eur(own)}</b></div><div class="row"><span>Terug te krijgen</span><b class="num">${eur(rest)}</b></div>
+      ${st.people.length?`<span class="t2">Gemiddeld ${eur(rest/st.people.length)} per persoon. Iedereen kiest zelf wat van hem is.</span>`:""}</div>
+    ${S.err?`<span class="t2 warn" style="padding:0 4px">${esc(S.err)}</span>`:""}
+    <button class="btn-p btn-big" data-act="saveSetup" data-done="Opgeslagen">${st.isNew?"Maak ticket":"Bewaar"}</button>`;
 }
 function viewKrijgen(){
-  if(loadErr && !loaded) return `<div class="head"><h1>Te krijgen</h1></div><div class="card empty"><p>${esc(loadErr)}</p><button data-act="retry">Opnieuw</button></div>`;
-  const open = home.mine.reduce((s,t)=>s+claimsOf(t).reduce((u,c)=>u+(c.paid?0:c.total),0),0);
-  const people = new Set(); home.mine.forEach(t=>claimsOf(t).forEach(c=>{ if(!c.paid) people.add(c.userId); }));
-  let h = `<div class="head"><h1>Te krijgen</h1><p class="lead">${!loaded?"Laden…":open>0?`Nog <b>${eur(open)}</b> open bij ${people.size} ${people.size===1?"vriend":"vrienden"}`:"Iedereen heeft je terugbetaald"}</p></div>`;
-  if(loaded && !home.mine.length) return h + `<div class="card empty"><p>Fotografeer je eerste ticket met de camera-knop onderaan. Je vrienden kiezen daarna zelf hun deel.</p><button class="btn-p" data-act="camera">${ICON.cam} Scan ticket</button></div>`;
-  for(const t of home.mine){
-    const cs=claimsOf(t), paid=cs.filter(c=>c.paid), waiting=cs.filter(c=>!c.paid);
-    const openAmt=r2(waiting.reduce((s,c)=>s+c.total,0)), pct=cs.length?Math.round(paid.length/cs.length*100):0, full=cs.length&&!waiting.length;
-    h += `<div class="card">
-      <div class="row"><button class="plain" data-act="open" data-id="${esc(t.id)}"><span class="t1">${esc(t.title)}</span><span class="t2">${day(t.createdAt)} · totaal ${eur(sum(t))}</span></button>
-        <div class="col right"><span class="amt ${full?"ok":""}">${cs.length?(full?"✓":eur(openAmt)):"—"}</span><span class="t2">${cs.length?(full?"alles terug":"nog open"):"nog niemand"}</span></div></div>
+  if(loadErr && !loaded) return `<div class="head"><h1>Te krijgen</h1></div><div class="card empty"><p>${esc(loadErr)}</p><button data-act="retry" data-done="Bijgewerkt">Opnieuw</button></div>`;
+  let open=0; const waitingNames=new Set();
+  const cards = home.mine.map(t=>{ const rows=rowsOf(t); const o=openAmount(t,rows); open+=o; rows.filter(r=>!r.paid).forEach(r=>waitingNames.add(r.name.toLowerCase())); return {t,rows,o}; });
+  let h = `<div class="head"><h1>Te krijgen</h1><p class="lead">${!loaded?"Laden…":open>0?`Nog <b>${eur(open)}</b> open bij ${waitingNames.size} ${waitingNames.size===1?"persoon":"personen"}`:"Iedereen heeft je terugbetaald"}</p></div>`;
+  if(!loaded) return h + skel(3);
+  if(!home.mine.length) return h + `<div class="card empty"><p>Fotografeer je eerste ticket met de camera-knop onderaan. Je vrienden kiezen daarna zelf hun deel.</p><button class="btn-p" data-act="camera">${ICON.cam} Scan ticket</button></div>`;
+  for(const {t,rows,o} of cards){
+    const paid=rows.filter(r=>r.paid), waiting=rows.filter(r=>!r.paid);
+    const full=rows.length && !waiting.length, pct=rows.length?Math.round(paid.length/rows.length*100):0;
+    h += `<div class="card tap" role="button" tabindex="0" data-act="open" data-id="${esc(t.id)}" aria-label="Open ${esc(t.title)}">
+      <div class="row"><div class="col"><span class="t1">${esc(t.title)}</span><span class="t2">${day(t.createdAt)} · totaal ${eur(sum(t))}</span></div>
+        <div class="col right"><span class="amt ${full?"ok":""}">${rows.length?(full?"✓":eur(o)):"—"}</span><span class="t2">${rows.length?(full?"alles terug":"nog open"):"nog niemand"}</span></div></div>
       <div class="bar"><span class="${full?"full":""}" style="width:${pct}%"></span></div>
-      <div class="row" style="align-items:center"><div class="avs">${cs.map(c=>`<span class="av ${c.paid?"":"off"}" style="${c.paid?`background:${colorFor(c.userId)}`:""}" title="${esc(c.name)}">${esc(initials(c.name))}</span>`).join("")}</div>
-        <span class="t2">${cs.length?`${paid.length} van ${cs.length} betaald`:"Deel het ticket"}</span></div>
-      ${full?"":`<div class="foot"><span class="t2">${waiting.length?`Wacht op ${esc(waiting.map(c=>c.name).join(", "))}`:"Nog niemand koos zijn deel"}</span>
+      <div class="row" style="align-items:center"><div class="avs">${rows.map(r=>`<span class="av ${r.paid?"":"off"}" style="${r.paid?`background:${colorFor(r.key)}`:""}" title="${esc(r.name)}">${esc(initials(r.name))}</span>`).join("")}</div>
+        <span class="t2">${rows.length?`${paid.length} van ${rows.length} betaald`:"Duid aan voor wie je betaalde"}</span></div>
+      ${full?"":`<div class="foot"><span class="t2">${waiting.length?`Wacht op ${esc(listNames(waiting.map(r=>r.name)))}`:"Deel het ticket met je vrienden"}</span>
         <button class="btn-soft" data-act="remind" data-id="${esc(t.id)}">${ICON.link} ${waiting.length?"Herinner":"Deel"}</button></div>`}
     </div>`;
   }
@@ -335,7 +582,8 @@ function viewDelen(){
   const list = home.shares||[];
   const due = r2(list.filter(x=>!x.claim.paid).reduce((s,x)=>s+x.claim.total,0));
   let h = `<div class="head"><h1>Mijn delen</h1><p class="lead">${!loaded?"Laden…":due>0?`Je moet nog <b style="color:var(--warn)">${eur(due)}</b> betalen`:"Je bent niemand iets schuldig"}</p></div>`;
-  if(loaded && !list.length) return h + `<div class="card empty"><p>Scan de QR-code van een vriend met je camera of open zijn link. Zijn ticket verschijnt dan hier.</p></div>`;
+  if(!loaded) return h + skel(2);
+  if(!list.length) return h + `<div class="card empty"><p>Scan de QR-code van een vriend met je camera of open zijn link. Zijn ticket verschijnt dan hier.</p></div>`;
   for(const x of list){
     const t=x.ticket, c=x.claim, what=(t.items||[]).map((it,i)=>c.q?.[i]?`${c.q[i]}× ${it.name}`:null).filter(Boolean).join(" · ");
     h += `<div class="card">
@@ -346,111 +594,169 @@ function viewDelen(){
       ${!(c.total>0)?`<button class="btn-p" data-act="adjust" data-id="${esc(t.id)}">Kies je deel</button>`
       : c.paid?`<div class="row" style="align-items:center"><span class="pill ok">✓ Betaald</span><button class="btn-link" style="font-size:15px" data-act="setPaid" data-v="0" data-id="${esc(t.id)}">Toch niet</button></div>`
       : `<div style="display:flex;gap:8px">${payButton(t,c.total,"grow")}<button data-act="adjust" data-id="${esc(t.id)}">Aanpassen</button></div>
-         <button class="btn-link" style="font-size:15px;align-self:flex-start" data-act="setPaid" data-v="1" data-id="${esc(t.id)}">Ik heb al betaald</button>`}
+         <button class="linkbtn" style="font-size:15px" data-act="setPaid" data-v="1" data-id="${esc(t.id)}">Ik heb al betaald</button>`}
     </div>`;
   }
   return h;
 }
-function payButton(t, amount, cls){
-  if(t.payee) return `<a class="btn btn-p ${cls||""}" href="${esc(payUrl(t,amount))}" target="_blank" rel="noopener" data-act="pay" data-id="${esc(t.id)}">Betaal ${eur(amount)}</a>`;
-  return `<button class="btn-p ${cls||""}" data-act="payIban" data-id="${esc(t.id)}" data-amt="${amount}">Betaal ${eur(amount)}</button>`;
+function payButton(t, amount, cls, label){
+  const txt = label || `Betaal ${eur(amount)}`;
+  if(t.payee) return `<a class="btn btn-p ${cls||""}" href="${esc(payUrl(t,amount))}" target="_blank" rel="noopener" data-act="pay" data-id="${esc(t.id)}">${txt}</a>`;
+  return `<button class="btn-p ${cls||""}" data-act="payIban" data-id="${esc(t.id)}" data-amt="${amount}">${txt}</button>`;
+}
+function personRow(t, r){
+  const status = r.paid ? (r.total?`betaalde ${eur(r.total)}`:"betaald") : r.chose ? `koos ${eur(r.total)} · nog niet betaald` : "nog niet gekozen";
+  const toggle = r.pid && !r.claim?.paid ? `<button class="linkbtn" data-act="markPerson" data-pid="${esc(r.pid)}" data-v="${r.manual?0:1}">${r.manual?"Zet terug op open":"Markeer als betaald"}</button>` : "";
+  return `<div class="person"><span class="av mid ${r.paid?"":"off"}" style="${r.paid?`background:${colorFor(r.key)}`:""}">${esc(initials(r.name))}</span>
+    <div class="col grow"><span style="font-weight:600">${esc(r.name)}</span><span class="t2">${status}</span>${toggle}</div>
+    ${r.paid?`<span class="pill ok">✓ betaald</span>`:`<button class="btn-soft" data-act="remindOne" data-id="${esc(t.id)}" data-key="${esc(r.key)}">${ICON.link} Herinner</button>`}</div>`;
 }
 function viewTicket(){
   const t=myTicket(S.id);
   if(!t) return `<div class="topbar"><button class="btn-link" data-act="back">‹ Te krijgen</button></div><div class="card empty"><p>${loaded?"Dit ticket bestaat niet meer.":"Laden…"}</p></div>`;
   if(S.editing){
-    return `<div class="topbar"><button class="btn-link" data-act="cancelEdit">Annuleer</button><button class="btn-link" style="font-weight:600" data-act="saveEdit">Bewaar</button></div>
+    return `<div class="topbar"><button class="btn-link" data-act="cancelEdit">Annuleer</button><button class="btn-link" style="font-weight:600" data-act="saveEdit" data-done="Opgeslagen">Bewaar</button></div>
       ${editorRows(S.draft)}
       <div>${S.confirmDel?`<span class="t2">Zeker?</span> <button data-act="delYes">Ja, verwijder ticket</button> <button class="btn-link" style="font-size:15px" data-act="delNo">Nee</button>`:`<button data-act="del" class="warn">Verwijder ticket</button>`}</div>`;
   }
-  const cs=claimsOf(t), fresh=S.justMade===t.id;
-  const left=(t.items||[]).map((it,i)=>({it, n:it.qty-cs.reduce((s,c)=>s+(c.q?.[i]||0),0)})).filter(x=>x.n>0);
-  return `<div class="topbar"><button class="btn-link" data-act="back">‹ Te krijgen</button><button class="btn-link" data-act="edit">Wijzig</button></div>
-    <div class="head">${fresh?`<span class="status">✓ Ticket klaar · ${t.items.length} lijnen</span>`:""}<h1 style="font-size:30px">${esc(t.title)}</h1><p class="lead">${day(t.createdAt)} · totaal <b>${eur(sum(t))}</b></p></div>
+  const rows=rowsOf(t), own=ownerPart(t), open=openAmount(t,rows), fresh=S.justMade===t.id;
+  const claims=t.claims||[];
+  const left=(t.items||[]).map((it,i)=>({it, n:it.qty-(t.ownerQ?.[i]||0)-claims.reduce((s,c)=>s+(c.q?.[i]||0),0)})).filter(x=>x.n>0);
+  return `<div class="topbar"><button class="btn-link" data-act="back">‹ Te krijgen</button><button class="btn-link" data-act="edit">Wijzig lijnen</button></div>
+    <div class="head">${fresh?`<span class="status">✓ Ticket klaar · ${t.items.length} lijnen</span>`:""}<h1 style="font-size:30px">${esc(t.title)}</h1><p class="lead">${day(t.createdAt)} · totaal <b>${eur(sum(t))}</b>${rows.length?` · nog open <b>${eur(open)}</b>`:""}</p></div>
     <div class="grid2"><button class="btn-p btn-big" data-act="shareLink">${ICON.up} Deel link</button><button class="btn-dark btn-big" data-act="showQR">${ICON.qr} Toon QR</button></div>
+    <div class="card list"><div class="row" style="padding:12px 0 0;align-items:center"><span class="cap">Betaald voor</span><button class="linkbtn" data-act="setup">Aanpassen</button></div>
+      <div class="person"><span class="av mid" style="background:${colorFor(me.id)}">${esc(initials(me.name))}</span>
+        <div class="col grow"><span style="font-weight:600">Jij</span><span class="t2">${own>0?`jouw deel ${eur(own)}`:"Je eigen deel is nog niet aangeduid"}</span></div>
+        ${own>0?"":`<button class="btn-soft" data-act="setup">Duid aan</button>`}</div>
+      ${rows.map(r=>personRow(t,r)).join("")}
+      ${rows.length?"":`<div class="person"><span class="t2 grow">Voeg toe voor wie je betaalde. Dan zie je wie nog moet terugbetalen.</span><button class="btn-soft" data-act="setup">Voeg toe</button></div>`}
+    </div>
     <div class="card list">${(t.items||[]).map((it,i)=>{
-      const who=cs.filter(c=>c.q?.[i]).map(c=>`${c.name} ${c.q[i]}`);
+      const who=[...(t.ownerQ?.[i]?[`Jij ${t.ownerQ[i]}`]:[]), ...claims.filter(c=>c.q?.[i]).map(c=>`${personName(t,c)} ${c.q[i]}`)];
       return `<div class="line"><div class="col"><span class="name">${it.qty}× ${esc(it.name)}</span><span class="t2">${who.length?esc(who.join(" · ")):"Nog niemand gekozen"}</span></div><span class="num">${eur(it.qty*it.unitPrice)}</span></div>`;}).join("")}</div>
-    <p class="lead" style="padding:0 4px;font-size:13px">${left.length?`Nog niet gekozen: ${esc(left.map(x=>`${x.n}× ${x.it.name}`).join(", "))}. Wat overblijft, is jouw deel.`:"Alles is verdeeld."}</p>`;
+    <p class="lead" style="padding:0 4px;font-size:13px">${left.length?`Nog niet gekozen: ${esc(left.map(x=>`${x.n}× ${x.it.name}`).join(", "))}.`:"Alles is verdeeld."}</p>`;
 }
 function viewSelect(){
   const e=cache[S.id];
   if(!e) return `<div class="card empty"><p>Ticket laden…</p></div>`;
   if(e.error||!e.ticket) return `<div class="topbar"><button class="btn-link" data-act="toDelen">‹ Mijn delen</button></div><div class="card empty"><p>${esc(e.error||"Dit ticket werd niet gevonden.")}</p></div>`;
-  const t=e.ticket, mineClaim=(e.claims||[]).find(c=>c.userId===me.id);
+  const t=e.ticket, claims=e.claims||[], mineClaim=claims.find(c=>c.userId===me.id);
+  const people=t.people||[], free=people.filter(p=>!claims.some(c=>c.userId!==me.id && c.pid===p.pid));
   return `<div class="topbar"><button class="btn-link" data-act="toDelen">‹ Mijn delen</button></div>
     <div style="display:flex;gap:12px;align-items:center;padding:0 4px"><span class="av big" style="background:${colorFor(t.ownerId)}">${esc(initials(e.ownerName))}</span>
       <div class="col"><h1 style="font-size:26px">${esc(t.title)}</h1><span class="t2" style="font-size:14px">${esc(e.ownerName||"Je vriend")} betaalde · ${day(t.createdAt)}</span></div></div>
+    ${people.length?`<div class="card" style="gap:10px"><span class="cap">Wie ben jij?</span><div class="chips">
+      ${free.map(p=>`<button class="chip sug" aria-pressed="${S.pid===p.pid}" data-act="pickPid" data-v="${esc(p.pid)}">${esc(p.name)}</button>`).join("")}
+      <button class="chip sug" aria-pressed="${S.pid===""}" data-act="pickPid" data-v="">Iemand anders</button></div></div>`:""}
     <p class="lead" style="padding:0 4px;color:var(--ink)">Tik op + bij alles wat van jou is.</p>
     <div class="card list">${(t.items||[]).map((it,i)=>{
-      const max=it.qty-takenByOthers(e,i), q=S.mine[i]||0, left=max-q;
+      const max=it.qty-takenByOthers(t,claims,i), q=S.mine[i]||0, left=max-q;
       return `<div class="line ${q?"mine":""} ${max<=0&&!q?"gone":""}"><div class="col"><span class="name">${esc(it.name)}</span><span class="t2 num">${eur(it.unitPrice)}/st · ${left>0?`nog ${left} vrij`:"alles verdeeld"}</span></div>
-        <div class="step"><button aria-label="Minder ${esc(it.name)}" data-act="dec" data-i="${i}" ${q<=0?"disabled":""}>−</button><span class="q">${q}</span><button aria-label="Meer ${esc(it.name)}" data-act="inc" data-i="${i}" ${q>=max?"disabled":""}>+</button></div></div>`;}).join("")}</div>
+        <div class="step"><button aria-label="Minder ${esc(it.name)}" data-act="dec" data-i="${i}" ${q<=0?"disabled":""}>−</button><span class="q" data-k="m${i}">${q}</span><button aria-label="Meer ${esc(it.name)}" data-act="inc" data-i="${i}" ${q>=max?"disabled":""}>+</button></div></div>`;}).join("")}</div>
     ${mineClaim?.paid?`<span class="pill ok" style="margin-left:4px">✓ Je hebt dit betaald</span>`:""}`;
 }
 function viewProfiel(){
   const now=new Date(), m0=new Date(now.getFullYear(),now.getMonth(),1).getTime();
   const mt=home.mine.filter(t=>t.createdAt>=m0);
-  const adv=r2(mt.reduce((s,t)=>s+sum(t),0)), back=r2(mt.reduce((s,t)=>s+claimsOf(t).reduce((u,c)=>u+(c.paid?c.total:0),0),0));
-  const th=getTheme();
+  const adv=r2(mt.reduce((s,t)=>s+sum(t)-ownerPart(t),0));
+  const back=r2(mt.reduce((s,t)=>s+rowsOf(t).filter(r=>r.paid).reduce((u,r)=>u+r.total,0),0));
+  const th=getTheme(), inApp=standalone();
   return `<div class="head"><h1>Profiel</h1></div>
     <div class="card" style="flex-direction:row;align-items:center;gap:14px"><span class="av big" style="width:56px;height:56px;border-radius:28px;font-size:20px;background:${colorFor(me.id)}">${esc(initials(me.name))}</span>
       <div class="col"><span style="font-size:19px;font-weight:600">${esc(me.name)}</span><span class="t2" style="font-size:14px">${me.bunq?`bunq.me/${esc(me.bunq)}`:me.iban?esc(me.iban):"Nog geen betaalgegevens"}</span></div></div>
+    ${inApp?"":`<div class="card" style="flex-direction:row;align-items:center;gap:12px"><div class="col grow"><span class="t1">Zet op beginscherm</span><span class="t2">Open Splitticket voortaan als app.</span></div><button class="btn-p" data-act="install">Installeer</button></div>`}
     <div class="grid2"><div class="card stat" style="gap:4px"><span class="cap">Voorgeschoten</span><span class="v">${eur(adv)}</span><span class="t2">deze maand</span></div>
       <div class="card stat" style="gap:4px"><span class="cap">Terugbetaald</span><span class="v ok">${eur(back)}</span><span class="t2">${adv?Math.round(back/adv*100)+"% binnen":"deze maand"}</span></div></div>
     <div class="card">
       <div class="field"><label class="cap" for="pName">Naam</label><input id="pName" value="${esc(me.name)}" autocomplete="given-name"></div>
       <div class="field"><label class="cap" for="pBunq">bunq.me-naam</label><input id="pBunq" value="${esc(me.bunq)}" placeholder="bv. JanPeeters" autocapitalize="off" autocomplete="off"><span class="t2">Met bunq.me opent de bankapp van je vrienden met het bedrag al ingevuld.</span></div>
       <div class="field"><label class="cap" for="pIban">Rekeningnummer (reserve)</label><input id="pIban" value="${esc(me.iban)}" placeholder="BE68 5390 0754 7034" autocapitalize="characters" autocomplete="off"><span class="t2">Wordt gebruikt als je geen bunq.me hebt.</span></div>
-      <button class="btn-p" data-act="saveProfile">Bewaar</button></div>
+      <button class="btn-p" data-act="saveProfile" data-done="Opgeslagen">Bewaar</button></div>
     <div class="field"><span class="cap" style="padding:0 4px">Weergave</span>
       <div class="seg" role="group" aria-label="Weergave">${[["light","Licht"],["dark","Donker"],["auto","Automatisch"]].map(([v,l])=>`<button aria-pressed="${th===v}" data-act="theme" data-v="${v}">${l}</button>`).join("")}</div></div>
-    <div class="card set"><div><span>Zet op beginscherm</span><span class="t2">Deel-knop › Zet op beginscherm</span></div><div><span>Wero</span><span class="pill warn" style="align-self:center">binnenkort</span></div></div>`;
+    <div class="card" style="gap:10px"><span class="cap">Ander toestel</span><span class="t2">Met deze koppelcode gebruik je hetzelfde profiel op een ander toestel. Deel ze met niemand anders.</span>
+      <div class="code">${esc(codeOf())}</div><button data-act="copyCode" data-done="Gekopieerd">Kopieer koppelcode</button></div>`;
 }
 
 /* ---------- render ---------- */
 function render(){
   const v=S.view;
   if(!me.name){ $("app").innerHTML=viewOnboard(); $("tabbar").innerHTML=""; $("layer").innerHTML=""; return; }
-  const html = v==="krijgen"?viewKrijgen(): v==="delen"?viewDelen(): v==="profiel"?viewProfiel(): v==="ticket"?viewTicket(): v==="select"?viewSelect(): v==="scan"?viewScan(): viewNew();
+  const html = v==="krijgen"?viewKrijgen(): v==="delen"?viewDelen(): v==="profiel"?viewProfiel(): v==="ticket"?viewTicket(): v==="select"?viewSelect(): v==="scan"?viewScan(): v==="setup"?viewSetup(): viewNew();
   const focused = document.activeElement && document.activeElement.id;
-  $("app").innerHTML = html;
+  const app=$("app");
+  app.innerHTML = html;
+  S.popPid = null;
+  if(v!==lastView){ lastView=v; app.classList.remove("enter"); void app.offsetWidth; app.classList.add("enter"); clearTimeout(enterT); enterT=setTimeout(()=>app.classList.remove("enter"),420); }
   if(focused && $(focused) && /INPUT|TEXTAREA/.test($(focused).tagName)) $(focused).focus();
-  renderBar(); renderLayer();
+  renderBar(); renderLayer(); applyFlash();
+  if(bumpSel){ document.querySelectorAll(bumpSel).forEach(x=>{ x.classList.remove("bump"); void x.offsetWidth; x.classList.add("bump"); }); bumpSel=null; }
 }
 function renderBar(){
   const bar=$("tabbar"), v=S.view;
   if(v==="select"){
     const e=cache[S.id]; if(!e?.ticket){ bar.innerHTML=""; return; }
     const t=e.ticket, total=partTotal(t,S.mine), mc=(e.claims||[]).find(c=>c.userId===me.id);
-    bar.innerHTML=`<div class="in"><div class="paybar glass"><div class="col"><span class="cap">Jouw deel</span><span class="v">${eur(total)}</span></div>
+    bar.innerHTML=`<div class="in"><div class="paybar glass"><div class="col"><span class="cap">Jouw deel</span><span class="v" id="paytotal" style="display:inline-block">${eur(total)}</span></div>
       <div style="display:flex;gap:8px;align-items:center">${mc&&!mc.paid&&total>0?`<button class="btn-link" style="font-size:14px" data-act="setPaid" data-v="1" data-id="${esc(t.id)}">Al betaald</button>`:""}
-      ${total>0?payButton(t,total).replace(`Betaal ${eur(total)}`,"Betaal via bank"):`<span class="btn btn-p" style="opacity:.5">Betaal via bank</span>`}</div></div></div>`;
+      ${total>0?payButton(t,total,"","Betaal via bank"):`<span class="btn btn-p" style="opacity:.5">Betaal via bank</span>`}</div></div></div>`;
     return;
   }
-  if(["ticket","scan","new"].includes(v)){ bar.innerHTML=""; return; }
+  if(["ticket","scan","new","setup"].includes(v)){ bar.innerHTML=""; return; }
   const tab=(id,icon,label)=>`<button class="tab" data-act="tab" data-v="${id}" ${v===id?'aria-current="page"':""}>${icon}${label}</button>`;
   bar.innerHTML=`<div class="in"><nav class="tabs glass" aria-label="Hoofdmenu">${tab("krijgen",ICON.get,"Te krijgen")}${tab("delen",ICON.share,"Mijn delen")}${tab("profiel",ICON.me,"Profiel")}</nav>
     <button class="cam" data-act="camera" aria-label="Scan ticket">${ICON.cam}</button></div>`;
 }
 function renderLayer(){
+  const l=S.layer, fresh = !!l && l!==lastLayer; lastLayer=l;
+  renderLayerInner();
+  if(fresh) $("layer").firstElementChild?.classList.add("anim");
+}
+function renderLayerInner(){
   const L=$("layer"), l=S.layer;
   if(!l){ L.innerHTML=""; return; }
+  if(l.kind==="reading"){
+    L.innerHTML=`<div class="layer read" role="status"><div class="readbox"><img src="${S.photo}" alt=""></div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center"><span style="font-size:18px;font-weight:600">Claude leest je ticket…</span><span style="color:rgba(255,255,255,.7);font-size:14px">Dit duurt meestal 5 à 15 seconden.</span></div>
+      <button class="btn" style="background:rgba(255,255,255,.14);border-color:rgba(255,255,255,.3);color:#fff" data-act="aiCancel">Annuleer</button></div>`;
+    return;
+  }
   if(l.kind==="copy"){ L.innerHTML=`<div class="layer sheet"><div class="card" style="max-width:420px;width:100%"><span class="t1">Kopieer dit</span><textarea id="copybox" readonly>${esc(l.text)}</textarea><button class="btn-p" data-act="closeLayer">Klaar</button></div></div>`; setTimeout(()=>$("copybox")?.select(),0); return; }
   if(l.kind==="iban"){
     L.innerHTML=`<div class="layer sheet"><div class="card" style="max-width:420px;width:100%"><span class="t1">Schrijf over via je bankapp</span>
-      <div class="copyrow"><div class="col"><span class="cap">Naar</span><span>${esc(l.name)}</span><span class="num">${esc(l.iban)}</span></div><button data-act="copyVal" data-v="${esc(l.iban.replace(/\s/g,""))}">Kopieer</button></div>
-      <div class="copyrow"><div class="col"><span class="cap">Bedrag</span><span class="num">${eur(l.amount)}</span></div><button data-act="copyVal" data-v="${l.amount.toFixed(2).replace(".",",")}">Kopieer</button></div>
-      <div class="copyrow"><div class="col"><span class="cap">Mededeling</span><span>${esc(l.msg)}</span></div><button data-act="copyVal" data-v="${esc(l.msg)}">Kopieer</button></div>
+      <div class="copyrow"><div class="col"><span class="cap">Naar</span><span>${esc(l.name)}</span><span class="num">${esc(l.iban)}</span></div><button data-act="copyVal" data-done="Gekopieerd" data-v="${esc(l.iban.replace(/\s/g,""))}">Kopieer</button></div>
+      <div class="copyrow"><div class="col"><span class="cap">Bedrag</span><span class="num">${eur(l.amount)}</span></div><button data-act="copyVal" data-done="Gekopieerd" data-v="${l.amount.toFixed(2).replace(".",",")}">Kopieer</button></div>
+      <div class="copyrow"><div class="col"><span class="cap">Mededeling</span><span>${esc(l.msg)}</span></div><button data-act="copyVal" data-done="Gekopieerd" data-v="${esc(l.msg)}">Kopieer</button></div>
       <button class="btn-p" data-act="closeLayer">Klaar</button></div></div>`; return;
+  }
+  if(l.kind==="remind"){
+    const t=myTicket(l.id); if(!t){ S.layer=null; L.innerHTML=""; return; }
+    const w=rowsOf(t).filter(r=>!r.paid);
+    L.innerHTML=`<div class="layer dim"><button class="backdrop" data-act="closeLayer" aria-label="Sluit"></button><div class="card sheetcard">
+      <div class="col"><span class="t1">Wie wil je herinneren?</span><span class="t2">Elk bericht noemt de naam en het bedrag. In het deelmenu kies je daarna de juiste persoon.</span></div>
+      <div class="col" style="gap:0">${w.map(r=>personRow(t,r)).join("")}</div>
+      <button data-act="closeLayer">Klaar</button></div></div>`;
+    return;
+  }
+  if(l.kind==="install"){
+    L.innerHTML=`<div class="layer dim"><button class="backdrop" data-act="closeLayer" aria-label="Sluit"></button><div class="card sheetcard" style="gap:16px">
+      <span class="t1">Zet Splitticket op je beginscherm</span>
+      ${isIOS?`<div class="isteps">
+        <div class="istep"><span class="ic">${ICON.up}</span><div class="col"><span style="font-weight:600">Tik in Safari op de Deel-knop</span><span class="t2">Zie je die niet? Tik eerst op ⋯ naast de adresbalk.</span></div></div>
+        <div class="istep"><span class="ic">${ICON.plus}</span><div class="col"><span style="font-weight:600">Kies "Zet op beginscherm"</span><span class="t2">Scroll in het menu omlaag als je het niet meteen ziet.</span></div></div>
+        <div class="istep"><span class="ic">${ICON.check}</span><div class="col"><span style="font-weight:600">Tik op "Voeg toe"</span><span class="t2">Je profiel gaat mee naar de app. Lukt dat niet, gebruik dan je koppelcode onder Profiel.</span></div></div></div>`
+      :`<span class="t2">Open deze pagina op je iPhone in Safari en tik daar op Installeer. Op Android of in Chrome gebeurt het met één tik.</span>`}
+      <button class="btn-p" data-act="closeLayer">Begrepen</button></div></div>`;
+    return;
   }
   if(l.kind==="qr"){
     const t=myTicket(S.id); if(!t){ S.layer=null; L.innerHTML=""; return; }
-    const cs=claimsOf(t);
+    const rows=rowsOf(t), chose=rows.filter(r=>r.chose).map(r=>r.name);
     L.innerHTML=`<div class="layer qr"><div style="align-self:stretch;max-width:520px;width:100%;margin:0 auto"><button class="btn-link" data-act="closeLayer">‹ Ticket</button></div>
       <div style="text-align:center;display:flex;flex-direction:column;gap:6px"><h1 style="font-size:30px">${esc(t.title)}</h1><span style="color:rgba(255,255,255,.85)">Laat je vrienden deze code scannen met hun camera</span></div>
       <div class="qrbox" role="img" aria-label="QR-code naar dit ticket"><div id="qr"></div></div>
-      <span>${cs.length?esc(cs.map(c=>c.name).join(", "))+(cs.length===1?" koos":" kozen")+" al een deel":"Nog niemand koos een deel"}</span>
+      <span>${chose.length?esc(listNames(chose))+(chose.length===1?" koos":" kozen")+" al een deel":"Nog niemand koos een deel"}</span>
       <button class="btn" style="background:rgba(255,255,255,.16);border-color:rgba(255,255,255,.35);color:#fff;width:100%;max-width:360px;height:56px;border-radius:28px" data-act="shareLink">${ICON.up} Of deel de link</button></div>`;
     if(window.QRCode) new QRCode($("qr"),{text:linkFor(t),width:240,height:240,colorDark:"#14202b",colorLight:"#ffffff",correctLevel:QRCode.CorrectLevel.M});
     try{ navigator.wakeLock?.request("screen").catch(()=>{}); }catch{}
@@ -462,50 +768,71 @@ document.addEventListener("click", async ev=>{
   const el=ev.target.closest("[data-act]"); if(!el) return;
   const a=el.dataset.act, i=+el.dataset.i;
   switch(a){
-    case "onboard": { const n=$("obName").value.trim(); if(!n){ $("obName").focus(); return; } me.name=n.slice(0,30); store.set("me",me);
-      try{ await api("hello",{ bunq:me.bunq, iban:me.iban }); }catch{} render(); await refresh(); readHash(); break; }
-    case "retry": refresh(); break;
+    case "onboard": { const n=$("obName").value.trim(); if(!n){ setFlash(el,"err"); $("obName").focus(); return; } me.name=n.slice(0,30); store.set("me",me);
+      try{ await withFlash(el, ()=>api("hello",{ bunq:me.bunq, iban:me.iban })); await wait(250); }catch{} render(); await refresh(); readHash(); break; }
+    case "toggleImport": S.showImport=!S.showImport; render(); break;
+    case "doImport": try{ await withFlash(el, ()=>importCode($("obCode").value)); await wait(250); S.showImport=false; render(); await refresh(); readHash(); toast("Profiel gekoppeld."); }catch(e){ toast(e.message); } break;
+    case "retry": await withFlash(el, refresh); break;
     case "tab": go(el.dataset.v); break;
     case "camera": $("cam").value=""; $("cam").click(); break;
     case "cancelScan": go("krijgen"); break;
+    case "aiRetry": S.aiErr=""; readWithAI(); break;
+    case "aiCancel": readRun++; S.layer=null; S.aiErr=""; S.view="scan"; render(); break;
     case "manual": startNew([], "", 0); break;
-    case "parse": { const txt=($("paste")?.value||"").trim(); if(!txt){ toast("Plak eerst de tekst van het ticket."); return; }
+    case "parse": { const txt=($("paste")?.value||"").trim(); if(!txt){ setFlash(el,"err"); toast("Plak eerst de tekst van het ticket."); return; }
       const r=parseReceipt(txt); if(!r.items.length) toast("Geen lijnen gevonden. Vul ze zelf in."); startNew(r.items, r.title, r.total); break; }
     case "cancelNew": S.draft=null; go("krijgen"); break;
-    case "create": createTicket(); break;
+    case "next": openSetup(true); break;
+    case "setup": openSetup(false); break;
+    case "setupBack": if(S.setup?.isNew){ S.setup=null; S.view="new"; render(); } else { S.setup=null; go("ticket",S.id); } break;
+    case "addPerson": addPerson($("addName")?.value); break;
+    case "addSug": addPerson(el.dataset.v); break;
+    case "rmPerson": S.setup.people.splice(i,1); render(); break;
+    case "oinc": case "odec": { const q=(S.setup.ownerQ[i]||0)+(a==="oinc"?1:-1); if(q>0) S.setup.ownerQ[i]=q; else delete S.setup.ownerQ[i]; bumpSel=`[data-k="o${i}"],#owntotal`; render(); break; }
+    case "saveSetup": saveSetup(el); break;
     case "open": S.justMade=null; go("ticket", el.dataset.id); break;
     case "back": clearHash(); go("krijgen"); break;
     case "toDelen": clearHash(); go("delen"); break;
-    case "remind": { const t=myTicket(el.dataset.id), w=claimsOf(t).filter(c=>!c.paid);
-      shareText(w.length?`Hoi! Je moet nog je deel betalen van ${t.title}. Tik op de link en betaal in één keer:`:`Duid aan wat je had bij ${t.title} en betaal je deel:`, linkFor(t)); break; }
+    case "remind": { const t=myTicket(el.dataset.id), w=rowsOf(t).filter(r=>!r.paid);
+      if(!w.length){ shareText(`Duid aan wat je had bij ${t.title} en betaal je deel:`, linkFor(t)); break; }
+      if(w.length===1){ remindRow(t,w[0]); break; }
+      S.layer={kind:"remind", id:t.id}; render(); break; }
+    case "remindOne": { const t=myTicket(el.dataset.id), r=t && rowsOf(t).find(x=>x.key===el.dataset.key); if(r) remindRow(t,r); break; }
+    case "markPerson": try{ await withFlash(el, ()=>api("markPerson",{ id:S.id, pid:el.dataset.pid, paid:el.dataset.v==="1" })); await wait(300); await refresh(); toast(el.dataset.v==="1"?"Gemarkeerd als betaald.":"Weer op open gezet."); }catch(e){ toast(e.message); } break;
     case "shareLink": { const t=myTicket(S.id); shareText(`Duid aan wat je had bij ${t.title} en betaal je deel:`, linkFor(t)); break; }
     case "showQR": S.layer={kind:"qr"}; render(); break;
     case "closeLayer": S.layer=null; render(); break;
-    case "copyVal": copy(el.dataset.v); break;
+    case "copyVal": await copy(el.dataset.v); if(!S.layer || S.layer.kind!=="copy") setFlash(el,"done"); break;
+    case "copyCode": await copy(codeOf(), "Koppelcode gekopieerd."); if(!S.layer) setFlash(el,"done"); break;
+    case "install":
+      if(installEvt){ installEvt.prompt(); try{ await installEvt.userChoice; }catch{} installEvt=null; render(); break; }
+      try{ history.replaceState(null,"",location.pathname+location.search+"#koppel="+codeOf()); }catch{}
+      S.layer={kind:"install"}; render(); break;
     case "edit": { const t=myTicket(S.id); S.editing=true; S.draft={ title:t.title, items:t.items.map(x=>({...x})), ticketTotal:t.ticketTotal||0 }; render(); break; }
     case "cancelEdit": S.editing=false; S.err=""; render(); break;
-    case "saveEdit": saveEdit(); break;
+    case "saveEdit": saveEdit(el); break;
     case "addRow": S.draft.items.push({name:"",qty:1,unitPrice:0}); render(); break;
     case "delRow": S.draft.items.splice(i,1); render(); break;
     case "del": S.confirmDel=true; render(); break;
     case "delNo": S.confirmDel=false; render(); break;
-    case "delYes": deleteTicket(); break;
-    case "inc": case "dec": S.mine[i]=(S.mine[i]||0)+(a==="inc"?1:-1); if(S.mine[i]<=0) delete S.mine[i]; render(); queueClaim(S.id); break;
+    case "delYes": deleteTicket(el); break;
+    case "pickPid": S.pid=el.dataset.v; render(); queueClaim(S.id); break;
+    case "inc": case "dec": S.mine[i]=(S.mine[i]||0)+(a==="inc"?1:-1); if(S.mine[i]<=0) delete S.mine[i]; bumpSel=`[data-k="m${i}"],#paytotal`; render(); queueClaim(S.id); break;
     case "adjust": if(!cache[el.dataset.id]) await loadTicket(el.dataset.id); go("select", el.dataset.id); break;
     case "pay": if(S.view==="select") saveClaim(el.dataset.id); break;
-    case "payIban": { const id=el.dataset.id, e=cache[id] || { ticket:(home.shares.find(x=>x.ticket.id===id)||{}).ticket, ownerName:(home.shares.find(x=>x.ticket.id===id)||{}).ownerName };
+    case "payIban": { const id=el.dataset.id, sh=home.shares.find(x=>x.ticket.id===id)||{}, e=cache[id] || { ticket:sh.ticket, ownerName:sh.ownerName };
       if(S.view==="select") saveClaim(id);
       S.layer={ kind:"iban", iban:e.ticket?.iban||"", name:e.ownerName||"", amount:+el.dataset.amt, msg:`${me.name} – ${e.ticket?.title||"Ticket"}`.slice(0,60) }; render(); break; }
-    case "setPaid": { const id=el.dataset.id; if(!cache[id]) await loadTicket(id);
-      if(S.view!=="select"){ S.mine={...((cache[id]?.claims||[]).find(c=>c.userId===me.id)?.q||{})}; }
-      await saveClaim(id,{ paid: el.dataset.v==="1" }); toast(el.dataset.v==="1"?"Gemarkeerd als betaald.":"Weer op open gezet."); break; }
+    case "setPaid": { const id=el.dataset.id; setFlash(el,"busy"); if(!cache[id]) await loadTicket(id);
+      if(S.view!=="select"){ const mc=(cache[id]?.claims||[]).find(c=>c.userId===me.id); S.mine={...(mc?.q||{})}; S.pid=mc?.pid ?? null; }
+      await withFlash(el, ()=>saveClaim(id,{ paid: el.dataset.v==="1" })); toast(el.dataset.v==="1"?"Gemarkeerd als betaald.":"Weer op open gezet."); break; }
     case "theme": store.set("theme", el.dataset.v); applyTheme(el.dataset.v); render(); break;
     case "saveProfile": { const n=$("pName").value.trim(), b=$("pBunq").value.trim().replace(/^https?:\/\/(www\.)?bunq\.me\//i,"").replace(/\/.*$/,""), ib=$("pIban").value.trim().toUpperCase();
-      if(!n){ toast("Vul je naam in."); return; }
-      if(b && !/^[A-Za-z0-9._-]+$/.test(b)){ toast("Vul alleen je bunq.me-naam in, bv. JanPeeters."); return; }
-      if(ib && !/^[A-Z]{2}\d{2}[A-Z0-9 ]{10,30}$/.test(ib)){ toast("Dat rekeningnummer lijkt niet te kloppen."); return; }
+      if(!n){ setFlash(el,"err"); toast("Vul je naam in."); return; }
+      if(b && !/^[A-Za-z0-9._-]+$/.test(b)){ setFlash(el,"err"); toast("Vul alleen je bunq.me-naam in, bv. JanPeeters."); return; }
+      if(ib && !/^[A-Z]{2}\d{2}[A-Z0-9 ]{10,30}$/.test(ib)){ setFlash(el,"err"); toast("Dat rekeningnummer lijkt niet te kloppen."); return; }
       me.name=n.slice(0,30); me.bunq=b; me.iban=ib; store.set("me",me);
-      try{ await api("hello",{ bunq:b, iban:ib }); toast("Opgeslagen."); await refresh(); }catch(e){ toast(e.message); } break; }
+      try{ await withFlash(el, ()=>api("hello",{ bunq:b, iban:ib })); refresh(); }catch(e){ toast(e.message); } break; }
   }
 });
 document.addEventListener("input", ev=>{
@@ -521,11 +848,74 @@ document.addEventListener("input", ev=>{
   if($("etot")) $("etot").textContent=eur(tot);
   if($("echeck")) $("echeck").hidden = Math.abs(S.draft.ticketTotal-tot)<=0.01;
 });
-document.addEventListener("keydown", ev=>{ if(ev.key==="Enter" && ev.target.id==="obName"){ ev.preventDefault(); document.querySelector('[data-act="onboard"]').click(); } });
+document.addEventListener("keydown", ev=>{
+  const id=ev.target.id;
+  if(ev.key==="Enter" && id==="obName"){ ev.preventDefault(); document.querySelector('[data-act="onboard"]').click(); return; }
+  if(ev.key==="Enter" && id==="addName"){ ev.preventDefault(); addPerson(ev.target.value); return; }
+  if((ev.key==="Enter"||ev.key===" ") && ev.target.getAttribute("role")==="button" && ev.target.dataset.act){ ev.preventDefault(); ev.target.click(); }
+});
+
+/* ---------- pull to refresh ---------- */
+const PTR = { y0:null, x0:0, dy:0, on:false, busy:false, ready:false };
+const PTR_GO = 62, PTR_MAX = 100, PTR_HOLD = 52;
+const ptrAllowed = () => me.name && !S.layer && (S.view==="krijgen" || S.view==="delen" || (S.view==="ticket" && !S.editing));
+function setPull(y, mode){ // mode: "drag" | "spin" | "back"
+  const app=$("app"), el=$("ptr"), arc=el.querySelector(".arc");
+  const ease = mode==="drag" ? "none" : "transform .34s cubic-bezier(.2,.8,.2,1)";
+  app.style.transition = ease;
+  app.style.transform = y ? `translateY(${y}px)` : "";
+  const p = Math.min(1, y/PTR_GO);
+  el.style.transition = mode==="drag" ? "none" : "opacity .25s, transform .34s cubic-bezier(.2,.8,.2,1)";
+  el.style.opacity = mode==="back" ? 0 : (y ? Math.max(.2,p) : 0);
+  el.style.transform = `translate(-50%, ${Math.max(0, y*0.42)}px)`;
+  el.classList.toggle("spin", mode==="spin");
+  el.classList.toggle("ready", mode==="drag" && p>=1);
+  if(mode!=="spin") arc.style.strokeDashoffset = String(62.83*(1-p*0.82));
+}
+document.addEventListener("touchstart", e=>{
+  if(PTR.busy || !ptrAllowed() || window.scrollY>0 || e.touches.length!==1) return;
+  if(e.target.closest("input,textarea")) return;
+  PTR.y0=e.touches[0].clientY; PTR.x0=e.touches[0].clientX; PTR.dy=0; PTR.on=false; PTR.ready=false;
+},{ passive:true });
+document.addEventListener("touchmove", e=>{
+  if(PTR.y0===null) return;
+  const dy=e.touches[0].clientY-PTR.y0, dx=Math.abs(e.touches[0].clientX-PTR.x0);
+  if(!PTR.on && (dy<6 || dx>dy)){ if(dy<0||dx>dy) PTR.y0=null; return; }
+  if(window.scrollY>0){ PTR.y0=null; return; }
+  PTR.on=true; e.preventDefault();
+  const raw = Math.max(0,dy)*0.55; PTR.dy = raw<PTR_GO ? raw : Math.min(PTR_MAX, PTR_GO + (raw-PTR_GO)*0.35); // na de drempel: zwaarder
+  const ready = PTR.dy>=PTR_GO;
+  if(ready && !PTR.ready){ try{ navigator.vibrate?.(6); }catch{} }
+  PTR.ready = ready;
+  setPull(PTR.dy, "drag");
+},{ passive:false });
+document.addEventListener("touchend", async ()=>{
+  if(PTR.y0===null) return;
+  PTR.y0=null; if(!PTR.on) return; PTR.on=false;
+  if(PTR.ready){
+    PTR.busy=true; setPull(PTR_HOLD, "spin");
+    const t0=Date.now();
+    await refresh();
+    if(S.view==="ticket" && S.id) render();
+    await wait(Math.max(0, 750-(Date.now()-t0)));
+    PTR.busy=false;
+    if(loadErr) toast("Bijwerken lukte niet. Controleer je verbinding.");
+  }
+  setPull(0, "back");
+});
+document.addEventListener("touchcancel", ()=>{ if(PTR.on && !PTR.busy){ PTR.y0=null; PTR.on=false; setPull(0,"back"); } });
 
 /* ---------- boot ---------- */
-render();
-if(me.name){ refresh().then(readHash); }
+(async()=>{
+  const km=/^#koppel=(.+)$/.exec(location.hash||"");
+  if(km){
+    const c=parseCode(decodeURIComponent(km[1]));
+    if(c && c.id!==me.id && !me.name){ try{ await importCode(c.id+"."+c.key); }catch{} }
+    clearHash();
+  }
+  render();
+  if(me.name){ await refresh(); readHash(); }
+})();
 </script>
 </body>
 </html>
