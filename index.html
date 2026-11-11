@@ -113,6 +113,7 @@ button:disabled{opacity:.5}
 .chips{display:flex;flex-wrap:wrap;gap:8px}
 .chip{min-height:38px;border-radius:19px;padding:0 14px;font-size:15px;font-weight:600;border:1px solid transparent;background:var(--accent-soft);color:var(--accent);display:inline-flex;align-items:center;gap:4px}
 .chip.sug{background:var(--seg);color:var(--ink)}
+.line .chip{white-space:nowrap;flex:none}
 .chip[aria-pressed="true"]{background:var(--accent);color:var(--on-accent)}
 .chip .x{width:28px;height:28px;min-height:0;padding:0;margin-right:-8px;border:none;border-radius:14px;background:none;color:inherit;font-size:18px}
 .empty{padding:28px 20px;text-align:center;align-items:center}
@@ -120,6 +121,13 @@ button:disabled{opacity:.5}
 .topbar{display:flex;justify-content:space-between;align-items:center;margin:-8px 0 -4px}
 .status{font-size:13px;font-weight:600;color:var(--ok)}
 .edit{display:grid;grid-template-columns:minmax(0,1fr) 3.6rem 5.2rem 2.6rem;gap:6px;align-items:center}
+.erow{display:flex;flex-direction:column;gap:8px;padding:12px 0}
+.erow+.erow{border-top:1px dashed var(--line)}
+.erow-top{display:flex;gap:8px;align-items:center}
+.erow-top input{font-weight:600}
+.erow-nums{display:grid;grid-template-columns:4.2rem minmax(0,1fr) minmax(0,1fr);gap:8px}
+.erow-nums label{display:flex;flex-direction:column;gap:4px;font-size:11px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--muted)}
+.erow .x{width:2.6rem;height:2.6rem;min-height:0;padding:0;border-radius:50%;flex:none}
 input,textarea{font:16px var(--body);color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px;width:100%;min-width:0}
 textarea{min-height:120px;resize:vertical}
 input.n{font-family:var(--mono);text-align:right}
@@ -248,6 +256,42 @@ body.cam-open{overflow:hidden}
   .tap:active,button:active,.btn:active{transform:none!important}
   #ptr.spin svg,.is-busy::after,.sk{animation:none}
 }
+/* nieuwe verdeling */
+.allchip{flex:none;display:inline-flex;align-items:center;gap:4px;min-height:32px;padding:0 10px;border-radius:16px;border:1px dashed var(--line);background:none;color:var(--muted);font-size:12px;font-weight:700}
+.allchip[aria-pressed="true"]{background:var(--warn);border:1px solid var(--warn);color:var(--card)}
+.lockcap{display:flex;align-items:center;gap:6px;padding:12px 0 4px;font-size:12px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--muted)}
+.line.muted{color:var(--muted)}
+.line.tap{cursor:pointer}
+.chev{color:var(--muted);font-size:20px;flex:none}
+.linkish{color:var(--accent);font-size:13px;font-weight:600;flex:none}
+.card.dashed{background:transparent;border:1.5px dashed var(--line);box-shadow:none}
+.tags{display:flex;flex-wrap:wrap;gap:4px;margin-top:4px}
+.ptag{font-size:11px;font-weight:700;color:#fff;padding:2px 8px;border-radius:999px}
+.totals{display:grid;grid-template-columns:repeat(auto-fit,minmax(96px,1fr));gap:8px}
+.totals>div{display:flex;flex-direction:column;gap:2px;padding:10px 12px;border-radius:12px;background:var(--card);font-size:12px;color:var(--muted)}
+.totals>div b{font-size:15px;color:var(--ink)}
+.totals>.dashedbox{background:transparent;border:1.5px dashed var(--line)}
+.standbar{display:flex;height:12px;border-radius:6px;overflow:hidden;background:var(--track)}
+.standbar span{display:block;height:100%}
+.legend{display:grid;grid-template-columns:1fr 1fr;gap:6px 12px;font-size:12px;color:var(--muted)}
+.legend span{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.legend b{color:var(--ink)}
+.legend i{width:10px;height:10px;border-radius:3px;flex:none}
+.note{font-size:13px;color:var(--warn);background:color-mix(in srgb,var(--warn) 10%,transparent);padding:6px 10px;border-radius:10px}
+.notice.warmish{border-color:var(--warn)}
+.sumbox{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:12px 14px;border-radius:12px;background:var(--accent-soft);font-size:14px}
+.sumbox b{font-size:18px}
+.chk{width:34px;height:34px;min-height:34px;padding:0;border-radius:17px;display:flex;align-items:center;justify-content:center;border:2px solid var(--line);background:none;color:transparent;flex:none}
+.chk svg{width:18px;height:18px}
+.chk[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
+.dotrow{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.dotbtn{border:none;background:none;padding:2px;min-height:0;display:inline-flex;align-items:center;gap:6px}
+.dot{width:22px;height:22px;box-sizing:border-box;border-radius:11px;display:inline-flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#fff;border:2px solid var(--card);flex:none}
+.dots{display:inline-flex}.dots .dot+.dot{margin-left:-7px}
+.dot.me{border:none;margin:2px;background:var(--c);box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--c);transition:background .2s,box-shadow .2s}
+.dot.me.off{background:var(--av-off);box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--av-off)}
+.tip{align-self:flex-start;font-size:12px;padding:4px 10px;border-radius:8px;background:var(--ink);color:var(--card)}
+.pickrow .col.right{min-width:64px}
 </style>
 </head>
 <body>
@@ -349,7 +393,8 @@ async function importCode(code){
 /* ---------- state ---------- */
 let home = { mine:[], shares:[], ai:false }, loaded=false, loadErr="";
 const cache = {};
-const S = { view:"krijgen", id:null, editing:false, draft:null, setup:null, mine:{}, pid:null, pidHint:null, justMade:null, layer:null, confirmDel:false, err:"", photo:null, pasted:"", showImport:false };
+const S = { view:"krijgen", id:null, draft:null, mine:null, mineBase:null, pid:null, pidHint:null, joining:false, namesOpen:-1,
+  justMade:null, layer:null, confirmDel:false, err:"", photo:null, pasted:"", showImport:false };
 
 async function refresh(){
   if(!me.name) return;
@@ -362,44 +407,97 @@ async function loadTicket(id){
   catch(e){ cache[id] = { error:e.message }; }
   render(); return cache[id];
 }
-setInterval(()=>{ if(document.visibilityState==="visible" && !S.setup && !S.editing){ refresh(); if(S.view==="select"&&S.id&&!saving) loadTicket(S.id); } }, 20000);
-document.addEventListener("visibilitychange", ()=>{ if(document.visibilityState==="visible" && !S.setup && !S.editing) refresh(); });
+const busyEditing = () => !!S.draft || (S.layer && (S.layer.kind==="pick" || S.layer.kind==="propose"));
+setInterval(()=>{ if(document.visibilityState==="visible" && !busyEditing()){ refresh(); if(S.view==="select"&&S.id&&!saving) loadTicket(S.id); } }, 20000);
+document.addEventListener("visibilitychange", ()=>{ if(document.visibilityState==="visible" && !busyEditing()) refresh(); });
 
-/* ---------- money logic ---------- */
+/* ===== Splitticket rekenregels (identiek in app en script) =====
+ * Lijnen "voor iedereen" (all): verplicht, gelijk verdeeld over de hele groep (groep + betaler).
+ * Andere lijnen: ieder kiest zelf een deel { n: aantal, w: gedeeld met }. Deel = n ÷ w stuks.
+ * De betaler stelt voor wie hij verwacht (proposal); zijn eigen keuze staat onder sleutel "o".
+ * Wie betaalde, houdt het bedrag "voor iedereen" van op dat moment (paidAllPP).
+ */
+function calcTicket(t, claims) {
+  const R = n => Math.round((n + Number.EPSILON) * 100) / 100;
+  const share = p => (p && Number(p.w) > 0 ? Math.max(0, Number(p.n) || 0) / Number(p.w) : 0);
+  const items = t.items || [], people = t.people || [], prop = t.proposal || {};
+  claims = claims || [];
+  const group = people.length + 1;
+  const allTotal = items.reduce((s, it) => s + (it.all ? it.qty * it.unitPrice : 0), 0);
+  const allPP = allTotal / group;
+  const ownerPicks = {};
+  items.forEach((it, i) => { const o = (prop[i] || {}).o; if (o && !it.all && share(o) > 0) ownerPicks[i] = o; });
+  const lines = picks => items.reduce((s, it, i) => s + (it.all ? 0 : share((picks || {})[i]) * it.unitPrice), 0);
+  const used = items.map((it, i) => it.all ? 0 : share(ownerPicks[i]) + claims.reduce((s, c) => s + share((c.picks || {})[i]), 0));
+  const party = c => {
+    const paid = Number(c.paidTotal) || 0;
+    const frozen = paid > 0 && c.paidAllPP !== null && c.paidAllPP !== undefined && c.paidAllPP !== "";
+    const pp = frozen ? Number(c.paidAllPP) : allPP;
+    const total = R(pp + lines(c.picks));
+    return { total: total, paid: R(paid), due: R(total - paid), over: frozen ? R(pp - allPP) : 0, linesAmt: R(lines(c.picks)) };
+  };
+  const proposedFor = key => {
+    const out = {};
+    items.forEach((it, i) => { const x = (prop[i] || {})[key]; if (x && !it.all && share(x) > 0) out[i] = x; });
+    return out;
+  };
+  const unclaimed = R(items.reduce((s, it, i) => s + (it.all ? 0 : Math.max(0, it.qty - used[i]) * it.unitPrice), 0));
+  return { group: group, allTotal: R(allTotal), allPP: R(allPP), allPPexact: allPP, used: used, ownerPicks: ownerPicks,
+    owner: R(allPP + lines(ownerPicks)), party: party, proposedFor: proposedFor, unclaimed: unclaimed, share: share, lines: lines, R: R };
+}
+/* ===== einde rekenregels ===== */
+
+
+/* ---------- money helpers ---------- */
+const R = n => Math.round((n+Number.EPSILON)*100)/100;
 function myTicket(id){ return home.mine.find(t=>t.id===id) || null; }
-function partTotal(t, q){ return r2((t.items||[]).reduce((s,it,i)=>s+(q[i]||0)*it.unitPrice,0)); }
-const ownerPart = t => partTotal(t, t.ownerQ||{});
+const lineTotal = it => R(it.qty*it.unitPrice);
+const money = x => x ? (Math.round(x*100)/100).toFixed(2).replace(".",",") : "";
+const shareOf = p => p && p.w>0 ? p.n/p.w : 0;
+const fmtShare = p => !p ? "" : p.w===1 ? `${p.n}` : `${p.n}÷${p.w}`;
+const nonAll = t => (t.items||[]).map((it,i)=>({it,i})).filter(x=>!x.it.all);
+const allLines = t => (t.items||[]).map((it,i)=>({it,i})).filter(x=>x.it.all);
 function personName(t, c){ return ((t.people||[]).find(p=>p.pid===c.pid)||{}).name || c.name; }
-// Everyone who should pay you back for this ticket, with their status.
+
+// Iedereen van de groep met zijn stand: betaald, gekozen, of nog niets.
 function rowsOf(t){
-  const claims = t.claims||[], people = t.people||[];
-  const rows = people.map(p=>{
-    const c = claims.find(x=>x.pid===p.pid) || null;
-    return { key:"p-"+p.pid, pid:p.pid, name:p.name, claim:c, manual:!!p.paid, paid:!!(p.paid || c?.paid), total:c?.total||0, chose:!!(c && c.total>0) };
+  const c=calcTicket(t, t.claims||[]), claims=t.claims||[], people=t.people||[];
+  const rows=people.map(p=>{
+    const cl=claims.find(x=>x.pid===p.pid)||null, pr=cl?c.party(cl):null;
+    const paid = (pr && pr.paid>0 && pr.due<=0.009) || (!!p.paid && !(pr&&pr.paid>0));
+    const total = pr ? pr.total : R(c.allPPexact + c.lines(c.proposedFor(p.pid)));
+    return { key:"p-"+p.pid, pid:p.pid, name:p.name, claim:cl, manual:!!p.paid && !(pr&&pr.paid>0), joined:!!p.joined, ack:!!p.ack,
+      paid, paidAmt: pr?pr.paid:0, due: pr?Math.max(0,pr.due):(p.paid?0:R(c.allPPexact)), total, chose:!!cl, over: pr?pr.over:0, declined: cl?(cl.declined||{}):{} };
   });
-  claims.filter(c=>c.total>0 && !people.some(p=>p.pid===c.pid)).forEach(c=>rows.push(
-    { key:"u-"+c.userId, pid:null, name:c.name, claim:c, manual:false, paid:!!c.paid, total:c.total, chose:true }));
+  claims.filter(cl=>!cl.pid || !people.some(p=>p.pid===cl.pid)).forEach(cl=>{
+    const pr=c.party(cl); if(pr.total<=0 && !pr.paid) return;
+    rows.push({ key:"u-"+cl.userId, pid:null, name:cl.name, claim:cl, manual:false, joined:false, ack:true,
+      paid: pr.paid>0 && pr.due<=0.009, paidAmt:pr.paid, due:Math.max(0,pr.due), total:pr.total, chose:true, over:pr.over, declined:cl.declined||{} });
+  });
   return rows;
 }
-function openAmount(t, rows){
-  const claimed = (t.claims||[]).reduce((s,c)=>s+(c.total||0),0);
-  const unclaimed = Math.max(0, r2(sum(t) - ownerPart(t) - claimed));
-  const chosenUnpaid = rows.filter(r=>!r.paid).reduce((s,r)=>s+r.total,0);
-  const someoneMustStillChoose = rows.some(r=>!r.paid && !r.chose);
-  return r2(chosenUnpaid + (someoneMustStillChoose ? unclaimed : 0));
+function standOf(t){
+  const c=calcTicket(t, t.claims||[]), rows=rowsOf(t), total=sum(t), own=c.owner;
+  const received=R(rows.reduce((s,r)=>s+(r.manual? r.total : r.paidAmt),0));
+  const toPay=R(rows.reduce((s,r)=>s+(r.manual?0:r.due),0));
+  const open=Math.max(0,R(total-own-received));
+  const gap=R(total-own-received-toPay); // >0 tekort, <0 te veel, als iedereen betaalt wat hij nu koos
+  return { c, rows, total, own, received, toPay, unclaimed:c.unclaimed, open, gap };
 }
-function takenByOthers(t, claims, i){ return (t.ownerQ?.[i]||0) + (claims||[]).filter(c=>c.userId!==me.id).reduce((s,c)=>s+(c.q?.[i]||0),0); }
 function recentNames(){
   const seen = new Map();
-  for(const t of home.mine){
-    for(const p of t.people||[]) if(!seen.has(p.name.toLowerCase())) seen.set(p.name.toLowerCase(), p.name);
-    for(const c of t.claims||[]) if(c.total>0 && !seen.has(c.name.toLowerCase())) seen.set(c.name.toLowerCase(), c.name);
-  }
+  for(const t of home.mine) for(const p of t.people||[]) if(!seen.has(p.name.toLowerCase())) seen.set(p.name.toLowerCase(), p.name);
   return [...seen.values()].filter(n=>n.toLowerCase()!==(me.name||"").toLowerCase());
 }
 function payUrl(t, amount){ return `https://bunq.me/${encodeURIComponent(t.payee||"")}/${amount.toFixed(2)}/${encodeURIComponent((t.title||"Ticket").slice(0,60))}`; }
 
-/* ---------- share / toast ---------- */
+// Terugbetaler: mijn keuze als claim, en wat er per lijn nog vrij is.
+function mineAsClaim(){ return { userId:me.id, pid:S.pid||"", picks:S.mine?.picks||{}, declined:S.mine?.declined||{}, paidTotal:S.mineBase?.paidTotal||0, paidAllPP:S.mineBase?.paidAllPP }; }
+function myCalc(e){ const others=(e.claims||[]).filter(c=>c.userId!==me.id), mc=mineAsClaim(); const c=calcTicket(e.ticket, others.concat([mc])); return { c, me:c.party(mc) }; }
+function freeFor(e, i){ const it=e.ticket.items[i]; const c=calcTicket(e.ticket, (e.claims||[]).filter(x=>x.userId!==me.id)); return Math.max(0, it.qty - c.used[i]); }
+const lockedShare = i => shareOf((S.mineBase?.locked||{})[i]);
+const expectedFor = (t, i, pid) => pid ? ((t.proposal||{})[i]||{})[pid] || null : null;
+
 /* ---------- tap feedback ---------- */
 let flash=null, flashT, bumpSel=null, lastView=null, lastLayer=null, enterT;
 const flashKey = el => el.dataset.pid || el.dataset.key || el.dataset.id || el.dataset.v || "";
@@ -429,39 +527,46 @@ async function shareText(text, url){
   copy(text+" "+url, "Bericht met link gekopieerd. Plak het in WhatsApp of Berichten.");
 }
 function remindRow(t, r){
-  const msg = r.chose
-    ? `Hoi ${r.name}! Je moet nog ${eur(r.total)} terugbetalen voor ${t.title}. Tik op de link om te betalen:`
-    : `Hoi ${r.name}! Duid aan wat je had bij ${t.title} en betaal je deel:`;
+  const msg = r.chose && r.due>0
+    ? `Hoi ${r.name}! Je moet nog ${eur(r.due)} terugbetalen voor ${t.title}. Tik op de link om te betalen:`
+    : `Hoi ${r.name}! Kies wat je had bij ${t.title} en betaal je deel:`;
   shareText(msg, linkFor(t, r.pid));
 }
 
+/* ---------- saving my part ---------- */
 let saving=false, saveT;
-function queueClaim(id){ clearTimeout(saveT); saveT=setTimeout(()=>saveClaim(id),700); }
+function queueClaim(id){ clearTimeout(saveT); saveT=setTimeout(()=>saveClaim(id),500); }
 async function saveClaim(id, extra){
   clearTimeout(saveT); saving=true;
-  const body = { ticketId:id, q:S.mine, ...(extra||{}) };
-  if(typeof S.pid === "string") body.pid = S.pid;
-  try{ cache[id] = await api("saveClaim", body); refresh(); }
-  catch(e){ toast(e.message); }
-  saving=false; render();
+  const body = { ticketId:id, pid:S.pid||"", picks:S.mine?.picks||{}, declined:S.mine?.declined||{}, ...(extra||{}) };
+  try{
+    const r = await api("saveClaim", body); cache[id]=r;
+    const mc=(r.claims||[]).find(c=>c.userId===me.id);
+    if(mc){ S.pid=mc.pid||S.pid; S.mineBase={ paidTotal:mc.paidTotal, paidAllPP:mc.paidAllPP, locked:mc.locked||{} }; }
+    refresh(); saving=false; render(); return r;
+  }catch(e){ saving=false; toast(e.message); render(); throw e; }
+}
+function initMine(e){
+  const mc=(e?.claims||[]).find(c=>c.userId===me.id);
+  S.mineBase={ paidTotal:mc?.paidTotal||0, paidAllPP:mc?.paidAllPP, locked:mc?.locked||{} };
+  const free=(e?.ticket?.people||[]).filter(p=>!(e.claims||[]).some(c=>c.userId!==me.id && c.pid===p.pid)).map(p=>p.pid);
+  const hint = S.pidHint && S.pidHint.id===e?.ticket?.id ? S.pidHint.pid : null; // ?p= uit de herinneringslink
+  S.pid = mc?.pid || (hint && free.includes(hint) ? hint : null);
+  S.joining=false; S.namesOpen=-1;
+  S.mine={ picks:{...(mc?.picks||{})}, declined:{...(mc?.declined||{})} };
+  if(!mc && S.pid && e?.ticket) S.mine.picks = JSON.parse(JSON.stringify(calcTicket(e.ticket,[]).proposedFor(S.pid))); // voorstel staat al ingevuld
 }
 
 /* ---------- navigation ---------- */
 function go(view, id){
-  S.view=view; S.id=id||null; S.editing=false; S.confirmDel=false; S.err="";
-  if(view==="select"){
-    const e=cache[id], mc=(e?.claims||[]).find(c=>c.userId===me.id);
-    S.mine = {...(mc?.q||{})};
-    const free = (e?.ticket?.people||[]).filter(p=>!(e.claims||[]).some(c=>c.userId!==me.id && c.pid===p.pid)).map(p=>p.pid);
-    S.pid = mc?.pid || (S.pidHint && free.includes(S.pidHint) ? S.pidHint : null);
-    S.pidHint = null;
-  }
+  S.view=view; S.id=id||null; S.confirmDel=false; S.err="";
+  if(view==="select") initMine(cache[id]);
   render(); window.scrollTo(0,0);
 }
 function clearHash(){ try{ history.replaceState(null,"",location.pathname+location.search); }catch{} }
 async function readHash(){
   const m = /^#t=([a-z0-9]+)(?:&p=([a-z0-9]+))?$/i.exec(location.hash||""); if(!m || !me.name) return;
-  const id=m[1]; S.pidHint=m[2]||null;
+  const id=m[1]; S.pidHint=m[2]?{ id, pid:m[2] }:null;
   if(myTicket(id)){ go("ticket",id); return; }
   S.view="select"; S.id=id; render();
   const e = await loadTicket(id);
@@ -478,12 +583,17 @@ function usePhoto(f){
   S.photo = URL.createObjectURL(f); S.photoFile = f; S.pasted=""; S.aiErr="";
   if(home.ai){ readWithAI(); return; }
   S.view="scan"; render(); window.scrollTo(0,0);
-};
-function startNew(items, title, total, byAI){
-  S.draft = { title: title || "Ticket "+new Date().toLocaleDateString("nl-BE",{day:"numeric",month:"numeric"}), items: items.length?items:[{name:"",qty:1,unitPrice:0}], ticketTotal: total||0, byAI: !!byAI && items.length>0 };
-  S.view="new"; S.err=""; render(); window.scrollTo(0,0);
 }
-// Verklein de foto voor het versturen: sneller en goedkoper, nog scherp genoeg om te lezen.
+function startNew(items, title, total, byAI){
+  S.draft = { id:null, title: title || "Ticket "+new Date().toLocaleDateString("nl-BE",{day:"numeric",month:"numeric"}),
+    items: items.length?items:[{name:"",qty:1,unitPrice:0}], ticketTotal: total||0, byAI: !!byAI && items.length>0, people:[], proposal:{} };
+  S.view="group"; S.err=""; render(); window.scrollTo(0,0);
+}
+function editTicket(t, step){
+  S.draft = { id:t.id, title:t.title, items:t.items.map(x=>({...x})), ticketTotal:t.ticketTotal||0, byAI:false,
+    people:(t.people||[]).map(p=>({...p})), proposal:JSON.parse(JSON.stringify(t.proposal||{})), claims:t.claims||[] };
+  S.view=step||"group"; S.err=""; S.confirmDel=false; render(); window.scrollTo(0,0);
+}
 async function shrinkPhoto(file, max=1800, quality=0.82){
   const url=URL.createObjectURL(file);
   try{
@@ -511,52 +621,48 @@ async function readWithAI(){
     S.layer=null; S.aiErr=e.message; S.view="scan"; render(); window.scrollTo(0,0);
   }
 }
-function cleanItems(items){ return items.filter(i=>i.name.trim() && i.unitPrice!==0).map(i=>({ name:i.name.trim().slice(0,60), qty:Math.max(1,Math.min(99,parseInt(i.qty)||1)), unitPrice:r2(i.unitPrice) })); }
+function cleanItems(items){ return items.filter(i=>i.name.trim() && i.unitPrice!==0).map(i=>({ name:i.name.trim().slice(0,60), qty:Math.max(1,Math.min(99,parseInt(i.qty)||1)), unitPrice:Math.round(i.unitPrice*10000)/10000, all:!!i.all })); }
 
-/* ---------- setup: who you paid for + your own part ---------- */
-function openSetup(isNew){
-  if(isNew){
-    const items=cleanItems(S.draft.items);
-    if(!items.length){ S.err="Voeg minstens één lijn met een prijs toe."; render(); return; }
-    S.setup={ isNew:true, items, people:[], ownerQ:{}, claims:[] };
-  }else{
-    const t=myTicket(S.id); if(!t) return;
-    S.setup={ isNew:false, items:t.items, people:(t.people||[]).map(p=>({...p})), ownerQ:{...(t.ownerQ||{})}, claims:t.claims||[] };
-  }
-  S.view="setup"; S.err=""; render(); window.scrollTo(0,0);
-}
+/* ---------- draft: group, lines, proposal ---------- */
 function addPerson(name){
   const n=String(name||"").trim().replace(/\s+/g," ").slice(0,30); if(!n) return;
-  if(S.setup.people.some(p=>p.name.toLowerCase()===n.toLowerCase())){ toast(`${n} staat er al bij.`); return; }
-  const pid="p"+rand(4); S.setup.people.push({ pid, name:n }); S.popPid=pid;
+  if(S.draft.people.some(p=>p.name.toLowerCase()===n.toLowerCase())){ toast(`${n} staat er al bij.`); return; }
+  const pid="p"+rand(4); S.draft.people.push({ pid, name:n }); S.popPid=pid;
   render(); const inp=$("addName"); if(inp){ inp.value=""; inp.focus(); }
 }
-async function saveSetup(el){
-  const st=S.setup;
+function removeLine(i){ // lijn weg: voorstel van latere lijnen schuift mee op
+  const d=S.draft; d.items.splice(i,1);
+  const np={}; Object.keys(d.proposal).forEach(k=>{ const j=+k; if(j<i) np[j]=d.proposal[k]; else if(j>i) np[j-1]=d.proposal[k]; });
+  d.proposal=np;
+}
+function draftParties(d){ return [{ key:"o", name:"Jij", init:initials(me.name), color:colorFor(me.id) }, ...d.people.map(p=>({ key:p.pid, name:p.name, init:initials(p.name), color:colorFor(p.pid) }))]; }
+async function saveDraft(el){
+  const d=S.draft, items=cleanItems(d.items);
   const pending=($("addName")?.value||"").trim(); if(pending) addPerson(pending);
-  S.err="";
-  if(st.isNew){
-    if(!me.bunq && !me.iban){ S.err="Vul eerst je bunq.me-naam of rekeningnummer in onder Profiel."; render(); setFlash(el,"err"); return; }
-    render();
-    try{
-      const r = await withFlash(el, ()=>api("createTicket",{ title:S.draft.title.trim()||"Ticket", items:st.items, ticketTotal:S.draft.ticketTotal||0, people:st.people, ownerQ:st.ownerQ }));
-      await wait(350);
-      // eerst naar het ticket gaan, daarna pas verversen
-      S.justMade=r.id; S.setup=null; S.draft=null; NAV="replace"; go("ticket", r.id);
-      await refresh();
-    }catch(e){ S.err=e.message; render(); }
-  }else{
-    try{ await withFlash(el, ()=>api("setSetup",{ id:S.id, people:st.people, ownerQ:st.ownerQ })); await wait(350); S.setup=null; NAV="up"; go("ticket",S.id); toast("Opgeslagen."); await refresh(); }
-    catch(e){ S.err=e.message; render(); }
-  }
+  if(!items.length){ S.err="Voeg minstens één lijn met een prijs toe."; S.view="new"; render(); return; }
+  if(!d.id && !me.bunq && !me.iban){ S.err="Vul eerst je bunq.me-naam of rekeningnummer in onder Profiel."; render(); setFlash(el,"err"); return; }
+  const body={ title:d.title.trim()||"Ticket", items, people:d.people, proposal:d.proposal, ticketTotal:d.ticketTotal||0 };
+  try{
+    if(d.id){
+      await withFlash(el, ()=>api("updateTicket",{ id:d.id, ...body })); await wait(300);
+      const id=d.id; S.draft=null; NAV="replace"; go("ticket", id); toast("Opgeslagen."); await refresh();
+    }else{
+      const r=await withFlash(el, ()=>api("createTicket", body)); await wait(300);
+      S.justMade=r.id; S.draft=null; NAV="replace"; go("ticket", r.id); await refresh();
+    }
+  }catch(e){ S.err=e.message; render(); }
 }
-async function saveEdit(el){
-  const t=myTicket(S.id), items=cleanItems(S.draft.items);
-  if(!items.length){ S.err="Voeg minstens één lijn met een prijs toe."; render(); setFlash(el,"err"); return; }
-  try{ await withFlash(el, ()=>api("updateTicket",{ id:t.id, title:S.draft.title.trim()||"Ticket", items })); await wait(300); S.editing=false; S.err=""; await refresh(); }
-  catch(e){ S.err=e.message; render(); }
+async function deleteTicket(el){ try{ await withFlash(el, ()=>api("deleteTicket",{ id:S.draft?.id||S.id })); S.draft=null; await refresh(); NAV="up"; go("krijgen"); toast("Ticket verwijderd."); }catch(e){ toast(e.message); } }
+
+/* ---------- small UI pieces ---------- */
+const LOCK = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>';
+function stepHead(n, title, lead){ return `<div class="head"><span class="cap">${S.draft?.id?"Ticket bewerken · ":""}Stap ${n} van 3</span><h1 style="font-size:28px">${title}</h1>${lead?`<p class="lead">${lead}</p>`:""}</div>`; }
+// Initialen: jijzelf los vooraan (grijs als je afhaakte), anderen licht overlappend.
+function dotsHtml(meDot, others){
+  const own = meDot ? `<span class="dot me${meDot.off?" off":""}" style="--c:${meDot.color}">${esc(meDot.init)}</span>` : "";
+  const rest = others.length ? `<span class="dots">${others.map(o=>`<span class="dot" style="background:${o.color}">${esc(o.init)}</span>`).join("")}</span>` : "";
+  return own + rest;
 }
-async function deleteTicket(el){ try{ await withFlash(el, ()=>api("deleteTicket",{ id:S.id })); await refresh(); go("krijgen"); toast("Ticket verwijderd."); }catch(e){ toast(e.message); } }
 
 /* ---------- views ---------- */
 function viewOnboard(){
@@ -569,16 +675,6 @@ function viewOnboard(){
     <p class="t2" style="margin:0">Je vrienden zien deze naam wanneer je je deel kiest.</p>
     <button class="btn-p" data-act="onboard">Start</button><button class="btn-link" style="font-size:15px" data-act="toggleImport">Ik heb al een profiel</button></div>`;
 }
-function editorRows(d){
-  const t=r2(d.items.reduce((s,i)=>s+i.qty*i.unitPrice,0));
-  return `<div class="field"><label class="cap" for="et">Naam</label><input id="et" data-in="title" value="${esc(d.title)}"></div>
-    <div class="card" style="gap:8px"><div class="edit cap"><span>Item</span><span>Aantal</span><span>Prijs/st.</span><span></span></div>
-      ${d.items.map((it,i)=>`<div class="edit"><input id="en${i}" aria-label="Item" data-in="name" data-i="${i}" value="${esc(it.name)}"><input id="eq${i}" class="n" aria-label="Aantal" inputmode="numeric" data-in="qty" data-i="${i}" value="${it.qty}"><input id="ep${i}" class="n" aria-label="Prijs per stuk" inputmode="decimal" data-in="price" data-i="${i}" value="${it.unitPrice?it.unitPrice.toFixed(2).replace(".",","):""}"><button class="x" aria-label="Verwijder lijn" data-act="delRow" data-i="${i}">×</button></div>`).join("")}
-      <div class="row" style="align-items:center"><button data-act="addRow">+ Lijn</button><span>Totaal <b class="num" id="etot">${eur(t)}</b></span></div>
-      ${d.ticketTotal && Math.abs(d.ticketTotal-t)>0.01?`<span class="t2 warn" id="echeck">Op het ticket staat ${eur(d.ticketTotal)}. Controleer de lijnen.</span>`:""}
-      ${S.err?`<span class="t2 warn">${esc(S.err)}</span>`:""}
-    </div>`;
-}
 function viewScan(){
   return `<div class="topbar"><button class="btn-link" data-act="cancelScan">Annuleer</button><button class="btn-link" data-act="manual">Zelf invullen</button></div><!--head-->
     <div class="head"><h1 style="font-size:28px">Lees je ticket</h1></div>
@@ -590,140 +686,210 @@ function viewScan(){
     <button class="${home.ai?"":"btn-p "}btn-big" data-act="parse">Lees geplakte tekst</button>
     <p class="t2" style="margin:0">Lukt kopiëren niet? Open de foto in de Foto's-app en kopieer de tekst daar.</p>`;
 }
-function viewNew(){
-  return `<div class="topbar"><button class="btn-link" data-act="cancelNew">Annuleer</button><button class="btn-link" style="font-weight:600" data-act="next">Volgende</button></div><!--head-->
-    <div class="head">${S.draft.byAI?`<span class="status">✦ Gelezen door AI · ${S.draft.items.length} lijnen</span>`:`<span class="cap">Stap 1 van 2</span>`}<h1 style="font-size:28px">Controleer de lijnen</h1><p class="lead">Pas aan wat niet klopt. Prijs is per stuk.</p></div>
-    ${editorRows(S.draft)}
-    <button class="btn-p btn-big" data-act="next">Volgende</button>`;
-}
-function viewSetup(){
-  if(!S.setup){ S.view = S.id ? "ticket" : "krijgen"; return S.view==="ticket" ? viewTicket() : viewKrijgen(); }
-  const st=S.setup, items=st.items;
-  const total=r2(items.reduce((s,i)=>s+i.qty*i.unitPrice,0)), own=partTotal({items}, st.ownerQ), rest=r2(total-own);
-  const added=new Set(st.people.map(p=>p.name.toLowerCase()));
+
+// Stap 1: wie was erbij?
+function viewGroup(){
+  const d=S.draft, added=new Set(d.people.map(p=>p.name.toLowerCase()));
   const sugg=recentNames().filter(n=>!added.has(n.toLowerCase())).slice(0,8);
-  return `<div class="topbar"><button class="btn-link" data-act="setupBack">‹ ${st.isNew?"Lijnen":"Ticket"}</button></div><!--head-->
-    <div class="head">${st.isNew?`<span class="cap">Stap 2 van 2</span>`:""}<h1 style="font-size:28px">Wie was erbij?</h1><p class="lead">Duid aan voor wie je betaalde en wat je zelf had.</p></div>
-    <div class="card"><span class="cap">Betaald voor</span>
-      ${st.people.length?`<div class="chips">${st.people.map((p,i)=>`<span class="chip${p.pid===S.popPid?" pop":""}">${esc(p.name)}<button class="x" aria-label="Verwijder ${esc(p.name)}" data-act="rmPerson" data-i="${i}">×</button></span>`).join("")}</div>`:`<span class="t2">Nog niemand toegevoegd.</span>`}
+  const paid=new Set((d.claims||[]).filter(c=>c.paidTotal>0).map(c=>c.pid));
+  return `<div class="topbar"><button class="btn-link" data-act="draftBack">${d.id?"‹ Ticket":"Annuleer"}</button><button class="btn-link" style="font-weight:600" data-act="toLines">Volgende</button></div><!--head-->
+    ${d.byAI?`<span class="status" style="padding:0 4px">✦ Gelezen door AI · ${esc(d.title)} · ${eur(R(d.items.reduce((s,i)=>s+i.qty*i.unitPrice,0)))}</span>`:""}
+    ${stepHead(1,"Wie was erbij?","Dit is de groep. Lijnen voor iedereen worden over al deze mensen verdeeld, jij inbegrepen.")}
+    <div class="card">
+      <div class="chips"><span class="chip" style="background:var(--accent);color:var(--on-accent)">✓ Jij (${esc(me.name)})</span>
+        ${d.people.map((p,i)=>`<span class="chip${p.pid===S.popPid?" pop":""}">${esc(p.name)}${paid.has(p.pid)?` <span class="t2" style="color:inherit">· betaald</span>`:`<button class="x" aria-label="Verwijder ${esc(p.name)}" data-act="rmPerson" data-i="${i}">×</button>`}</span>`).join("")}</div>
       <div style="display:flex;gap:8px"><input id="addName" placeholder="Naam van een vriend" autocomplete="off" autocapitalize="words" enterkeyhint="done"><button data-act="addPerson">Voeg toe</button></div>
       ${sugg.length?`<div class="col" style="gap:8px"><span class="t2">Recent</span><div class="chips">${sugg.map(n=>`<button class="chip sug" data-act="addSug" data-v="${esc(n)}">+ ${esc(n)}</button>`).join("")}</div></div>`:""}
     </div>
-    <div class="card list"><div style="padding:12px 0 4px"><span class="cap">Jouw eigen deel</span></div>
-      ${items.map((it,i)=>{ const others=(st.claims||[]).reduce((s,c)=>s+(c.q?.[i]||0),0), max=it.qty-others, q=st.ownerQ[i]||0;
-        return `<div class="line ${q?"mine":""}"><div class="col"><span class="name">${it.qty}× ${esc(it.name)}</span><span class="t2 num">${eur(it.unitPrice)}/st${others?` · ${others} al gekozen door vrienden`:""}</span></div>
-          <div class="step"><button aria-label="Minder ${esc(it.name)}" data-act="odec" data-i="${i}" ${q<=0?"disabled":""}>−</button><span class="q" data-k="o${i}">${q}</span><button aria-label="Meer ${esc(it.name)}" data-act="oinc" data-i="${i}" ${q>=max?"disabled":""}>+</button></div></div>`;}).join("")}
-    </div>
-    <div class="card" style="gap:6px"><div class="row"><span>Jouw deel</span><b class="num" id="owntotal" style="display:inline-block">${eur(own)}</b></div><div class="row"><span>Terug te krijgen</span><b class="num">${eur(rest)}</b></div>
-      ${st.people.length?`<span class="t2">Gemiddeld ${eur(rest/st.people.length)} per persoon. Iedereen kiest zelf wat van hem is.</span>`:""}</div>
-    ${S.err?`<span class="t2 warn" style="padding:0 4px">${esc(S.err)}</span>`:""}
-    <button class="btn-p btn-big" data-act="saveSetup" data-done="Opgeslagen">${st.isNew?"Maak ticket":"Bewaar"}</button>`;
+    <div class="notice">Alleen jij kan de groep wijzigen. Vergat je iemand, dan kan die zich later nog toevoegen via de link.</div>
+    <button class="btn-p btn-big" data-act="toLines">Volgende · ${d.people.length+1} ${d.people.length?"personen":"persoon"}</button>`;
 }
+// Stap 2: lijnen + slotje "voor iedereen"
+function editorRows(d){
+  const t=R(d.items.reduce((s,i)=>s+i.qty*i.unitPrice,0));
+  return `<div class="field"><label class="cap" for="et">Naam</label><input id="et" data-in="title" value="${esc(d.title)}"></div>
+    <div class="card" style="gap:0;padding-top:6px">
+      ${d.items.map((it,i)=>`<div class="erow">
+        <div class="erow-top"><input id="en${i}" aria-label="Item" placeholder="Item" data-in="name" data-i="${i}" value="${esc(it.name)}">
+          <button class="allchip" aria-pressed="${!!it.all}" data-act="toggleAll" data-i="${i}" aria-label="Voor iedereen">${LOCK} Iedereen</button>
+          <button class="x" aria-label="Verwijder lijn" data-act="delRow" data-i="${i}">×</button></div>
+        <div class="erow-nums">
+          <label>Aantal<input id="eq${i}" class="n" inputmode="numeric" data-in="qty" data-i="${i}" value="${it.qty}"></label>
+          <label>Prijs/st.<input id="ep${i}" class="n" inputmode="decimal" data-in="price" data-i="${i}" value="${money(it.unitPrice)}"></label>
+          <label>Totaal<input id="el${i}" class="n" inputmode="decimal" data-in="ltot" data-i="${i}" value="${money(it.qty*it.unitPrice)}"></label>
+        </div></div>`).join("")}
+      <div class="row" style="align-items:center;padding-top:10px"><button data-act="addRow">+ Lijn</button><span>Totaal <b class="num" id="etot">${eur(t)}</b></span></div>
+      ${d.ticketTotal && Math.abs(d.ticketTotal-t)>0.01?`<span class="t2 warn" id="echeck">Op het ticket staat ${eur(d.ticketTotal)}. Controleer de lijnen.</span>`:""}
+      ${S.err?`<span class="t2 warn">${esc(S.err)}</span>`:""}
+    </div>`;
+}
+function viewNew(){
+  const d=S.draft, allT=R(d.items.reduce((s,it)=>s+(it.all?it.qty*it.unitPrice:0),0)), g=d.people.length+1;
+  return `<div class="topbar"><button class="btn-link" data-act="draftBack">‹ Groep</button><button class="btn-link" style="font-weight:600" data-act="toPropose">Volgende</button></div><!--head-->
+    ${stepHead(2,"Controleer de lijnen","Zet een slotje op wat <b>iedereen verplicht meebetaalt</b>. De rest kiest ieder zelf.")}
+    ${editorRows(d)}
+    <p class="lead" style="padding:0 4px">Voor iedereen: <b>${eur(allT)}</b> ÷ ${g} = <b>${eur(allT/g)}</b> p.p.</p>
+    ${d.id?`<div>${S.confirmDel?`<span class="t2">Zeker?</span> <button data-act="delYes">Ja, verwijder ticket</button> <button class="btn-link" style="font-size:15px" data-act="delNo">Nee</button>`:`<button data-act="del" class="warn">Verwijder ticket</button>`}</div>`:""}
+    <button class="btn-p btn-big" data-act="toPropose">Volgende: voorstel</button>`;
+}
+// Stap 3: voorstel (niet bindend)
+function viewPropose(){
+  const d=S.draft, items=cleanItems(d.items), t={ items, people:d.people, proposal:d.proposal };
+  const c=calcTicket(t, []), parties=draftParties(d);
+  const done=[], open=[];
+  items.forEach((it,i)=>{ if(it.all) return; const p=d.proposal[i]; (p&&Object.keys(p).length?done:open).push({it,i,p}); });
+  const tag=(pa,p)=>`<span class="ptag" style="background:${pa.color}">${esc(pa.name)}${p.w>1?` ${p.n}÷${p.w}`:` ${p.n}`}</span>`;
+  const totals=parties.map(pa=>({ name:pa.name, amt: pa.key==="o" ? c.owner : R(c.allPPexact + c.lines(c.proposedFor(pa.key))) }));
+  const al=allLines(t);
+  return `<div class="topbar"><button class="btn-link" data-act="draftBack">‹ Lijnen</button><button class="btn-link" style="font-weight:600" data-act="saveDraft" data-done="Opgeslagen">${d.id?"Bewaar":"Maak ticket"}</button></div><!--head-->
+    ${stepHead(3,"Doe een voorstel","Tik op een lijn: wie verwacht je? Iedereen kiest uiteindelijk zelf zijn deel.")}
+    ${al.length?`<div class="card list"><div class="lockcap">${LOCK} Voor iedereen · ${eur(c.allPP)} p.p.</div>${al.map(({it})=>`<div class="line muted"><span>${it.qty}× ${esc(it.name)}</span><span class="num">${eur(lineTotal(it))}</span></div>`).join("")}</div>`:""}
+    ${done.length?`<div class="card list"><div class="lockcap">Voorstel · niet bindend</div>${done.map(({it,i,p})=>`<div class="line tap" role="button" tabindex="0" data-act="openPropose" data-i="${i}"><div class="col"><span class="name">${it.qty}× ${esc(it.name)}</span><div class="tags">${parties.filter(pa=>p[pa.key]).map(pa=>tag(pa,p[pa.key])).join("")}</div></div><span class="num">${eur(lineTotal(it))}</span><span class="chev">›</span></div>`).join("")}</div>`:""}
+    ${open.length?`<div class="card list dashed"><div class="lockcap">Geen voorstel · iedereen kan kiezen</div>${open.map(({it,i})=>`<div class="line tap" role="button" tabindex="0" data-act="openPropose" data-i="${i}"><span class="name" style="font-weight:400">${it.qty}× ${esc(it.name)}</span><span class="num">${eur(lineTotal(it))}</span><span class="linkish">Wijs toe ›</span></div>`).join("")}</div>`:""}
+    <div class="totals">${totals.map(x=>`<div><span>${esc(x.name)}</span><b class="num">${eur(x.amt)}</b></div>`).join("")}<div class="dashedbox"><span>Zonder</span><b class="num">${eur(c.unclaimed)}</b></div></div>
+    ${S.err?`<span class="t2 warn" style="padding:0 4px">${esc(S.err)}</span>`:""}
+    <button class="btn-p btn-big" data-act="saveDraft" data-done="Opgeslagen">${d.id?"Bewaar":"Maak ticket en deel"}</button>`;
+}
+
+// Owed to me
 function viewKrijgen(){
   if(loadErr && !loaded) return `<div class="head"><h1>Owed to me</h1></div><!--head--><div class="card empty"><p>${esc(loadErr)}</p><button data-act="retry" data-done="Bijgewerkt">Opnieuw</button></div>`;
   let open=0; const waitingNames=new Set();
-  const cards = home.mine.map(t=>{ const rows=rowsOf(t); const o=openAmount(t,rows); open+=o; rows.filter(r=>!r.paid).forEach(r=>waitingNames.add(r.name.toLowerCase())); return {t,rows,o}; });
-  let h = `<div class="head"><h1>Owed to me</h1><p class="lead">${!loaded?"Laden…":open>0?`Nog <b>${eur(open)}</b> open bij ${waitingNames.size} ${waitingNames.size===1?"persoon":"personen"}`:"Iedereen heeft je terugbetaald"}</p></div><!--head-->`;
+  const cards=home.mine.map(t=>{ const st=standOf(t); open+=st.open; st.rows.filter(r=>!r.paid).forEach(r=>waitingNames.add(r.name.toLowerCase())); return {t,st}; });
+  let h = `<div class="head"><h1>Owed to me</h1><p class="lead">${!loaded?"Laden…":open>0.009?`Nog <b>${eur(open)}</b> open bij ${waitingNames.size} ${waitingNames.size===1?"persoon":"personen"}`:"Iedereen heeft je terugbetaald"}</p></div><!--head-->`;
   if(!loaded) return h + skel(3);
   if(!home.mine.length) return h + `<div class="card empty"><p>Fotografeer je eerste ticket met de camera-knop onderaan. Je vrienden kiezen daarna zelf hun deel.</p><button class="btn-p" data-act="camera">${ICON.cam} Scan ticket</button></div>`;
-  for(const {t,rows,o} of cards){
-    const paid=rows.filter(r=>r.paid), waiting=rows.filter(r=>!r.paid);
+  for(const {t,st} of cards){
+    const rows=st.rows, paid=rows.filter(r=>r.paid), waiting=rows.filter(r=>!r.paid);
     const full=rows.length && !waiting.length, pct=rows.length?Math.round(paid.length/rows.length*100):0;
     h += `<div class="card tap" role="button" tabindex="0" data-act="open" data-id="${esc(t.id)}" aria-label="Open ${esc(t.title)}">
-      <div class="row"><div class="col"><span class="t1">${esc(t.title)}</span><span class="t2">${day(t.createdAt)} · totaal ${eur(sum(t))}</span></div>
-        <div class="col right"><span class="amt ${full?"ok":""}">${rows.length?(full?"✓":eur(o)):"—"}</span><span class="t2">${rows.length?(full?"alles terug":"nog open"):"nog niemand"}</span></div></div>
+      <div class="row"><div class="col"><span class="t1">${esc(t.title)}</span><span class="t2">${day(t.createdAt)} · totaal ${eur(st.total)}</span></div>
+        <div class="col right"><span class="amt ${full?"ok":""}">${rows.length?(full?"✓":eur(st.open)):"—"}</span><span class="t2">${rows.length?(full?"alles terug":"nog open"):"nog niemand"}</span></div></div>
       <div class="bar"><span class="${full?"full":""}" style="width:${pct}%"></span></div>
       <div class="row" style="align-items:center"><div class="avs">${rows.map(r=>`<span class="av ${r.paid?"":"off"}" style="${r.paid?`background:${colorFor(r.key)}`:""}" title="${esc(r.name)}">${esc(initials(r.name))}</span>`).join("")}</div>
-        <span class="t2">${rows.length?`${paid.length} van ${rows.length} betaald`:"Duid aan voor wie je betaalde"}</span></div>
+        <span class="t2">${rows.length?`${paid.length} van ${rows.length} betaald`:"Voeg je groep toe"}</span></div>
       ${full?"":`<div class="foot"><span class="t2">${waiting.length?`Wacht op ${esc(listNames(waiting.map(r=>r.name)))}`:"Deel het ticket met je vrienden"}</span>
         <button class="btn-soft" data-act="remind" data-id="${esc(t.id)}">${ICON.link} ${waiting.length?"Herinner":"Deel"}</button></div>`}
     </div>`;
   }
   return h;
 }
+// I owe
 function viewDelen(){
   const list = home.shares||[];
-  const due = r2(list.filter(x=>!x.claim.paid).reduce((s,x)=>s+x.claim.total,0));
-  let h = `<div class="head"><h1>I owe</h1><p class="lead">${!loaded?"Laden…":due>0?`Je moet nog <b style="color:var(--warn)">${eur(due)}</b> betalen`:"Je bent niemand iets schuldig"}</p></div><!--head-->`;
+  const due = R(list.reduce((s,x)=>s+Math.max(0,x.calc?.due||0),0));
+  let h = `<div class="head"><h1>I owe</h1><p class="lead">${!loaded?"Laden…":due>0.009?`Je moet nog <b style="color:var(--warn)">${eur(due)}</b> betalen`:"Je bent niemand iets schuldig"}</p></div><!--head-->`;
   if(!loaded) return h + skel(2);
   if(!list.length) return h + `<div class="card empty"><p>Scan de QR-code van een vriend met de camera-knop, of open zijn link. Zijn ticket verschijnt dan hier.</p></div>`;
   for(const x of list){
-    const t=x.ticket, c=x.claim, what=(t.items||[]).map((it,i)=>c.q?.[i]?`${c.q[i]}× ${it.name}`:null).filter(Boolean).join(" · ");
-    h += `<div class="card">
+    const t=x.ticket, cl=x.claim||{}, k=x.calc||{ total:0, due:0, paid:0 };
+    const what=(t.items||[]).map((it,i)=>cl.picks?.[i]?`${fmtShare(cl.picks[i])}× ${it.name}`:null).filter(Boolean).join(" · ");
+    const paidAll = k.paid>0 && k.due<=0.009;
+    h += `<div class="card tap" role="button" tabindex="0" data-act="adjust" data-id="${esc(t.id)}">
       <div class="row"><div style="display:flex;gap:12px;align-items:center;min-width:0"><span class="av big" style="background:${colorFor(t.ownerId)}">${esc(initials(x.ownerName))}</span>
         <div class="col"><span class="t1">${esc(t.title)}</span><span class="t2">van ${esc(x.ownerName||"een vriend")} · ${day(t.createdAt)}</span></div></div>
-        <div class="col right"><span class="amt">${c.total>0?eur(c.total):"—"}</span><span class="t2">jouw deel</span></div></div>
-      ${c.total>0?`<span class="t2">${esc(what)}</span>`:`<span class="t2">Je hebt nog niet gekozen wat van jou is.</span>`}
-      ${!(c.total>0)?`<button class="btn-p" data-act="adjust" data-id="${esc(t.id)}">Kies je deel</button>`
-      : c.paid?`<div class="row" style="align-items:center"><span class="pill ok">✓ Betaald</span><button class="btn-link" style="font-size:15px" data-act="setPaid" data-v="0" data-id="${esc(t.id)}">Toch niet</button></div>`
-      : `<div style="display:flex;gap:8px">${payButton(t,c.total,"grow")}<button data-act="adjust" data-id="${esc(t.id)}">Aanpassen</button></div>
-         <button class="linkbtn" style="font-size:15px" data-act="setPaid" data-v="1" data-id="${esc(t.id)}">Ik heb al betaald</button>`}
+        <div class="col right"><span class="amt ${paidAll?"ok":""}">${paidAll?"✓ "+eur(k.paid):eur(Math.max(0,k.due))}</span><span class="t2">${paidAll?"betaald":k.paid>0?"nog bij te betalen":"jouw deel"}</span></div></div>
+      <span class="t2">${what?esc(what):"Voor iedereen-lijnen · kies de rest zelf"}</span>
+      ${paidAll?"":`<div style="display:flex;gap:8px">${payButton(t,Math.max(0,k.due),"grow")}<button data-act="adjust" data-id="${esc(t.id)}">Bekijk</button></div>`}
     </div>`;
   }
   return h;
 }
 function payButton(t, amount, cls, label){
   const txt = label || `Betaal ${eur(amount)}`;
+  if(!(amount>0)) return `<span class="btn btn-p ${cls||""}" style="opacity:.5">${txt}</span>`;
   if(t.payee) return `<a class="btn btn-p ${cls||""}" href="${esc(payUrl(t,amount))}" target="_blank" rel="noopener" data-act="pay" data-id="${esc(t.id)}">${txt}</a>`;
   return `<button class="btn-p ${cls||""}" data-act="payIban" data-id="${esc(t.id)}" data-amt="${amount}">${txt}</button>`;
 }
 function personRow(t, r){
-  const status = r.paid ? (r.total?`betaalde ${eur(r.total)}`:"betaald") : r.chose ? `koos ${eur(r.total)} · nog niet betaald` : "nog niet gekozen";
-  const toggle = r.pid && !r.claim?.paid ? `<button class="linkbtn" data-act="markPerson" data-pid="${esc(r.pid)}" data-v="${r.manual?0:1}">${r.manual?"Zet terug op open":"Markeer als betaald"}</button>` : "";
-  return `<div class="person"><span class="av mid ${r.paid?"":"off"}" style="${r.paid?`background:${colorFor(r.key)}`:""}">${esc(initials(r.name))}</span>
-    <div class="col grow"><span style="font-weight:600">${esc(r.name)}</span><span class="t2">${status}</span>${toggle}</div>
+  const status = r.paid ? (r.manual?"als betaald gemarkeerd":`betaalde ${eur(r.paidAmt)}`)
+    : r.paidAmt>0 ? `betaalde ${eur(r.paidAmt)} · nog ${eur(r.due)} bij te betalen`
+    : r.chose ? `koos ${eur(r.total)} · nog niet betaald` : `voorstel ${eur(r.total)} · nog niet geopend`;
+  const notes = Object.entries(r.declined||{}).map(([i,why])=>`<span class="note">Niet van mij bij <b>${esc((t.items[i]||{}).name||"een lijn")}</b>: "${esc(why)}"</span>`).join("");
+  const toggle = r.pid && !r.claim ? `<button class="linkbtn" data-act="markPerson" data-pid="${esc(r.pid)}" data-v="${r.manual?0:1}">${r.manual?"Zet terug op open":"Markeer als betaald"}</button>` : "";
+  return `<div class="person" style="align-items:flex-start"><span class="av mid ${r.paid?"":"off"}" style="${r.paid?`background:${colorFor(r.key)}`:""}">${esc(initials(r.name))}</span>
+    <div class="col grow" style="gap:3px"><span style="font-weight:600">${esc(r.name)}${r.joined?` <span class="t2">· nieuw</span>`:""}</span><span class="t2">${status}</span>
+      ${r.over>0.009?`<span class="pill warn">${eur(r.over)} te veel · groep groeide na betaling</span>`:""}${notes}${toggle}</div>
     ${r.paid?`<span class="pill ok">✓ betaald</span>`:`<button class="btn-soft" data-act="remindOne" data-id="${esc(t.id)}" data-key="${esc(r.key)}">${ICON.link} Herinner</button>`}</div>`;
 }
+// Ticket van de betaler: stand + groep + lijnen
 function viewTicket(){
   const t=myTicket(S.id);
   if(!t) return `<div class="topbar"><button class="btn-link" data-act="back">‹ Owed to me</button></div><!--head-->${!loaded||S.justMade===S.id?skel(2):`<div class="card empty"><p>Dit ticket bestaat niet meer.</p></div>`}`;
-  if(S.editing){
-    return `<div class="topbar"><button class="btn-link" data-act="cancelEdit">Annuleer</button><button class="btn-link" style="font-weight:600" data-act="saveEdit" data-done="Opgeslagen">Bewaar</button></div><!--head-->
-      ${editorRows(S.draft)}
-      <div>${S.confirmDel?`<span class="t2">Zeker?</span> <button data-act="delYes">Ja, verwijder ticket</button> <button class="btn-link" style="font-size:15px" data-act="delNo">Nee</button>`:`<button data-act="del" class="warn">Verwijder ticket</button>`}</div>`;
-  }
-  const rows=rowsOf(t), own=ownerPart(t), open=openAmount(t,rows), fresh=S.justMade===t.id;
-  const claims=t.claims||[];
-  const left=(t.items||[]).map((it,i)=>({it, n:it.qty-(t.ownerQ?.[i]||0)-claims.reduce((s,c)=>s+(c.q?.[i]||0),0)})).filter(x=>x.n>0);
-  return `<div class="topbar"><button class="btn-link" data-act="back">‹ Owed to me</button><button class="btn-link" data-act="edit">Wijzig lijnen</button></div><!--head-->
-    <div class="head">${fresh?`<span class="status">✓ Ticket klaar · ${t.items.length} lijnen</span>`:""}<h1 style="font-size:30px">${esc(t.title)}</h1><p class="lead">${day(t.createdAt)} · totaal <b>${eur(sum(t))}</b>${rows.length?` · nog open <b>${eur(open)}</b>`:""}</p></div>
+  const st=standOf(t), c=st.c, fresh=S.justMade===t.id, claims=t.claims||[];
+  const newcomers=st.rows.filter(r=>r.joined && !r.ack);
+  const pct=x=>Math.max(0,Math.min(100,x/st.total*100)).toFixed(1);
+  const gapTxt = st.gap>0.009 ? `Betaalt iedereen wat hij nu koos, dan kom je <b>${eur(st.gap)}</b> tekort.` : st.gap<-0.009 ? `Betaalt iedereen wat hij nu koos, dan krijg je <b>${eur(-st.gap)}</b> te veel.` : `Alles is verdeeld.`;
+  const unc=nonAll(t).filter(({it,i})=>it.qty-c.used[i]>0.0001).map(({it,i})=>{ const left=it.qty-c.used[i]; return `${Number.isInteger(left)?left:String(R(left)).replace(".",",")}× ${it.name}`; });
+  const parties=[{ key:"o", name:"Jij" }].concat(t.people.map(p=>({ key:p.pid, name:p.name })));
+  return `<div class="topbar"><button class="btn-link" data-act="back">‹ Owed to me</button><button class="btn-link" data-act="editTicket">Bewerk</button></div><!--head-->
+    <div class="head">${fresh?`<span class="status">✓ Ticket klaar · ${t.items.length} lijnen</span>`:""}<h1 style="font-size:30px">${esc(t.title)}</h1><p class="lead">${day(t.createdAt)} · totaal <b>${eur(st.total)}</b></p></div>
     <div class="grid2"><button class="btn-p btn-big" data-act="shareLink">${ICON.up} Deel link</button><button class="btn-dark btn-big" data-act="showQR">${ICON.qr} Toon QR</button></div>
-    <div class="card list"><div class="row" style="padding:12px 0 0;align-items:center"><span class="cap">Betaald voor</span><button class="linkbtn" data-act="setup">Aanpassen</button></div>
+    <div class="card" style="gap:8px"><span class="cap">Stand van het ticket</span>
+      <div class="standbar"><span style="width:${pct(st.own)}%;background:var(--accent)"></span><span style="width:${pct(st.received)}%;background:var(--ok)"></span><span style="width:${pct(st.toPay)}%;background:#f0a54a"></span></div>
+      <div class="legend"><span><i style="background:var(--accent)"></i>Jouw deel <b class="num">${eur(st.own)}</b></span><span><i style="background:var(--ok)"></i>Ontvangen <b class="num">${eur(st.received)}</b></span>
+        <span><i style="background:#f0a54a"></i>Nog te betalen <b class="num">${eur(st.toPay)}</b></span><span><i style="background:var(--track)"></i>Door niemand gekozen <b class="num">${eur(st.unclaimed)}</b></span></div>
+      <span class="t2">${unc.length?`Nog niet gekozen: ${esc(unc.join(", "))}. `:""}${gapTxt}</span></div>
+    ${newcomers.map(r=>`<div class="notice warmish"><span><b>${esc(r.name)} kwam erbij</b> via de link. Voor iedereen is nu ${eur(c.allPP)} p.p.</span>
+      <div style="display:flex;gap:8px;margin-top:8px"><button class="btn-p" style="min-height:36px" data-act="ackJoin" data-pid="${esc(r.pid)}">Oké</button>${r.paidAmt>0?"":`<button style="min-height:36px" data-act="removePerson" data-pid="${esc(r.pid)}">Verwijder ${esc(r.name)}</button>`}</div></div>`).join("")}
+    <div class="card list"><div class="row" style="padding:12px 0 0;align-items:center"><span class="cap">Groep · ${t.people.length+1} personen</span><button class="linkbtn" data-act="editTicket" data-v="group">Wijzig</button></div>
       <div class="person"><span class="av mid" style="background:${colorFor(me.id)}">${esc(initials(me.name))}</span>
-        <div class="col grow"><span style="font-weight:600">Jij</span><span class="t2">${own>0?`jouw deel ${eur(own)}`:"Je eigen deel is nog niet aangeduid"}</span></div>
-        ${own>0?"":`<button class="btn-soft" data-act="setup">Duid aan</button>`}</div>
-      ${rows.map(r=>personRow(t,r)).join("")}
-      ${rows.length?"":`<div class="person"><span class="t2 grow">Voeg toe voor wie je betaalde. Dan zie je wie nog moet terugbetalen.</span><button class="btn-soft" data-act="setup">Voeg toe</button></div>`}
+        <div class="col grow"><span style="font-weight:600">Jij</span><span class="t2">jouw deel ${eur(st.own)}</span></div></div>
+      ${st.rows.map(r=>personRow(t,r)).join("")}
     </div>
-    <div class="card list">${(t.items||[]).map((it,i)=>{
-      const who=[...(t.ownerQ?.[i]?[`Jij ${t.ownerQ[i]}`]:[]), ...claims.filter(c=>c.q?.[i]).map(c=>`${personName(t,c)} ${c.q[i]}`)];
-      return `<div class="line"><div class="col"><span class="name">${it.qty}× ${esc(it.name)}</span><span class="t2">${who.length?esc(who.join(" · ")):"Nog niemand gekozen"}</span></div><span class="num">${eur(it.qty*it.unitPrice)}</span></div>`;}).join("")}</div>
-    <p class="lead" style="padding:0 4px;font-size:13px">${left.length?`Nog niet gekozen: ${esc(left.map(x=>`${x.n}× ${x.it.name}`).join(", "))}.`:"Alles is verdeeld."}</p>`;
+    <div class="card list"><div class="row" style="padding:12px 0 0;align-items:center"><span class="cap">Lijnen · wie koos wat</span><button class="linkbtn" data-act="editTicket" data-v="propose">Voorstel</button></div>
+      ${(t.items||[]).map((it,i)=>{
+        if(it.all) return `<div class="line"><div class="col"><span class="name">${LOCK} ${it.qty}× ${esc(it.name)}</span><span class="t2">voor iedereen · ${eur(c.allPP)} p.p.</span></div><span class="num">${eur(lineTotal(it))}</span></div>`;
+        const who=[...(c.ownerPicks[i]?[`Jij ${fmtShare(c.ownerPicks[i])}`]:[]), ...claims.filter(x=>x.picks?.[i]).map(x=>`${personName(t,x)} ${fmtShare(x.picks[i])}`)];
+        const exp=parties.filter(p=>p.key!=="o" && (t.proposal?.[i]||{})[p.key] && !claims.some(x=>x.pid===p.key)).map(p=>p.name);
+        return `<div class="line"><div class="col"><span class="name">${it.qty}× ${esc(it.name)}</span><span class="t2 num">${it.qty} × ${eur(it.unitPrice)}</span>
+          <span class="t2">${who.length?esc(who.join(" · ")):"Nog niemand gekozen"}${exp.length?` · verwacht: ${esc(exp.join(", "))}`:""}</span></div><span class="num">${eur(lineTotal(it))}</span></div>`;}).join("")}</div>`;
 }
+// Terugbetaler: alle lijnen
 function viewSelect(){
   const e=cache[S.id];
-  if(!e) return `<div class="card empty"><p>Ticket laden…</p></div>`;
+  if(!e) return `<div class="topbar"><button class="btn-link" data-act="toDelen">‹ I owe</button></div><!--head-->${skel(2)}`;
   if(e.error||!e.ticket) return `<div class="topbar"><button class="btn-link" data-act="toDelen">‹ I owe</button></div><!--head--><div class="card empty"><p>${esc(e.error||"Dit ticket werd niet gevonden.")}</p></div>`;
-  const t=e.ticket, claims=e.claims||[], mineClaim=claims.find(c=>c.userId===me.id);
-  const people=t.people||[], free=people.filter(p=>!claims.some(c=>c.userId!==me.id && c.pid===p.pid));
+  if(!S.mine) initMine(e);
+  const t=e.ticket, claims=e.claims||[], {c, me:mp}=myCalc(e), paidBefore=(S.mineBase?.paidTotal||0)>0;
+  const people=t.people||[], free=people.filter(p=>!claims.some(x=>x.userId!==me.id && x.pid===p.pid));
+  const meP=people.find(p=>p.pid===S.pid), myInit=initials(meP?.name||me.name), myColor=colorFor(S.pid||me.id);
+  const al=allLines(t), allPP = paidBefore && S.mineBase.paidAllPP!=null ? S.mineBase.paidAllPP : c.allPPexact;
+  const othersPicked=calcTicket(t, claims.filter(x=>x.userId!==me.id).concat([mineAsClaim()]));
+  const who = !S.pid ? `<div class="card" style="gap:10px"><span class="cap">Wie ben jij?</span>
+      ${S.joining?`<div style="display:flex;gap:8px"><input id="joinName" value="${esc(me.name)}" placeholder="Je naam" autocomplete="given-name"><button class="btn-p" data-act="joinGroup" data-done="Toegevoegd">Voeg mij toe</button></div>
+        <span class="t2">${esc(e.ownerName||"De betaler")} ziet dat je erbij kwam.</span>`
+      :`<div class="chips">${free.map(p=>`<button class="chip sug" data-act="pickPid" data-v="${esc(p.pid)}">${esc(p.name)}</button>`).join("")}<button class="chip sug" data-act="startJoin">Ik sta er niet bij</button></div>`}</div>`
+    : `<span class="t2" style="padding:0 4px">Je bent <b style="color:var(--ink)">${esc(meP?.name||me.name)}</b>${paidBefore?"":` · <button class="linkbtn" style="display:inline;font-size:13px" data-act="changePid">wijzig</button>`}</span>`;
+  const rows = nonAll(t).map(({it,i})=>{
+    const exp=(t.proposal||{})[i]||{}, mineP=S.mine.picks[i], declined=S.mine.declined[i]!==undefined;
+    const meExp=!!(S.pid && exp[S.pid]);
+    const otherKeys=Object.keys(exp).filter(k=>k!==S.pid);
+    const others=otherKeys.map(k=>k==="o"?{ init:initials(e.ownerName), color:colorFor(t.ownerId), name:e.ownerName }:{ init:initials((people.find(p=>p.pid===k)||{}).name), color:colorFor(k), name:(people.find(p=>p.pid===k)||{}).name||"?" });
+    const names=[...(meExp?[declined?"jij (niet van mij)":"jij"]:[]), ...others.map(o=>o.name)];
+    const left=Math.max(0,it.qty-othersPicked.used[i]);
+    const amt=mineP?R(shareOf(mineP)*it.unitPrice):0;
+    return `<div class="line tap pickrow" role="button" tabindex="0" data-act="pickLine" data-i="${i}">
+      <div class="col grow" style="gap:4px"><span class="name" style="color:${declined?"var(--muted)":mineP?"var(--accent)":"var(--ink)"}">${it.qty}× ${esc(it.name)}</span>
+        <div class="dotrow">${names.length?`<button class="dotbtn" data-act="names" data-i="${i}" aria-expanded="${S.namesOpen===i}" aria-label="Voorgesteld: ${esc(names.join(", "))}">${dotsHtml(meExp?{ init:myInit, color:myColor, off:declined }:null, others)}</button>`:""}
+          <span class="t2 num">${eur(it.unitPrice)}/st · nog ${left>0.0001?(Number.isInteger(left)?left:eur(left*it.unitPrice)):"0"} vrij</span></div>
+        ${S.namesOpen===i?`<span class="tip">${esc(names.join(", ").replace(/^./,m=>m.toUpperCase()))}</span>`:""}</div>
+      <div class="col right"><span class="${declined?"t2":"amt"}" style="${mineP?"color:var(--accent)":""}">${declined?"Niet van mij":mineP?eur(amt):`<span style="color:var(--accent);font:600 14px var(--body)">Kies</span>`}</span><span class="t2">${mineP?fmtShare(mineP)+(mineP.w>1?"":" st."):""}</span></div>
+      <span class="chev">›</span></div>`;
+  }).join("");
   return `<div class="topbar"><button class="btn-link" data-act="toDelen">‹ I owe</button></div><!--head-->
     <div style="display:flex;gap:12px;align-items:center;padding:0 4px"><span class="av big" style="background:${colorFor(t.ownerId)}">${esc(initials(e.ownerName))}</span>
       <div class="col"><h1 style="font-size:26px">${esc(t.title)}</h1><span class="t2" style="font-size:14px">${esc(e.ownerName||"Je vriend")} betaalde · ${day(t.createdAt)}</span></div></div>
-    ${people.length?`<div class="card" style="gap:10px"><span class="cap">Wie ben jij?</span><div class="chips">
-      ${free.map(p=>`<button class="chip sug" aria-pressed="${S.pid===p.pid}" data-act="pickPid" data-v="${esc(p.pid)}">${esc(p.name)}</button>`).join("")}
-      <button class="chip sug" aria-pressed="${S.pid===""}" data-act="pickPid" data-v="">Iemand anders</button></div></div>`:""}
-    <p class="lead" style="padding:0 4px;color:var(--ink)">Tik op + bij alles wat van jou is.</p>
-    <div class="card list">${(t.items||[]).map((it,i)=>{
-      const max=it.qty-takenByOthers(t,claims,i), q=S.mine[i]||0, left=max-q;
-      return `<div class="line ${q?"mine":""} ${max<=0&&!q?"gone":""}"><div class="col"><span class="name">${esc(it.name)}</span><span class="t2 num">${eur(it.unitPrice)}/st · ${left>0?`nog ${left} vrij`:"alles verdeeld"}</span></div>
-        <div class="step"><button aria-label="Minder ${esc(it.name)}" data-act="dec" data-i="${i}" ${q<=0?"disabled":""}>−</button><span class="q" data-k="m${i}">${q}</span><button aria-label="Meer ${esc(it.name)}" data-act="inc" data-i="${i}" ${q>=max?"disabled":""}>+</button></div></div>`;}).join("")}</div>
-    ${mineClaim?.paid?`<span class="pill ok" style="margin-left:4px">✓ Je hebt dit betaald</span>`:""}`;
+    ${who}
+    ${paidBefore?`<div class="notice">✓ Je betaalde ${eur(S.mineBase.paidTotal)}. Je keuzes liggen vast; je kan nog wel iets bijkiezen.${mp.due>0.009?` Nog <b>${eur(mp.due)}</b> bij te betalen.`:""}</div>`:""}
+    ${al.length?`<div class="card list"><div class="lockcap">${LOCK} Voor iedereen · vast</div><div class="line muted"><span>${esc(al.map(x=>x.it.name).join(", "))} <span class="t2">÷ ${c.group}</span></span><span class="num">${eur(allPP)}</span></div></div>`:""}
+    <div class="card list"><div class="col" style="padding:12px 0 4px;gap:2px"><span class="cap">Alle andere lijnen</span><span class="t2">De initialen tonen wie ${esc(e.ownerName||"de betaler")} verwacht; tik erop voor de namen. Kijk alle lijnen na: ook lijnen zonder initialen kunnen van jou zijn.</span></div>${rows||`<div class="line"><span class="t2">Geen andere lijnen.</span></div>`}</div>
+    <p class="lead" style="padding:0 4px;font-size:13px">Nog door niemand gekozen: <b>${eur(othersPicked.unclaimed)}</b></p>`;
 }
 function viewProfiel(){
   const now=new Date(), m0=new Date(now.getFullYear(),now.getMonth(),1).getTime();
-  const mt=home.mine.filter(t=>t.createdAt>=m0);
-  const adv=r2(mt.reduce((s,t)=>s+sum(t)-ownerPart(t),0));
-  const back=r2(mt.reduce((s,t)=>s+rowsOf(t).filter(r=>r.paid).reduce((u,r)=>u+r.total,0),0));
+  const mt=home.mine.filter(t=>t.createdAt>=m0).map(standOf);
+  const adv=R(mt.reduce((s,st)=>s+st.total-st.own,0)), back=R(mt.reduce((s,st)=>s+st.received,0));
   const th=getTheme(), inApp=standalone();
   return `<div class="head"><h1>Profile</h1></div><!--head-->
     <div class="card" style="flex-direction:row;align-items:center;gap:14px"><span class="av big" style="width:56px;height:56px;border-radius:28px;font-size:20px;background:${colorFor(me.id)}">${esc(initials(me.name))}</span>
@@ -746,13 +912,15 @@ function viewProfiel(){
 function render(){
   const v=S.view;
   if(!me.name){ $("app").innerHTML=viewOnboard(); $("tabbar").innerHTML=""; $("layer").innerHTML=""; return; }
-  const html = v==="krijgen"?viewKrijgen(): v==="delen"?viewDelen(): v==="profiel"?viewProfiel(): v==="ticket"?viewTicket(): v==="select"?viewSelect(): v==="scan"?viewScan(): v==="setup"?viewSetup(): viewNew();
+  if(["group","new","propose"].includes(v) && !S.draft) S.view = S.id ? "ticket" : "krijgen";
+  const vv=S.view;
+  const html = vv==="krijgen"?viewKrijgen(): vv==="delen"?viewDelen(): vv==="profiel"?viewProfiel(): vv==="ticket"?viewTicket(): vv==="select"?viewSelect(): vv==="scan"?viewScan(): vv==="group"?viewGroup(): vv==="propose"?viewPropose(): viewNew();
   const focused = document.activeElement && document.activeElement.id;
   const app=$("app");
   const cut = html.indexOf("<!--head-->");
   app.innerHTML = cut<0 ? `<div class="lbody">${html}</div>` : `<div class="lhead">${html.slice(0,cut)}</div><div class="lbody">${html.slice(cut+11)}</div>`;
   S.popPid = null;
-  if(v!==lastView){ if(lastView && DETAIL.includes(v) && !NAV) pushLevel(); NAV=""; lastView=v; app.classList.remove("enter"); void app.offsetWidth; app.classList.add("enter"); clearTimeout(enterT); enterT=setTimeout(()=>app.classList.remove("enter"),420); }
+  if(vv!==lastView){ if(lastView && DETAIL.includes(vv) && !NAV) pushLevel(); NAV=""; lastView=vv; app.classList.remove("enter"); void app.offsetWidth; app.classList.add("enter"); clearTimeout(enterT); enterT=setTimeout(()=>app.classList.remove("enter"),420); }
   if(focused && $(focused) && /INPUT|TEXTAREA/.test($(focused).tagName)) $(focused).focus();
   renderBar(); renderLayer(); applyFlash();
   if(bumpSel){ document.querySelectorAll(bumpSel).forEach(x=>{ x.classList.remove("bump"); void x.offsetWidth; x.classList.add("bump"); }); bumpSel=null; }
@@ -760,14 +928,16 @@ function render(){
 function renderBar(){
   const bar=$("tabbar"), v=S.view;
   if(v==="select"){
-    const e=cache[S.id]; if(!e?.ticket){ bar.innerHTML=""; return; }
-    const t=e.ticket, total=partTotal(t,S.mine), mc=(e.claims||[]).find(c=>c.userId===me.id);
-    bar.innerHTML=`<div class="in"><div class="paybar glass"><div class="col"><span class="cap">Jouw deel</span><span class="v" id="paytotal" style="display:inline-block">${eur(total)}</span></div>
-      <div style="display:flex;gap:8px;align-items:center">${mc&&!mc.paid&&total>0?`<button class="btn-link" style="font-size:14px" data-act="setPaid" data-v="1" data-id="${esc(t.id)}">Al betaald</button>`:""}
-      ${total>0?payButton(t,total,"","Betaal via bank"):`<span class="btn btn-p" style="opacity:.5">Betaal via bank</span>`}</div></div></div>`;
+    const e=cache[S.id]; if(!e?.ticket || !S.mine){ bar.innerHTML=""; return; }
+    const t=e.ticket, {me:mp}=myCalc(e), paidBefore=(S.mineBase?.paidTotal||0)>0, due=Math.max(0,mp.due);
+    if(!S.pid){ bar.innerHTML=`<div class="in"><div class="paybar glass"><div class="col"><span class="cap">Jouw deel</span><span class="v">—</span></div><span class="btn btn-p" style="opacity:.5">Kies eerst wie je bent</span></div></div>`; return; }
+    if(paidBefore && due<=0.009){ bar.innerHTML=`<div class="in"><div class="paybar glass"><div class="col"><span class="cap">Betaald</span><span class="v ok">✓ ${eur(S.mineBase.paidTotal)}</span></div><span class="t2" style="padding-right:12px">Alles in orde</span></div></div>`; return; }
+    bar.innerHTML=`<div class="in"><div class="paybar glass"><div class="col"><span class="cap">${paidBefore?"Bij te betalen":"Jouw deel"}</span><span class="v" id="paytotal" style="display:inline-block">${eur(due)}</span></div>
+      <div style="display:flex;gap:8px;align-items:center">${due>0?`<button class="btn-link" style="font-size:14px" data-act="markPaid" data-id="${esc(t.id)}" data-done="Betaald">Ik heb betaald</button>`:""}
+      ${payButton(t,due,"","Betaal via bank")}</div></div></div>`;
     return;
   }
-  if(["ticket","scan","new","setup"].includes(v)){ bar.innerHTML=""; return; }
+  if(["ticket","scan","new","group","propose"].includes(v)){ bar.innerHTML=""; return; }
   const tab=(id,icon,label)=>`<button class="tab" data-act="tab" data-v="${id}" ${v===id?'aria-current="page"':""}>${icon}${label}</button>`;
   bar.innerHTML=`<div class="in"><nav class="tabs glass" aria-label="Hoofdmenu">${tab("krijgen",ICON.get,"Owed to me")}${tab("delen",ICON.share,"I owe")}${tab("profiel",ICON.me,"Profile")}</nav>
     <button class="cam" data-act="camera" aria-label="Scan ticket">${ICON.cam}</button></div>`;
@@ -777,6 +947,7 @@ function renderLayer(){
   renderLayerInner();
   if(fresh) $("layer").firstElementChild?.classList.add("anim");
 }
+const sheet = inner => `<div class="layer dim"><button class="backdrop" data-act="closeLayer" aria-label="Sluit"></button><div class="card sheetcard" style="gap:14px">${inner}</div></div>`;
 function renderLayerInner(){
   const L=$("layer"), l=S.layer;
   if(!l){ L.innerHTML=""; return; }
@@ -784,6 +955,47 @@ function renderLayerInner(){
     L.innerHTML=`<div class="layer read" role="status"><div class="readbox"><img src="${S.photo}" alt=""></div>
       <div style="display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center"><span style="font-size:18px;font-weight:600">Claude leest je ticket…</span><span style="color:rgba(255,255,255,.7);font-size:14px">Dit duurt meestal 5 à 15 seconden.</span></div>
       <button class="btn" style="background:rgba(255,255,255,.14);border-color:rgba(255,255,255,.3);color:#fff" data-act="aiCancel">Annuleer</button></div>`;
+    return;
+  }
+  if(l.kind==="propose"){ // betaler: wie verwacht je op deze lijn?
+    const d=S.draft, it=cleanItems(d.items)[l.i] || d.items[l.i], parties=draftParties(d);
+    const used=Object.values(l.cnt).reduce((s,n)=>s+n,0), sel=parties.filter(p=>l.sel[p.key]);
+    const sum = l.mode==="shared" ? (sel.length?`Gedeeld door ${esc(listNames(sel.map(p=>p.name)))}`:"Nog niemand aangeduid") : `${used} van ${it.qty} verdeeld`;
+    const pp = l.mode==="shared" ? (sel.length?eur(it.qty*it.unitPrice/sel.length)+" p.p.":"—") : eur(it.unitPrice)+"/st";
+    L.innerHTML=sheet(`<div class="col"><span class="cap">Wie verwacht je?</span><div class="row" style="align-items:baseline"><span style="font:800 24px/1.1 var(--display)">${it.qty}× ${esc(it.name)}</span><span class="amt">${eur(it.qty*it.unitPrice)}</span></div></div>
+      <div class="seg" style="grid-template-columns:repeat(2,minmax(0,1fr))"><button aria-pressed="${l.mode==="shared"}" data-act="pmode" data-v="shared">Samen gedeeld</button><button aria-pressed="${l.mode==="unit"}" data-act="pmode" data-v="unit">Per stuk</button></div>
+      <div class="col" style="gap:0">${parties.map(p=>`<div class="person"><span class="av mid" style="background:${p.color}">${esc(p.init)}</span><span class="grow" style="font-weight:600">${esc(p.name)}</span>
+        ${l.mode==="shared"?`<button class="chk" aria-pressed="${!!l.sel[p.key]}" aria-label="${esc(p.name)} deelt mee" data-act="psel" data-v="${esc(p.key)}">${ICON.check}</button>`
+        :`<div class="step"><button aria-label="Minder voor ${esc(p.name)}" data-act="pdec" data-v="${esc(p.key)}" ${!(l.cnt[p.key]>0)?"disabled":""}>−</button><span class="q">${l.cnt[p.key]||0}</span><button aria-label="Meer voor ${esc(p.name)}" data-act="pinc" data-v="${esc(p.key)}" ${used>=it.qty?"disabled":""}>+</button></div>`}</div>`).join("")}</div>
+      <div class="sumbox"><span>${sum}</span><b class="num">${pp}</b></div>
+      <span class="t2">Een voorstel: iedereen kiest zelf zijn deel. Jouw eigen deel telt wel meteen.</span>
+      <div class="grid2"><button data-act="pclear">Geen voorstel</button><button class="btn-p" data-act="pdone">Klaar</button></div>`);
+    return;
+  }
+  if(l.kind==="pick"){ // terugbetaler: kies je deel van een lijn
+    const e=cache[S.id], t=e.ticket, it=t.items[l.i], free=freeFor(e,l.i), locked=lockedShare(l.i);
+    const exp=expectedFor(t,l.i,S.pid), share=l.n/l.w, amount=R(share*it.unitPrice);
+    const tooMuch = share>free+1e-9, tooLittle = share<locked-1e-9;
+    if(l.mode==="decline"){
+      const quick=["Ik at hier niet van","Ik was er nog niet","Staat bij iemand anders"];
+      L.innerHTML=sheet(`<div class="col" style="gap:4px"><div class="dotrow">${dotsHtml({ init:initials((t.people.find(p=>p.pid===S.pid)||{}).name||me.name), color:colorFor(S.pid), off:true }, [])}<span class="t2">voorgesteld door ${esc(e.ownerName||"de betaler")}</span></div><span style="font:800 24px/1.1 var(--display)">${it.qty}× ${esc(it.name)}</span></div>
+        <div class="field"><label for="why" style="font-weight:600">Waarom niet?</label><span class="t2">${esc(e.ownerName||"De betaler")} verwachtte je hier. Een korte uitleg helpt de rekening te laten kloppen. Alleen ${esc(e.ownerName||"hij")} ziet dit.</span>
+          <textarea id="why" style="min-height:84px" placeholder="Bv. ik at enkel van mijn steak">${esc(l.why||"")}</textarea></div>
+        <div class="chips">${quick.map(q=>`<button class="chip sug" data-act="quickWhy" data-v="${esc(q)}">${esc(q)}</button>`).join("")}</div>
+        <div class="grid2"><button data-act="pickMode" data-v="choose">Terug</button><button class="btn-p" data-act="pickDecline" data-done="Bewaard">Bevestig</button></div>`);
+      return;
+    }
+    const opts=[[1,"Alleen ik"],[2,"2"],[3,"3"],[4,"4"],[5,"5"],[6,"6"]];
+    L.innerHTML=sheet(`<div class="col" style="gap:4px">${exp?`<div class="dotrow">${dotsHtml({ init:initials((t.people.find(p=>p.pid===S.pid)||{}).name||me.name), color:colorFor(S.pid) }, [])}<span class="t2">voorgesteld door ${esc(e.ownerName||"de betaler")}</span></div>`:""}
+        <span style="font:800 24px/1.1 var(--display)">${it.qty}× ${esc(it.name)}</span><span class="t2 num">${eur(it.unitPrice)}/st · nog ${eur(free*it.unitPrice)} vrij</span></div>
+      <div class="row" style="align-items:center"><span style="font-weight:600">Aantal</span><div class="step"><button aria-label="Minder" data-act="pickN" data-v="-1" ${l.n<=0?"disabled":""}>−</button><span class="q" data-k="pk">${l.n}</span><button aria-label="Meer" data-act="pickN" data-v="1" ${l.n>=it.qty?"disabled":""}>+</button></div></div>
+      <div class="col" style="gap:8px"><span style="font-weight:600">Gedeeld met</span>
+        <div class="seg" style="grid-template-columns:1.7fr repeat(5,minmax(0,1fr))">${opts.map(([w,lab])=>`<button aria-pressed="${l.w===w}" data-act="pickW" data-v="${w}">${lab}</button>`).join("")}</div>
+        <span class="t2">Totaal aantal personen dat dit deelde, jij inbegrepen.</span></div>
+      <div class="sumbox"><span>${l.n?`${l.n} × ${eur(it.unitPrice)}${l.w>1?` ÷ ${l.w}`:""}`:"Je neemt niets van deze lijn"}</span><b class="num" data-k="pka" style="display:inline-block">${eur(amount)}</b></div>
+      ${tooMuch?`<span class="t2 warn">Er is nog maar ${eur(free*it.unitPrice)} vrij van deze lijn.</span>`:""}
+      ${tooLittle?`<span class="t2 warn">Je betaalde hier al ${eur(locked*it.unitPrice)} voor. Dat deel kan niet kleiner.</span>`:""}
+      <div class="grid2">${exp && !locked?`<button style="color:var(--warn)" data-act="pickMode" data-v="decline">Niet van mij</button>`:`<button data-act="closeLayer">Annuleer</button>`}<button class="btn-p" data-act="pickSave" ${tooMuch||tooLittle?"disabled":""}>Bewaar</button></div>`);
     return;
   }
   if(l.kind==="copy"){ L.innerHTML=`<div class="layer sheet"><div class="card" style="max-width:420px;width:100%"><span class="t1">Kopieer dit</span><textarea id="copybox" readonly>${esc(l.text)}</textarea><button class="btn-p" data-act="closeLayer">Klaar</button></div></div>`; setTimeout(()=>$("copybox")?.select(),0); return; }
@@ -797,26 +1009,23 @@ function renderLayerInner(){
   if(l.kind==="remind"){
     const t=myTicket(l.id); if(!t){ S.layer=null; L.innerHTML=""; return; }
     const w=rowsOf(t).filter(r=>!r.paid);
-    L.innerHTML=`<div class="layer dim"><button class="backdrop" data-act="closeLayer" aria-label="Sluit"></button><div class="card sheetcard">
-      <div class="col"><span class="t1">Wie wil je herinneren?</span><span class="t2">Elk bericht noemt de naam en het bedrag. In het deelmenu kies je daarna de juiste persoon.</span></div>
-      <div class="col" style="gap:0">${w.map(r=>personRow(t,r)).join("")}</div>
-      <button data-act="closeLayer">Klaar</button></div></div>`;
+    L.innerHTML=sheet(`<div class="col"><span class="t1">Wie wil je herinneren?</span><span class="t2">Elk bericht noemt de naam en het bedrag. In het deelmenu kies je daarna de juiste persoon.</span></div>
+      <div class="col" style="gap:0">${w.map(r=>personRow(t,r)).join("")}</div><button data-act="closeLayer">Klaar</button>`);
     return;
   }
   if(l.kind==="install"){
-    L.innerHTML=`<div class="layer dim"><button class="backdrop" data-act="closeLayer" aria-label="Sluit"></button><div class="card sheetcard" style="gap:16px">
-      <span class="t1">Zet Splitticket op je beginscherm</span>
+    L.innerHTML=sheet(`<span class="t1">Zet Splitticket op je beginscherm</span>
       ${isIOS?`<div class="isteps">
         <div class="istep"><span class="ic">${ICON.up}</span><div class="col"><span style="font-weight:600">Tik in Safari op de Deel-knop</span><span class="t2">Zie je die niet? Tik eerst op ⋯ naast de adresbalk.</span></div></div>
         <div class="istep"><span class="ic">${ICON.plus}</span><div class="col"><span style="font-weight:600">Kies "Zet op beginscherm"</span><span class="t2">Scroll in het menu omlaag als je het niet meteen ziet.</span></div></div>
         <div class="istep"><span class="ic">${ICON.check}</span><div class="col"><span style="font-weight:600">Tik op "Voeg toe"</span><span class="t2">Je profiel gaat mee naar de app. Lukt dat niet, gebruik dan je koppelcode onder Profiel.</span></div></div></div>`
       :`<span class="t2">Open deze pagina op je iPhone in Safari en tik daar op Installeer. Op Android of in Chrome gebeurt het met één tik.</span>`}
-      <button class="btn-p" data-act="closeLayer">Begrepen</button></div></div>`;
+      <button class="btn-p" data-act="closeLayer">Begrepen</button>`);
     return;
   }
   if(l.kind==="qr"){
     const t=myTicket(S.id); if(!t){ S.layer=null; L.innerHTML=""; return; }
-    const rows=rowsOf(t), chose=rows.filter(r=>r.chose).map(r=>r.name);
+    const chose=rowsOf(t).filter(r=>r.chose).map(r=>r.name);
     L.innerHTML=`<div class="layer qr"><div style="align-self:stretch;max-width:520px;width:100%;margin:0 auto"><button class="btn-link" data-act="closeLayer">‹ Ticket</button></div>
       <div style="text-align:center;display:flex;flex-direction:column;gap:6px"><h1 style="font-size:30px">${esc(t.title)}</h1><span style="color:rgba(255,255,255,.85)">Laat je vrienden deze code scannen met hun camera</span></div>
       <div class="qrbox" role="img" aria-label="QR-code naar dit ticket"><div id="qr"></div></div>
@@ -830,14 +1039,15 @@ function renderLayerInner(){
 /* ---------- events ---------- */
 document.addEventListener("click", async ev=>{
   const el=ev.target.closest("[data-act]"); if(!el) return;
-  const a=el.dataset.act, i=+el.dataset.i;
+  const a=el.dataset.act, i=+el.dataset.i, v=el.dataset.v;
+  const L=S.layer;
   switch(a){
     case "onboard": { const n=$("obName").value.trim(); if(!n){ setFlash(el,"err"); $("obName").focus(); return; } me.name=n.slice(0,30); store.set("me",me);
       try{ await withFlash(el, ()=>api("hello",{ bunq:me.bunq, iban:me.iban })); await wait(250); }catch{} render(); await refresh(); readHash(); break; }
     case "toggleImport": S.showImport=!S.showImport; render(); break;
     case "doImport": try{ await withFlash(el, ()=>importCode($("obCode").value)); await wait(250); S.showImport=false; render(); await refresh(); readHash(); toast("Profiel gekoppeld."); }catch(e){ toast(e.message); } break;
     case "retry": await withFlash(el, refresh); break;
-    case "tab": go(el.dataset.v); break;
+    case "tab": go(v); break;
     case "camera": openCamera(); break;
     case "cancelScan": navBack(); break;
     case "aiRetry": S.aiErr=""; readWithAI(); break;
@@ -845,52 +1055,87 @@ document.addEventListener("click", async ev=>{
     case "manual": startNew([], "", 0); break;
     case "parse": { const txt=($("paste")?.value||"").trim(); if(!txt){ setFlash(el,"err"); toast("Plak eerst de tekst van het ticket."); return; }
       const r=parseReceipt(txt); if(!r.items.length) toast("Geen lijnen gevonden. Vul ze zelf in."); startNew(r.items, r.title, r.total); break; }
-    case "cancelNew": S.draft=null; go("krijgen"); break;
-    case "next": openSetup(true); break;
-    case "setup": openSetup(false); break;
-    case "setupBack": navBack(); break;
+
+    // betaler: concept
+    case "draftBack": navBack(); break;
+    case "toLines": { const p=($("addName")?.value||"").trim(); if(p) addPerson(p); S.view="new"; S.err=""; render(); window.scrollTo(0,0); break; }
+    case "toPropose": if(!cleanItems(S.draft.items).length){ S.err="Voeg minstens één lijn met een prijs toe."; render(); setFlash(el,"err"); return; } S.view="propose"; S.err=""; render(); window.scrollTo(0,0); break;
     case "addPerson": addPerson($("addName")?.value); break;
-    case "addSug": addPerson(el.dataset.v); break;
-    case "rmPerson": S.setup.people.splice(i,1); render(); break;
-    case "oinc": case "odec": { const q=(S.setup.ownerQ[i]||0)+(a==="oinc"?1:-1); if(q>0) S.setup.ownerQ[i]=q; else delete S.setup.ownerQ[i]; bumpSel=`[data-k="o${i}"],#owntotal`; render(); break; }
-    case "saveSetup": saveSetup(el); break;
+    case "addSug": addPerson(v); break;
+    case "rmPerson": { const p=S.draft.people[i]; S.draft.people.splice(i,1); Object.values(S.draft.proposal).forEach(x=>{ delete x[p.pid]; }); render(); break; }
+    case "toggleAll": { const it=S.draft.items[i]; it.all=!it.all; if(it.all) delete S.draft.proposal[i]; haptic(); render(); break; }
+    case "addRow": S.draft.items.push({name:"",qty:1,unitPrice:0}); render(); break;
+    case "delRow": removeLine(i); render(); break;
+    case "saveDraft": saveDraft(el); break;
+    case "openPropose": { const d=S.draft, p=d.proposal[i]||{}, keys=Object.keys(p);
+      const shared = keys.length>1 && keys.every(k=>p[k].w>1) || (!keys.length && (cleanItems(d.items)[i]?.qty||1)===1);
+      const sel={}, cnt={}; keys.forEach(k=>{ sel[k]=true; cnt[k]=p[k].w>1?0:p[k].n; });
+      S.layer={ kind:"propose", i, mode: shared?"shared":"unit", sel, cnt }; render(); break; }
+    case "pmode": L.mode=v; render(); break;
+    case "psel": L.sel[v]=!L.sel[v]; render(); break;
+    case "pinc": case "pdec": L.cnt[v]=Math.max(0,(L.cnt[v]||0)+(a==="pinc"?1:-1)); render(); break;
+    case "pclear": delete S.draft.proposal[L.i]; S.layer=null; render(); break;
+    case "pdone": { const it=cleanItems(S.draft.items)[L.i]||S.draft.items[L.i], out={};
+      if(L.mode==="shared"){ const keys=Object.keys(L.sel).filter(k=>L.sel[k]); keys.forEach(k=>out[k]={ n:it.qty, w:keys.length }); }
+      else Object.keys(L.cnt).forEach(k=>{ if(L.cnt[k]>0) out[k]={ n:L.cnt[k], w:1 }; });
+      if(Object.keys(out).length) S.draft.proposal[L.i]=out; else delete S.draft.proposal[L.i];
+      S.layer=null; haptic(); render(); break; }
+    case "del": S.confirmDel=true; render(); break;
+    case "delNo": S.confirmDel=false; render(); break;
+    case "delYes": deleteTicket(el); break;
+
+    // betaler: ticket
     case "open": S.justMade=null; go("ticket", el.dataset.id); break;
+    case "editTicket": { const t=myTicket(S.id); if(t) editTicket(t, v==="propose"?"propose":v==="group"?"group":"new"); break; }
     case "back": navBack(); break;
-    case "toDelen": navBack(); break;
     case "remind": { const t=myTicket(el.dataset.id), w=rowsOf(t).filter(r=>!r.paid);
-      if(!w.length){ shareText(`Duid aan wat je had bij ${t.title} en betaal je deel:`, linkFor(t)); break; }
+      if(!w.length){ shareText(`Kies wat je had bij ${t.title} en betaal je deel:`, linkFor(t)); break; }
       if(w.length===1){ remindRow(t,w[0]); break; }
       S.layer={kind:"remind", id:t.id}; render(); break; }
     case "remindOne": { const t=myTicket(el.dataset.id), r=t && rowsOf(t).find(x=>x.key===el.dataset.key); if(r) remindRow(t,r); break; }
-    case "markPerson": try{ await withFlash(el, ()=>api("markPerson",{ id:S.id, pid:el.dataset.pid, paid:el.dataset.v==="1" })); await wait(300); await refresh(); toast(el.dataset.v==="1"?"Gemarkeerd als betaald.":"Weer op open gezet."); }catch(e){ toast(e.message); } break;
-    case "shareLink": { const t=myTicket(S.id); shareText(`Duid aan wat je had bij ${t.title} en betaal je deel:`, linkFor(t)); break; }
+    case "markPerson": case "ackJoin": case "removePerson":
+      try{ await withFlash(el, ()=>api(a,{ id:S.id, pid:el.dataset.pid, paid:v==="1" })); await wait(250); await refresh(); }catch(e){ toast(e.message); } break;
+    case "shareLink": { const t=myTicket(S.id); shareText(`Kies wat je had bij ${t.title} en betaal je deel:`, linkFor(t)); break; }
     case "showQR": S.layer={kind:"qr"}; render(); break;
+
+    // terugbetaler
+    case "toDelen": navBack(); break;
+    case "adjust": if(!cache[el.dataset.id]) await loadTicket(el.dataset.id); go("select", el.dataset.id); break;
+    case "pickPid": { S.pid=v; const e=cache[S.id]; if(!(e.claims||[]).some(c=>c.userId===me.id)) S.mine.picks=JSON.parse(JSON.stringify(calcTicket(e.ticket,[]).proposedFor(v))); render(); queueClaim(S.id); break; }
+    case "changePid": S.pid=null; S.joining=false; render(); break;
+    case "startJoin": S.joining=true; render(); setTimeout(()=>$("joinName")?.focus(),50); break;
+    case "joinGroup": { const n=($("joinName")?.value||"").trim(); if(!n){ setFlash(el,"err"); return; }
+      try{ await withFlash(el, ()=>saveClaim(S.id,{ joinName:n })); }catch{} break; }
+    case "names": S.namesOpen = S.namesOpen===i ? -1 : i; render(); break;
+    case "pickLine": { if(!S.pid){ toast("Kies eerst wie je bent."); return; }
+      const e=cache[S.id], t=e.ticket, cur=S.mine.picks[i], exp=expectedFor(t,i,S.pid);
+      const start = cur || (S.mine.declined[i]!==undefined ? { n:0, w:1 } : exp || { n:1, w:1 });
+      S.layer={ kind:"pick", i, n:start.n, w:start.w, mode:"choose", why:S.mine.declined[i]||"" }; render(); break; }
+    case "pickN": { const it=cache[S.id].ticket.items[L.i]; L.n=Math.max(0,Math.min(it.qty,L.n+(+v))); bumpSel='[data-k="pk"],[data-k="pka"]'; render(); break; }
+    case "pickW": L.w=+v; bumpSel='[data-k="pka"]'; render(); break;
+    case "pickMode": L.why=$("why")?.value ?? L.why; L.mode=v; render(); break;
+    case "quickWhy": { const w=$("why"); if(w){ w.value=v; } L.why=v; break; }
+    case "pickSave": { const t=cache[S.id].ticket;
+      if(L.n===0 && expectedFor(t,L.i,S.pid) && !lockedShare(L.i)){ L.mode="decline"; render(); return; }
+      if(L.n>0){ S.mine.picks[L.i]={ n:L.n, w:L.w }; delete S.mine.declined[L.i]; } else delete S.mine.picks[L.i];
+      const ii=L.i; S.layer=null; bumpSel=`#paytotal`; haptic(); render(); saveClaim(S.id).catch(()=>{}); void ii; break; }
+    case "pickDecline": { const why=($("why")?.value||"").trim(); if(!why){ setFlash(el,"err"); toast("Geef kort aan waarom dit niet van jou is."); return; }
+      delete S.mine.picks[L.i]; S.mine.declined[L.i]=why.slice(0,140); S.layer=null; haptic(); render(); saveClaim(S.id).catch(()=>{}); break; }
+    case "pay": saveClaim(el.dataset.id).catch(()=>{}); break;
+    case "payIban": { const id=el.dataset.id, sh=home.shares.find(x=>x.ticket.id===id)||{}, e=cache[id] || { ticket:sh.ticket, ownerName:sh.ownerName };
+      if(S.view==="select") saveClaim(id).catch(()=>{});
+      S.layer={ kind:"iban", iban:e.ticket?.iban||"", name:e.ownerName||"", amount:+el.dataset.amt, msg:`${me.name} – ${e.ticket?.title||"Ticket"}`.slice(0,60) }; render(); break; }
+    case "markPaid": try{ await withFlash(el, ()=>saveClaim(el.dataset.id,{ markPaid:true })); toast("Gemarkeerd als betaald. Je keuzes liggen nu vast."); }catch{} break;
+
+    // algemeen
     case "closeLayer": S.layer=null; render(); break;
-    case "copyVal": await copy(el.dataset.v); if(!S.layer || S.layer.kind!=="copy") setFlash(el,"done"); break;
+    case "copyVal": await copy(v); if(!S.layer || S.layer.kind!=="copy") setFlash(el,"done"); break;
     case "copyCode": await copy(codeOf(), "Koppelcode gekopieerd."); if(!S.layer) setFlash(el,"done"); break;
     case "install":
       if(installEvt){ installEvt.prompt(); try{ await installEvt.userChoice; }catch{} installEvt=null; render(); break; }
       try{ history.replaceState(null,"",location.pathname+location.search+"#koppel="+codeOf()); }catch{}
       S.layer={kind:"install"}; render(); break;
-    case "edit": { const t=myTicket(S.id); S.editing=true; S.draft={ title:t.title, items:t.items.map(x=>({...x})), ticketTotal:t.ticketTotal||0 }; render(); break; }
-    case "cancelEdit": S.editing=false; S.err=""; render(); break;
-    case "saveEdit": saveEdit(el); break;
-    case "addRow": S.draft.items.push({name:"",qty:1,unitPrice:0}); render(); break;
-    case "delRow": S.draft.items.splice(i,1); render(); break;
-    case "del": S.confirmDel=true; render(); break;
-    case "delNo": S.confirmDel=false; render(); break;
-    case "delYes": deleteTicket(el); break;
-    case "pickPid": S.pid=el.dataset.v; render(); queueClaim(S.id); break;
-    case "inc": case "dec": S.mine[i]=(S.mine[i]||0)+(a==="inc"?1:-1); if(S.mine[i]<=0) delete S.mine[i]; bumpSel=`[data-k="m${i}"],#paytotal`; render(); queueClaim(S.id); break;
-    case "adjust": if(!cache[el.dataset.id]) await loadTicket(el.dataset.id); go("select", el.dataset.id); break;
-    case "pay": if(S.view==="select") saveClaim(el.dataset.id); break;
-    case "payIban": { const id=el.dataset.id, sh=home.shares.find(x=>x.ticket.id===id)||{}, e=cache[id] || { ticket:sh.ticket, ownerName:sh.ownerName };
-      if(S.view==="select") saveClaim(id);
-      S.layer={ kind:"iban", iban:e.ticket?.iban||"", name:e.ownerName||"", amount:+el.dataset.amt, msg:`${me.name} – ${e.ticket?.title||"Ticket"}`.slice(0,60) }; render(); break; }
-    case "setPaid": { const id=el.dataset.id; setFlash(el,"busy"); if(!cache[id]) await loadTicket(id);
-      if(S.view!=="select"){ const mc=(cache[id]?.claims||[]).find(c=>c.userId===me.id); S.mine={...(mc?.q||{})}; S.pid=mc?.pid ?? null; }
-      await withFlash(el, ()=>saveClaim(id,{ paid: el.dataset.v==="1" })); toast(el.dataset.v==="1"?"Gemarkeerd als betaald.":"Weer op open gezet."); break; }
-    case "theme": store.set("theme", el.dataset.v); applyTheme(el.dataset.v); render(); break;
+    case "theme": store.set("theme", v); applyTheme(v); render(); break;
     case "saveProfile": { const n=$("pName").value.trim(), b=$("pBunq").value.trim().replace(/^https?:\/\/(www\.)?bunq\.me\//i,"").replace(/\/.*$/,""), ib=$("pIban").value.trim().toUpperCase();
       if(!n){ setFlash(el,"err"); toast("Vul je naam in."); return; }
       if(b && !/^[A-Za-z0-9._-]+$/.test(b)){ setFlash(el,"err"); toast("Vul alleen je bunq.me-naam in, bv. JanPeeters."); return; }
@@ -900,15 +1145,19 @@ document.addEventListener("click", async ev=>{
   }
 });
 document.addEventListener("input", ev=>{
-  const el=ev.target, k=el.dataset.in; if(!k) return;
+  const el=ev.target, k=el.dataset.in;
+  if(el.id==="why" && S.layer?.kind==="pick"){ S.layer.why=el.value; return; }
+  if(!k) return;
   if(k==="paste"){ S.pasted=el.value; return; }
   if(!S.draft) return;
   if(k==="title"){ S.draft.title=el.value; return; }
   const it=S.draft.items[+el.dataset.i];
   if(k==="name") it.name=el.value;
-  if(k==="qty") it.qty=Math.max(1,parseInt(el.value)||1);
-  if(k==="price") it.unitPrice=parseFloat(el.value.replace(",","."))||0;
-  const tot=r2(S.draft.items.reduce((s,x)=>s+x.qty*x.unitPrice,0));
+  const i=+el.dataset.i, num=parseFloat(el.value.replace(",","."))||0;
+  if(k==="qty"){ it.qty=Math.max(1,parseInt(el.value)||1); if($("el"+i)) $("el"+i).value=money(it.qty*it.unitPrice); }
+  if(k==="price"){ it.unitPrice=num; if($("el"+i)) $("el"+i).value=money(it.qty*it.unitPrice); }
+  if(k==="ltot"){ it.unitPrice=Math.round(num/it.qty*10000)/10000; if($("ep"+i)) $("ep"+i).value=money(it.unitPrice); }
+  const tot=R(S.draft.items.reduce((s,x)=>s+x.qty*x.unitPrice,0));
   if($("etot")) $("etot").textContent=eur(tot);
   if($("echeck")) $("echeck").hidden = Math.abs(S.draft.ticketTotal-tot)<=0.01;
 });
@@ -916,6 +1165,7 @@ document.addEventListener("keydown", ev=>{
   const id=ev.target.id;
   if(ev.key==="Enter" && id==="obName"){ ev.preventDefault(); document.querySelector('[data-act="onboard"]').click(); return; }
   if(ev.key==="Enter" && id==="addName"){ ev.preventDefault(); addPerson(ev.target.value); return; }
+  if(ev.key==="Enter" && id==="joinName"){ ev.preventDefault(); document.querySelector('[data-act="joinGroup"]')?.click(); return; }
   if((ev.key==="Enter"||ev.key===" ") && ev.target.getAttribute("role")==="button" && ev.target.dataset.act){ ev.preventDefault(); ev.target.click(); }
 });
 
@@ -1027,7 +1277,7 @@ document.addEventListener("click", async ev=>{
 document.addEventListener("visibilitychange", ()=>{ if(document.visibilityState==="hidden" && !$("camera").hidden) closeCamera(); });
 
 /* ---------- terug: knop, iPhone-veeg en browsergeschiedenis ---------- */
-const DETAIL = ["ticket","select","setup","scan","new"];
+const DETAIL = ["ticket","select","scan","group","new","propose"];
 let NAV = "";   // "up" of "replace": dan geen nieuwe stap in de geschiedenis
 function pushLevel(){ try{ history.pushState({ st:1 }, "", location.href); }catch{} }
 function navBack(){ if(history.state && history.state.st) history.back(); else goBack(); }
@@ -1037,10 +1287,11 @@ function goBack(){
   if(S.layer){ if(S.layer.kind==="reading"){ readRun++; S.layer=null; S.aiErr=""; NAV="up"; S.view="scan"; render(); return; } S.layer=null; render(); return; }
   NAV="up";
   switch(S.view){
-    case "ticket": if(S.editing){ S.editing=false; S.err=""; NAV=""; render(); return; } clearHash(); go("krijgen"); break;
+    case "ticket": clearHash(); go("krijgen"); break;
     case "select": clearHash(); go("delen"); break;
-    case "setup": if(S.setup?.isNew){ S.setup=null; S.view="new"; render(); } else { S.setup=null; go("ticket",S.id); } break;
-    case "new": S.draft=null; if(S.photo){ S.view="scan"; render(); } else go("krijgen"); break;
+    case "propose": S.view="new"; S.err=""; render(); break;
+    case "new": S.view="group"; S.err=""; render(); break;
+    case "group": { const id=S.draft?.id; S.draft=null; if(id) go("ticket",id); else if(S.photo){ S.view="scan"; render(); } else go("krijgen"); break; }
     case "scan": go("krijgen"); break;
     default: NAV="";
   }
@@ -1090,7 +1341,7 @@ addEventListener("scroll", ()=>document.body.classList.toggle("scrolled", scroll
 /* ---------- pull to refresh ---------- */
 const PTR = { y0:null, x0:0, dy:0, on:false, busy:false, ready:false };
 const PTR_GO = 62, PTR_MAX = 100, PTR_HOLD = 52;
-const ptrAllowed = () => me.name && !S.layer && $("camera").hidden && (S.view==="krijgen" || S.view==="delen" || (S.view==="ticket" && !S.editing));
+const ptrAllowed = () => me.name && !S.layer && $("camera").hidden && (S.view==="krijgen" || S.view==="delen" || S.view==="ticket");
 function setPull(y, mode){ // mode: "drag" | "spin" | "back"
   const app=$("app").querySelector(".lbody")||$("app"), el=$("ptr"), arc=el.querySelector(".arc");
   const hb=$("app").querySelector(".lhead")?.getBoundingClientRect().bottom || 0;
