@@ -313,6 +313,7 @@ body.cam-open{overflow:hidden}
 .toptitle{flex:1;min-width:0;text-align:center;font-weight:600;font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;opacity:0;transform:translateY(6px);transition:opacity .2s,transform .2s;padding:0 8px}
 .toptitle.on{opacity:1;transform:none}
 .topspacer{flex:none;width:58px}
+.versionline{margin:4px 0 0;text-align:center;font-size:12px;color:var(--muted)}
 </style>
 </head>
 <body>
@@ -347,6 +348,32 @@ body.cam-open{overflow:hidden}
 <script src="parser.js"></script>
 <script>
 const API = (window.SPLIT_CONFIG||{}).API_URL || "";
+const APP_VERSION = "11"; // verhoog bij elke nieuwe index.html, dan updaten alle toestellen vanzelf
+
+let scriptVer=null, scriptVerBusy=false;
+function scriptVersion(){ // versie van je Apps Script, één keer opgehaald
+  if(scriptVer===null && !scriptVerBusy && API && !API.startsWith("PLAK")){ scriptVerBusy=true;
+    fetch(API).then(r=>r.json()).then(j=>{ scriptVer=String(j.version||""); if(S.view==="profiel") render(); }).catch(()=>{ scriptVer=""; }); }
+  return scriptVer||"";
+}
+/* ---------- automatische update ---------- */
+// GitHub laat toestellen een oude kopie tot 10 minuten bewaren. Bij openen kijken we zelf of er een nieuwere versie is.
+let updChecking=false;
+async function checkUpdate(){
+  if(updChecking || !navigator.onLine) return; updChecking=true;
+  try{
+    const r=await fetch(location.pathname+"?check="+Date.now(), { cache:"no-store" });
+    const m=/const APP_VERSION = "([\d.]+)"/.exec(await r.text());
+    if(m && m[1]!==APP_VERSION && parseFloat(m[1])>parseFloat(APP_VERSION)){
+      let tried=""; try{ tried=sessionStorage.getItem("updTried")||""; }catch{}
+      if(tried===m[1]) return; // al eens geprobeerd: geen eindeloze lus
+      if(typeof busyEditing==="function" && busyEditing()){ updPending=true; return; } // niet midden in een ticket
+      try{ sessionStorage.setItem("updTried", m[1]); }catch{}
+      location.replace(location.pathname+"?v="+m[1]+location.hash);
+    }
+  }catch{} finally{ updChecking=false; }
+}
+let updPending=false;
 const $ = id => document.getElementById(id);
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const eur = n => new Intl.NumberFormat("nl-BE",{style:"currency",currency:"EUR"}).format(n||0);
@@ -430,7 +457,7 @@ async function loadTicket(id){
 }
 const busyEditing = () => !!S.draft || (S.layer && (S.layer.kind==="pick" || S.layer.kind==="propose"));
 setInterval(()=>{ if(document.visibilityState==="visible" && !busyEditing()){ refresh(); if(S.view==="select"&&S.id&&!saving) loadTicket(S.id); } }, 20000);
-document.addEventListener("visibilitychange", ()=>{ if(document.visibilityState==="visible" && !busyEditing()) refresh(); });
+document.addEventListener("visibilitychange", ()=>{ if(document.visibilityState==="visible"){ checkUpdate(); if(!busyEditing()) refresh(); } });
 
 /* ===== Splitticket rekenregels (identiek in app en script) =====
  * Lijnen "voor iedereen" (all): verplicht, gelijk verdeeld over de hele groep (groep + betaler).
@@ -491,7 +518,7 @@ function rowsOf(t){
       paid, paidAmt: pr?pr.paid:0, due: pr?Math.max(0,pr.due):(p.paid?0:R(c.allPPexact)), total, chose:!!cl, over: pr?pr.over:0, declined: cl?(cl.declined||{}):{} };
   });
   claims.filter(cl=>!cl.pid || !people.some(p=>p.pid===cl.pid)).forEach(cl=>{
-    const pr=c.party(cl); if(pr.total<=0 && !pr.paid) return;
+    const pr=c.party(cl); if(!pr.paid && !Object.keys(cl.picks||{}).length) return; // vrijgemaakt of nog niets gekozen
     rows.push({ key:"u-"+cl.userId, pid:null, name:cl.name, claim:cl, manual:false, joined:false, ack:true,
       paid: pr.paid>0 && pr.due<=0.009, paidAmt:pr.paid, due:Math.max(0,pr.due), total:pr.total, chose:true, over:pr.over, declined:cl.declined||{} });
   });
@@ -581,7 +608,9 @@ function initMine(e){
 /* ---------- navigation ---------- */
 function go(view, id){
   S.view=view; S.id=id||null; S.confirmDel=false; S.err="";
-  if(view==="select") initMine(cache[id]);
+  if(view==="select"){ initMine(cache[id]);
+    // via de link geopend en je naam is bekend: meteen bewaren, zodat het ticket in "I owe" staat en je naam bezet is
+    const e=cache[id]; if(S.pid && e?.ticket && !(e.claims||[]).some(c=>c.userId===me.id)) queueClaim(id); }
   render(); window.scrollTo(0,0);
 }
 function clearHash(){ try{ history.replaceState(null,"",location.pathname+location.search); }catch{} }
@@ -855,7 +884,10 @@ function personRow(t, r){
     : r.paidAmt>0 ? `betaalde ${eur(r.paidAmt)} · nog ${eur(r.due)} bij te betalen`
     : r.chose ? `koos ${eur(r.total)} · nog niet betaald` : `voorstel ${eur(r.total)} · nog niet geopend`;
   const notes = Object.entries(r.declined||{}).map(([i,why])=>`<span class="note">Niet van mij bij <b>${esc((t.items[i]||{}).name||"een lijn")}</b>: "${esc(why)}"</span>`).join("");
-  const toggle = r.pid && !r.claim ? `<button class="linkbtn" data-act="markPerson" data-pid="${esc(r.pid)}" data-v="${r.manual?0:1}">${r.manual?"Zet terug op open":"Markeer als betaald"}</button>` : "";
+  const toggle = r.pid && !r.claim ? `<button class="linkbtn" data-act="markPerson" data-pid="${esc(r.pid)}" data-v="${r.manual?0:1}">${r.manual?"Zet terug op open":"Markeer als betaald"}</button>`
+    : r.pid && r.claim && !r.paidAmt ? (S.confirmRelease===r.pid
+      ? `<span class="t2">Iemand anders koos de naam ${esc(r.name)}? Zijn keuzes vervallen en ${esc(r.name)} kan zichzelf opnieuw kiezen.</span><div style="display:flex;gap:8px"><button class="warn" style="min-height:34px;white-space:nowrap;padding:0 14px" data-act="releasePerson" data-pid="${esc(r.pid)}" data-done="Vrijgemaakt">Maak vrij</button><button style="min-height:34px" data-act="releaseNo">Nee</button></div>`
+      : `<button class="linkbtn" data-act="releaseAsk" data-pid="${esc(r.pid)}">Verkeerde persoon? Maak naam vrij</button>`) : "";
   return `<div class="person" style="align-items:flex-start"><span class="av mid ${r.paid?"":"off"}" style="${r.paid?`background:${colorFor(r.key)}`:""}">${esc(initials(r.name))}</span>
     <div class="col grow" style="gap:3px"><span style="font-weight:600">${esc(r.name)}${r.joined?` <span class="t2">· nieuw</span>`:""}</span><span class="t2">${status}</span>
       ${r.over>0.009?`<span class="pill warn">${eur(r.over)} te veel · groep groeide na betaling</span>`:""}${notes}${toggle}</div>
@@ -956,7 +988,8 @@ function viewProfiel(){
     <div class="field"><span class="cap" style="padding:0 4px">Weergave</span>
       <div class="seg" role="group" aria-label="Weergave">${[["light","Licht"],["dark","Donker"],["auto","Automatisch"]].map(([v,l])=>`<button aria-pressed="${th===v}" data-act="theme" data-v="${v}">${l}</button>`).join("")}</div></div>
     <div class="card" style="gap:10px"><span class="cap">Ander toestel</span><span class="t2">Met deze koppelcode gebruik je hetzelfde profiel op een ander toestel. Deel ze met niemand anders.</span>
-      <div class="code">${esc(codeOf())}</div><button data-act="copyCode" data-done="Gekopieerd">Kopieer koppelcode</button></div>`;
+      <div class="code">${esc(codeOf())}</div><button data-act="copyCode" data-done="Gekopieerd">Kopieer koppelcode</button></div>
+    <p class="versionline">Splitticket v${APP_VERSION}${scriptVersion()?` · script v${scriptVersion()}`:""}</p>`;
 }
 
 /* ---------- render ---------- */
@@ -974,6 +1007,7 @@ function render(){
   if(vv!==lastView){ if(lastView && DETAIL.includes(vv) && !NAV) pushLevel(); NAV=""; lastView=vv; app.classList.remove("enter"); void app.offsetWidth; app.classList.add("enter"); clearTimeout(enterT); enterT=setTimeout(()=>app.classList.remove("enter"),420); }
   if(focused && $(focused) && /INPUT|TEXTAREA/.test($(focused).tagName)) $(focused).focus();
   renderBar(); renderLayer(); applyFlash(); syncTopTitle();
+  if(updPending && !busyEditing()){ updPending=false; checkUpdate(); }
   if(bumpSel){ document.querySelectorAll(bumpSel).forEach(x=>{ x.classList.remove("bump"); void x.offsetWidth; x.classList.add("bump"); }); bumpSel=null; }
 }
 function renderBar(){
@@ -1150,6 +1184,10 @@ document.addEventListener("click", async ev=>{
       if(w.length===1){ remindRow(t,w[0]); break; }
       S.layer={kind:"remind", id:t.id}; render(); break; }
     case "remindOne": { const t=myTicket(el.dataset.id), r=t && rowsOf(t).find(x=>x.key===el.dataset.key); if(r) remindRow(t,r); break; }
+    case "releaseAsk": S.confirmRelease=el.dataset.pid; render(); break;
+    case "releaseNo": S.confirmRelease=null; render(); break;
+    case "releasePerson": S.confirmRelease=null;
+      try{ await withFlash(el, ()=>api("releasePerson",{ id:S.id, pid:el.dataset.pid })); await wait(250); await refresh(); toast("Naam vrijgemaakt."); }catch(e){ toast(e.message); } break;
     case "markPerson": case "ackJoin": case "removePerson":
       try{ await withFlash(el, ()=>api(a,{ id:S.id, pid:el.dataset.pid, paid:v==="1" })); await wait(250); await refresh(); }catch(e){ toast(e.message); } break;
     case "shareLink": { const t=myTicket(S.id); shareText(`Kies wat je had bij ${t.title} en betaal je deel:`, linkFor(t)); break; }
@@ -1463,6 +1501,7 @@ document.addEventListener("touchcancel", ()=>{ if(PTR.on && !PTR.busy){ PTR.y0=n
     clearHash();
   }
   render();
+  checkUpdate();
   if(me.name){ await refresh(); readHash(); }
 })();
 </script>
