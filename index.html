@@ -314,6 +314,7 @@ body.cam-open{overflow:hidden}
 .toptitle.on{opacity:1;transform:none}
 .topspacer{flex:none;width:58px}
 .versionline{margin:4px 0 0;text-align:center;font-size:12px;color:var(--muted)}
+.divider{height:1px;background:var(--divider);margin:4px 0}
 </style>
 </head>
 <body>
@@ -348,7 +349,7 @@ body.cam-open{overflow:hidden}
 <script src="parser.js"></script>
 <script>
 const API = (window.SPLIT_CONFIG||{}).API_URL || "";
-const APP_VERSION = "11"; // verhoog bij elke nieuwe index.html, dan updaten alle toestellen vanzelf
+const APP_VERSION = "12"; // verhoog bij elke nieuwe index.html, dan updaten alle toestellen vanzelf
 
 let scriptVer=null, scriptVerBusy=false;
 function scriptVersion(){ // versie van je Apps Script, één keer opgehaald
@@ -410,7 +411,7 @@ const codeOf = () => me.id + "." + me.key;
 function parseCode(s){ const m=/^(u[0-9a-f]{16})\.([0-9a-f]{32})$/.exec(String(s||"").trim()); return m?{id:m[1],key:m[2]}:null; }
 
 /* ---------- theme ---------- */
-const getTheme = () => store.get("theme","auto");
+const getTheme = () => store.get("theme","light");
 function applyTheme(t){ if(t==="auto") delete document.documentElement.dataset.app; else document.documentElement.dataset.app=t; }
 applyTheme(getTheme());
 
@@ -988,7 +989,12 @@ function viewProfiel(){
     <div class="field"><span class="cap" style="padding:0 4px">Weergave</span>
       <div class="seg" role="group" aria-label="Weergave">${[["light","Licht"],["dark","Donker"],["auto","Automatisch"]].map(([v,l])=>`<button aria-pressed="${th===v}" data-act="theme" data-v="${v}">${l}</button>`).join("")}</div></div>
     <div class="card" style="gap:10px"><span class="cap">Ander toestel</span><span class="t2">Met deze koppelcode gebruik je hetzelfde profiel op een ander toestel. Deel ze met niemand anders.</span>
-      <div class="code">${esc(codeOf())}</div><button data-act="copyCode" data-done="Gekopieerd">Kopieer koppelcode</button></div>
+      <div class="code">${esc(codeOf())}</div><button data-act="copyCode" data-done="Gekopieerd">Kopieer koppelcode</button>
+      <div class="divider"></div>
+      ${S.showSwitch?`<div class="field"><label class="cap" for="swCode">Koppelcode van je andere toestel</label><input id="swCode" autocapitalize="off" autocomplete="off" spellcheck="false" placeholder="u1234….abcd…"></div>
+        <span class="t2">Dit toestel gebruikt daarna dat profiel. Het huidige profiel (${esc(me.name)}) blijft bewaard: met de code hierboven kan je er later naar terug. Kopieer ze dus eerst.</span>
+        <div style="display:flex;gap:8px"><button class="btn-p grow" data-act="doSwitch" data-done="Overgeschakeld">Schakel over</button><button data-act="toggleSwitch">Annuleer</button></div>`
+      :`<button class="btn-link" style="font-size:15px;align-self:center" data-act="toggleSwitch">Een ander profiel gebruiken op dit toestel</button>`}</div>
     <p class="versionline">Splitticket v${APP_VERSION}${scriptVersion()?` · script v${scriptVersion()}`:""}</p>`;
 }
 
@@ -1131,6 +1137,14 @@ document.addEventListener("click", async ev=>{
     case "onboard": { const n=$("obName").value.trim(); if(!n){ setFlash(el,"err"); $("obName").focus(); return; } me.name=n.slice(0,30); store.set("me",me);
       try{ await withFlash(el, ()=>api("hello",{ bunq:me.bunq, iban:me.iban })); await wait(250); }catch{} render(); await refresh(); readHash(); break; }
     case "toggleImport": S.showImport=!S.showImport; render(); break;
+    case "toggleSwitch": S.showSwitch=!S.showSwitch; render(); if(S.showSwitch) setTimeout(()=>$("swCode")?.focus(),50); break;
+    case "doSwitch": { const v2=($("swCode")?.value||"").trim(); const c=parseCode(v2);
+      if(!c){ setFlash(el,"err"); toast("Deze code klopt niet. Kopieer ze opnieuw onder Profile op je andere toestel."); return; }
+      if(c.id===me.id){ setFlash(el,"err"); toast("Dit is het profiel dat je nu al gebruikt."); return; }
+      const prev={...me};
+      try{ await withFlash(el, ()=>importCode(v2)); await wait(250); S.showSwitch=false; Object.keys(cache).forEach(k=>delete cache[k]); loaded=false; home={ mine:[], shares:[], ai:false };
+        go("krijgen"); await refresh(); toast(`Je gebruikt nu het profiel van ${me.name}.`); }
+      catch(e){ me=prev; store.set("me",me); toast(e.message); } break; }
     case "doImport": try{ await withFlash(el, ()=>importCode($("obCode").value)); await wait(250); S.showImport=false; render(); await refresh(); readHash(); toast("Profiel gekoppeld."); }catch(e){ toast(e.message); } break;
     case "retry": await withFlash(el, refresh); break;
     case "tab": go(v); break;
