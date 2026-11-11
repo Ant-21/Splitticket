@@ -292,6 +292,22 @@ body.cam-open{overflow:hidden}
 .dot.me.off{background:var(--av-off);box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--av-off)}
 .tip{align-self:flex-start;font-size:12px;padding:4px 10px;border-radius:8px;background:var(--ink);color:var(--card)}
 .pickrow .col.right{min-width:64px}
+.titlerow{display:flex;gap:12px;align-items:flex-end}
+.head .titlerow{align-items:center}
+.thumb{position:relative;width:44px;height:44px;min-height:44px;padding:0;border-radius:12px;overflow:hidden;flex:none;border:1px solid var(--line);background:var(--seg)}
+.thumb img{width:100%;height:100%;object-fit:cover;display:block}
+.thumb.toggle{width:52px;height:52px;min-height:52px;border-radius:14px}
+.thumb .eye{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#fff;background:rgba(8,14,22,.35)}
+.thumb.hidden-photo img{filter:grayscale(1) brightness(.6)}
+.thumb.hidden-photo .eye{background:rgba(8,14,22,.55)}
+.layer.photo{background:#05080c;color:#fff}
+.layer.photo img{max-width:100%;max-height:calc(100vh - 140px);object-fit:contain;border-radius:12px}
+.seg .cnt{font:600 11px var(--mono);opacity:.7}
+.pline{display:grid;grid-template-columns:minmax(0,1fr) 84px 76px;align-items:center}
+.pline .num{text-align:right}
+.pline>.chev,.pline>.linkish{justify-self:end;text-align:right}
+.delrow{display:flex;flex-direction:column;align-items:center;gap:8px;padding:8px 0 4px;text-align:center}
+.unsure{flex:none;width:24px;height:24px;min-height:0;padding:0;border-radius:12px;border:none;background:var(--warn);color:var(--card);font:800 14px var(--body);display:flex;align-items:center;justify-content:center}
 </style>
 </head>
 <body>
@@ -393,7 +409,7 @@ async function importCode(code){
 /* ---------- state ---------- */
 let home = { mine:[], shares:[], ai:false }, loaded=false, loadErr="";
 const cache = {};
-const S = { view:"krijgen", id:null, draft:null, mine:null, mineBase:null, pid:null, pidHint:null, joining:false, namesOpen:-1,
+const S = { filter: (()=>{ try{ return store.get("filter","open"); }catch{ return "open"; } })(), view:"krijgen", id:null, draft:null, mine:null, mineBase:null, pid:null, pidHint:null, joining:false, namesOpen:-1,
   justMade:null, layer:null, confirmDel:false, err:"", photo:null, pasted:"", showImport:false };
 
 async function refresh(){
@@ -586,12 +602,12 @@ function usePhoto(f){
 }
 function startNew(items, title, total, byAI){
   S.draft = { id:null, title: title || "Ticket "+new Date().toLocaleDateString("nl-BE",{day:"numeric",month:"numeric"}),
-    items: items.length?items:[{name:"",qty:1,unitPrice:0}], ticketTotal: total||0, byAI: !!byAI && items.length>0, people:[], proposal:{} };
+    items: items.length?items:[{name:"",qty:1,unitPrice:0}], ticketTotal: total||0, byAI: !!byAI && items.length>0, people:[], proposal:{}, hasPhoto: !!S.photoFile, showPhoto: !!S.photoFile };
   S.view="group"; S.err=""; render(); window.scrollTo(0,0);
 }
 function editTicket(t, step){
   S.draft = { id:t.id, title:t.title, items:t.items.map(x=>({...x})), ticketTotal:t.ticketTotal||0, byAI:false,
-    people:(t.people||[]).map(p=>({...p})), proposal:JSON.parse(JSON.stringify(t.proposal||{})), claims:t.claims||[] };
+    people:(t.people||[]).map(p=>({...p})), proposal:JSON.parse(JSON.stringify(t.proposal||{})), claims:t.claims||[], hasPhoto:!!t.hasPhoto, showPhoto:!!t.showPhoto };
   S.view=step||"group"; S.err=""; S.confirmDel=false; render(); window.scrollTo(0,0);
 }
 async function shrinkPhoto(file, max=1800, quality=0.82){
@@ -613,7 +629,7 @@ async function readWithAI(){
     const r = await api("readReceipt",{ image });
     if(run!==readRun) return;
     S.layer=null;
-    if(!r.items?.length){ S.aiErr="Claude vond geen lijnen op deze foto. Probeer een scherpere foto, of plak de tekst zelf."; S.view="scan"; render(); window.scrollTo(0,0); return; }
+    if(!r.items?.length){ S.aiErr="Splitticket AI vond geen lijnen op deze foto. Probeer een scherpere foto, of plak de tekst zelf."; S.view="scan"; render(); window.scrollTo(0,0); return; }
     haptic();
     startNew(r.items, r.title, r.total, true);
   }catch(e){
@@ -624,11 +640,11 @@ async function readWithAI(){
 function cleanItems(items){ return items.filter(i=>i.name.trim() && i.unitPrice!==0).map(i=>({ name:i.name.trim().slice(0,60), qty:Math.max(1,Math.min(99,parseInt(i.qty)||1)), unitPrice:Math.round(i.unitPrice*10000)/10000, all:!!i.all })); }
 
 /* ---------- draft: group, lines, proposal ---------- */
-function addPerson(name){
+function addPerson(name, keepKeyboard){
   const n=String(name||"").trim().replace(/\s+/g," ").slice(0,30); if(!n) return;
   if(S.draft.people.some(p=>p.name.toLowerCase()===n.toLowerCase())){ toast(`${n} staat er al bij.`); return; }
   const pid="p"+rand(4); S.draft.people.push({ pid, name:n }); S.popPid=pid;
-  render(); const inp=$("addName"); if(inp){ inp.value=""; inp.focus(); }
+  render(); const inp=$("addName"); if(inp){ inp.value=""; if(keepKeyboard) inp.focus(); else inp.blur(); }
 }
 function removeLine(i){ // lijn weg: voorstel van latere lijnen schuift mee op
   const d=S.draft; d.items.splice(i,1);
@@ -641,18 +657,40 @@ async function saveDraft(el){
   const pending=($("addName")?.value||"").trim(); if(pending) addPerson(pending);
   if(!items.length){ S.err="Voeg minstens één lijn met een prijs toe."; S.view="new"; render(); return; }
   if(!d.id && !me.bunq && !me.iban){ S.err="Vul eerst je bunq.me-naam of rekeningnummer in onder Profiel."; render(); setFlash(el,"err"); return; }
-  const body={ title:d.title.trim()||"Ticket", items, people:d.people, proposal:d.proposal, ticketTotal:d.ticketTotal||0 };
+  const body={ title:d.title.trim()||"Ticket", items, people:d.people, proposal:d.proposal, ticketTotal:d.ticketTotal||0, showPhoto:!!(d.hasPhoto&&d.showPhoto) };
+  if(!d.id && d.hasPhoto && d.showPhoto && S.photoFile){ try{ body.photo = await shrinkPhoto(S.photoFile, 1400, 0.72); }catch{} }
   try{
     if(d.id){
       await withFlash(el, ()=>api("updateTicket",{ id:d.id, ...body })); await wait(300);
       const id=d.id; S.draft=null; NAV="replace"; go("ticket", id); toast("Opgeslagen."); await refresh();
     }else{
-      const r=await withFlash(el, ()=>api("createTicket", body)); await wait(300);
+      const r=await withFlash(el, ()=>api("createTicket", body)); await wait(300); if(body.photo) photoCache[r.id]="data:image/jpeg;base64,"+body.photo;
       S.justMade=r.id; S.draft=null; NAV="replace"; go("ticket", r.id); await refresh();
     }
   }catch(e){ S.err=e.message; render(); }
 }
 async function deleteTicket(el){ try{ await withFlash(el, ()=>api("deleteTicket",{ id:S.draft?.id||S.id })); S.draft=null; await refresh(); NAV="up"; go("krijgen"); toast("Ticket verwijderd."); }catch(e){ toast(e.message); } }
+
+/* ---------- foto van het ticket ---------- */
+const photoCache = {}, photoBusy = {};
+function photoSrc(id){ // eigen nieuwe foto lokaal, anders bij de server ophalen
+  if(S.draft && !S.draft.id && S.photo) return S.photo;
+  if(photoCache[id]) return photoCache[id];
+  if(!photoBusy[id]){ photoBusy[id]=1; api("getPhoto",{ id }).then(r=>{ photoCache[id]="data:image/jpeg;base64,"+r.image; render(); }).catch(()=>{ photoCache[id]=""; }); }
+  return "";
+}
+const EYE = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>';
+const EYE_OFF = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.5-7 10-7c2 0 3.7.6 5.1 1.5M22 12s-3.5 7-10 7c-2 0-3.7-.6-5.1-1.5"/><path d="M3 3l18 18"/></svg>';
+function photoThumb(id, label){ // vierkantje met de foto; tik = groot
+  const src=photoSrc(id);
+  return `<button class="thumb" data-act="viewPhoto" data-id="${esc(id)}" aria-label="${label||"Bekijk de foto van het ticket"}">${src?`<img src="${src}" alt="">`:""}</button>`;
+}
+function photoToggle(d){ // bij aanmaken/bewerken: foto delen met oogje aan of uit
+  if(!d.hasPhoto) return "";
+  const src = d.id ? photoSrc(d.id) : S.photo;
+  return `<div class="col" style="align-items:center;gap:4px"><button class="thumb toggle${d.showPhoto?"":" hidden-photo"}" data-act="togglePhoto" aria-pressed="${!!d.showPhoto}" aria-label="${d.showPhoto?"Foto wordt gedeeld. Tik om te verbergen.":"Foto wordt niet gedeeld. Tik om te delen."}">${src?`<img src="${src}" alt="">`:""}<span class="eye">${d.showPhoto?EYE:EYE_OFF}</span></button><span class="t2" style="font-size:11px">${d.showPhoto?"zichtbaar":"verborgen"}</span></div>`;
+}
+async function restoreTicket(el, id){ try{ await withFlash(el, ()=>api("restoreTicket",{ id })); await refresh(); toast("Ticket teruggezet."); }catch(e){ toast(e.message); } }
 
 /* ---------- small UI pieces ---------- */
 const LOCK = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>';
@@ -693,7 +731,7 @@ function viewGroup(){
   const sugg=recentNames().filter(n=>!added.has(n.toLowerCase())).slice(0,8);
   const paid=new Set((d.claims||[]).filter(c=>c.paidTotal>0).map(c=>c.pid));
   return `<div class="topbar"><button class="btn-link" data-act="draftBack">${d.id?"‹ Ticket":"Annuleer"}</button><button class="btn-link" style="font-weight:600" data-act="toLines">Volgende</button></div><!--head-->
-    ${d.byAI?`<span class="status" style="padding:0 4px">✦ Gelezen door AI · ${esc(d.title)} · ${eur(R(d.items.reduce((s,i)=>s+i.qty*i.unitPrice,0)))}</span>`:""}
+    ${d.byAI?`<span class="status" style="padding:0 4px">✦ Gelezen door Splitticket AI · ${esc(d.title)} · ${eur(R(d.items.reduce((s,i)=>s+i.qty*i.unitPrice,0)))}${d.items.some(x=>x.unsure)?` · <span class="warn">${d.items.filter(x=>x.unsure).length} ${d.items.filter(x=>x.unsure).length===1?"lijn":"lijnen"} nakijken</span>`:""}</span>`:""}
     ${stepHead(1,"Wie was erbij?","Dit is de groep. Lijnen voor iedereen worden over al deze mensen verdeeld, jij inbegrepen.")}
     <div class="card">
       <div class="chips"><span class="chip" style="background:var(--accent);color:var(--on-accent)">✓ Jij (${esc(me.name)})</span>
@@ -707,10 +745,10 @@ function viewGroup(){
 // Stap 2: lijnen + slotje "voor iedereen"
 function editorRows(d){
   const t=R(d.items.reduce((s,i)=>s+i.qty*i.unitPrice,0));
-  return `<div class="field"><label class="cap" for="et">Naam</label><input id="et" data-in="title" value="${esc(d.title)}"></div>
+  return `<div class="titlerow"><div class="field grow"><label class="cap" for="et">Naam</label><input id="et" data-in="title" value="${esc(d.title)}"></div>${photoToggle(d)}</div>
     <div class="card" style="gap:0;padding-top:6px">
       ${d.items.map((it,i)=>`<div class="erow">
-        <div class="erow-top"><input id="en${i}" aria-label="Item" placeholder="Item" data-in="name" data-i="${i}" value="${esc(it.name)}">
+        <div class="erow-top">${it.unsure?`<button class="unsure" data-act="unsureInfo" data-i="${i}" aria-label="Niet zeker gelezen: ${esc(it.why||"kijk deze lijn na")}">?</button>`:""}<input id="en${i}" aria-label="Item" placeholder="Item" data-in="name" data-i="${i}" value="${esc(it.name)}">
           <button class="allchip" aria-pressed="${!!it.all}" data-act="toggleAll" data-i="${i}" aria-label="Voor iedereen">${LOCK} Iedereen</button>
           <button class="x" aria-label="Verwijder lijn" data-act="delRow" data-i="${i}">×</button></div>
         <div class="erow-nums">
@@ -743,9 +781,9 @@ function viewPropose(){
   const al=allLines(t);
   return `<div class="topbar"><button class="btn-link" data-act="draftBack">‹ Lijnen</button><button class="btn-link" style="font-weight:600" data-act="saveDraft" data-done="Opgeslagen">${d.id?"Bewaar":"Maak ticket"}</button></div><!--head-->
     ${stepHead(3,"Doe een voorstel","Tik op een lijn: wie verwacht je? Iedereen kiest uiteindelijk zelf zijn deel.")}
-    ${al.length?`<div class="card list"><div class="lockcap">${LOCK} Voor iedereen · ${eur(c.allPP)} p.p.</div>${al.map(({it})=>`<div class="line muted"><span>${it.qty}× ${esc(it.name)}</span><span class="num">${eur(lineTotal(it))}</span></div>`).join("")}</div>`:""}
-    ${done.length?`<div class="card list"><div class="lockcap">Voorstel · niet bindend</div>${done.map(({it,i,p})=>`<div class="line tap" role="button" tabindex="0" data-act="openPropose" data-i="${i}"><div class="col"><span class="name">${it.qty}× ${esc(it.name)}</span><div class="tags">${parties.filter(pa=>p[pa.key]).map(pa=>tag(pa,p[pa.key])).join("")}</div></div><span class="num">${eur(lineTotal(it))}</span><span class="chev">›</span></div>`).join("")}</div>`:""}
-    ${open.length?`<div class="card list dashed"><div class="lockcap">Geen voorstel · iedereen kan kiezen</div>${open.map(({it,i})=>`<div class="line tap" role="button" tabindex="0" data-act="openPropose" data-i="${i}"><span class="name" style="font-weight:400">${it.qty}× ${esc(it.name)}</span><span class="num">${eur(lineTotal(it))}</span><span class="linkish">Wijs toe ›</span></div>`).join("")}</div>`:""}
+    ${al.length?`<div class="card list"><div class="lockcap">${LOCK} Voor iedereen · ${eur(c.allPP)} p.p.</div>${al.map(({it})=>`<div class="line muted pline"><span class="grow">${it.qty}× ${esc(it.name)}</span><span class="num">${eur(lineTotal(it))}</span></div>`).join("")}</div>`:""}
+    ${done.length?`<div class="card list"><div class="lockcap">Voorstel · niet bindend</div>${done.map(({it,i,p})=>`<div class="line tap pline" role="button" tabindex="0" data-act="openPropose" data-i="${i}"><div class="col grow"><span class="name">${it.qty}× ${esc(it.name)}</span><div class="tags">${parties.filter(pa=>p[pa.key]).map(pa=>tag(pa,p[pa.key])).join("")}</div></div><span class="num">${eur(lineTotal(it))}</span><span class="chev">›</span></div>`).join("")}</div>`:""}
+    ${open.length?`<div class="card list dashed"><div class="lockcap">Geen voorstel · iedereen kan kiezen</div>${open.map(({it,i})=>`<div class="line tap pline" role="button" tabindex="0" data-act="openPropose" data-i="${i}"><span class="name grow" style="font-weight:400">${it.qty}× ${esc(it.name)}</span><span class="num">${eur(lineTotal(it))}</span><span class="linkish">Wijs toe ›</span></div>`).join("")}</div>`:""}
     <div class="totals">${totals.map(x=>`<div><span>${esc(x.name)}</span><b class="num">${eur(x.amt)}</b></div>`).join("")}<div class="dashedbox"><span>Zonder</span><b class="num">${eur(c.unclaimed)}</b></div></div>
     ${S.err?`<span class="t2 warn" style="padding:0 4px">${esc(S.err)}</span>`:""}
     <button class="btn-p btn-big" data-act="saveDraft" data-done="Opgeslagen">${d.id?"Bewaar":"Maak ticket en deel"}</button>`;
@@ -755,10 +793,16 @@ function viewPropose(){
 function viewKrijgen(){
   if(loadErr && !loaded) return `<div class="head"><h1>Owed to me</h1></div><!--head--><div class="card empty"><p>${esc(loadErr)}</p><button data-act="retry" data-done="Bijgewerkt">Opnieuw</button></div>`;
   let open=0; const waitingNames=new Set();
-  const cards=home.mine.map(t=>{ const st=standOf(t); open+=st.open; st.rows.filter(r=>!r.paid).forEach(r=>waitingNames.add(r.name.toLowerCase())); return {t,st}; });
-  let h = `<div class="head"><h1>Owed to me</h1><p class="lead">${!loaded?"Laden…":open>0.009?`Nog <b>${eur(open)}</b> open bij ${waitingNames.size} ${waitingNames.size===1?"persoon":"personen"}`:"Iedereen heeft je terugbetaald"}</p></div><!--head-->`;
+  const all=home.mine.map(t=>{ const st=standOf(t), rows=st.rows; const full=rows.length>0 && rows.every(r=>r.paid);
+    if(!t.deleted){ open+=st.open; rows.filter(r=>!r.paid).forEach(r=>waitingNames.add(r.name.toLowerCase())); }
+    return {t,st,group: t.deleted?"deleted": full?"paid":"open"}; });
+  const filt=S.filter||"open", count=g=>all.filter(x=>x.group===g).length;
+  const cards=all.filter(x=>x.group===filt);
+  const seg=`<div class="seg" role="group" aria-label="Filter" style="margin-top:4px">${[["open","Open"],["paid","Terugbetaald"],["deleted","Verwijderd"]].map(([v,l])=>`<button aria-pressed="${filt===v}" data-act="filter" data-v="${v}">${l}${count(v)?` <span class="cnt">${count(v)}</span>`:""}</button>`).join("")}</div>`;
+  let h = `<div class="head"><h1>Owed to me</h1><p class="lead">${!loaded?"Laden…":open>0.009?`Nog <b>${eur(open)}</b> open bij ${waitingNames.size} ${waitingNames.size===1?"persoon":"personen"}`:"Iedereen heeft je terugbetaald"}</p>${loaded&&home.mine.length?seg:""}</div><!--head-->`;
   if(!loaded) return h + skel(3);
   if(!home.mine.length) return h + `<div class="card empty"><p>Fotografeer je eerste ticket met de camera-knop onderaan. Je vrienden kiezen daarna zelf hun deel.</p><button class="btn-p" data-act="camera">${ICON.cam} Scan ticket</button></div>`;
+  if(!cards.length) h += `<div class="card empty"><p>${filt==="open"?"Geen openstaande tickets. Iedereen heeft je terugbetaald.":filt==="paid"?"Nog geen volledig terugbetaalde tickets.":"Geen verwijderde tickets."}</p></div>`;
   for(const {t,st} of cards){
     const rows=st.rows, paid=rows.filter(r=>r.paid), waiting=rows.filter(r=>!r.paid);
     const full=rows.length && !waiting.length, pct=rows.length?Math.round(paid.length/rows.length*100):0;
@@ -768,7 +812,7 @@ function viewKrijgen(){
       <div class="bar"><span class="${full?"full":""}" style="width:${pct}%"></span></div>
       <div class="row" style="align-items:center"><div class="avs">${rows.map(r=>`<span class="av ${r.paid?"":"off"}" style="${r.paid?`background:${colorFor(r.key)}`:""}" title="${esc(r.name)}">${esc(initials(r.name))}</span>`).join("")}</div>
         <span class="t2">${rows.length?`${paid.length} van ${rows.length} betaald`:"Voeg je groep toe"}</span></div>
-      ${full?"":`<div class="foot"><span class="t2">${waiting.length?`Wacht op ${esc(listNames(waiting.map(r=>r.name)))}`:"Deel het ticket met je vrienden"}</span>
+      ${t.deleted?`<div class="foot"><span class="t2">Verwijderd · je vrienden zien dit ticket niet meer</span><button class="btn-soft" data-act="restore" data-id="${esc(t.id)}" data-done="Teruggezet">Zet terug</button></div>`:full?"":`<div class="foot"><span class="t2">${waiting.length?`Wacht op ${esc(listNames(waiting.map(r=>r.name)))}`:"Deel het ticket met je vrienden"}</span>
         <button class="btn-soft" data-act="remind" data-id="${esc(t.id)}">${ICON.link} ${waiting.length?"Herinner":"Deel"}</button></div>`}
     </div>`;
   }
@@ -823,7 +867,8 @@ function viewTicket(){
   const unc=nonAll(t).filter(({it,i})=>it.qty-c.used[i]>0.0001).map(({it,i})=>{ const left=it.qty-c.used[i]; return `${Number.isInteger(left)?left:String(R(left)).replace(".",",")}× ${it.name}`; });
   const parties=[{ key:"o", name:"Jij" }].concat(t.people.map(p=>({ key:p.pid, name:p.name })));
   return `<div class="topbar"><button class="btn-link" data-act="back">‹ Owed to me</button><button class="btn-link" data-act="editTicket">Bewerk</button></div><!--head-->
-    <div class="head">${fresh?`<span class="status">✓ Ticket klaar · ${t.items.length} lijnen</span>`:""}<h1 style="font-size:30px">${esc(t.title)}</h1><p class="lead">${day(t.createdAt)} · totaal <b>${eur(st.total)}</b></p></div>
+    <div class="head">${fresh?`<span class="status">✓ Ticket klaar · ${t.items.length} lijnen</span>`:""}<div class="titlerow"><div class="col grow"><h1 style="font-size:30px">${esc(t.title)}</h1><p class="lead">${day(t.createdAt)} · totaal <b>${eur(st.total)}</b>${t.hasPhoto&&!t.showPhoto?` · foto verborgen`:""}</p></div>${t.hasPhoto?photoThumb(t.id):""}</div></div>
+    ${t.deleted?`<div class="notice warmish"><span><b>Dit ticket is verwijderd.</b> Je vrienden zien het niet meer.</span><div style="margin-top:8px"><button class="btn-p" style="min-height:36px" data-act="restore" data-id="${esc(t.id)}" data-done="Teruggezet">Zet terug</button></div></div>`:""}
     <div class="grid2"><button class="btn-p btn-big" data-act="shareLink">${ICON.up} Deel link</button><button class="btn-dark btn-big" data-act="showQR">${ICON.qr} Toon QR</button></div>
     <div class="card" style="gap:8px"><span class="cap">Stand van het ticket</span>
       <div class="standbar"><span style="width:${pct(st.own)}%;background:var(--accent)"></span><span style="width:${pct(st.received)}%;background:var(--ok)"></span><span style="width:${pct(st.toPay)}%;background:#f0a54a"></span></div>
@@ -843,7 +888,8 @@ function viewTicket(){
         const who=[...(c.ownerPicks[i]?[`Jij ${fmtShare(c.ownerPicks[i])}`]:[]), ...claims.filter(x=>x.picks?.[i]).map(x=>`${personName(t,x)} ${fmtShare(x.picks[i])}`)];
         const exp=parties.filter(p=>p.key!=="o" && (t.proposal?.[i]||{})[p.key] && !claims.some(x=>x.pid===p.key)).map(p=>p.name);
         return `<div class="line"><div class="col"><span class="name">${it.qty}× ${esc(it.name)}</span><span class="t2 num">${it.qty} × ${eur(it.unitPrice)}</span>
-          <span class="t2">${who.length?esc(who.join(" · ")):"Nog niemand gekozen"}${exp.length?` · verwacht: ${esc(exp.join(", "))}`:""}</span></div><span class="num">${eur(lineTotal(it))}</span></div>`;}).join("")}</div>`;
+          <span class="t2">${who.length?esc(who.join(" · ")):"Nog niemand gekozen"}${exp.length?` · verwacht: ${esc(exp.join(", "))}`:""}</span></div><span class="num">${eur(lineTotal(it))}</span></div>`;}).join("")}</div>
+    ${t.deleted?"":`<div class="delrow">${S.confirmDel?`<span class="t2">Ticket verwijderen? Je vrienden zien het dan niet meer. Je kan het later terugzetten.</span><div style="display:flex;gap:8px"><button class="warn" data-act="delYes" data-done="Verwijderd">Ja, verwijder</button><button data-act="delNo">Nee</button></div>`:`<button class="btn-link warn" style="font-size:15px" data-act="del">Verwijder ticket</button>`}</div>`}`;
 }
 // Terugbetaler: alle lijnen
 function viewSelect(){
@@ -879,16 +925,16 @@ function viewSelect(){
   }).join("");
   return `<div class="topbar"><button class="btn-link" data-act="toDelen">‹ I owe</button></div><!--head-->
     <div style="display:flex;gap:12px;align-items:center;padding:0 4px"><span class="av big" style="background:${colorFor(t.ownerId)}">${esc(initials(e.ownerName))}</span>
-      <div class="col"><h1 style="font-size:26px">${esc(t.title)}</h1><span class="t2" style="font-size:14px">${esc(e.ownerName||"Je vriend")} betaalde · ${day(t.createdAt)}</span></div></div>
+      <div class="col grow"><h1 style="font-size:26px">${esc(t.title)}</h1><span class="t2" style="font-size:14px">${esc(e.ownerName||"Je vriend")} betaalde · ${day(t.createdAt)}</span></div>${t.hasPhoto?photoThumb(t.id):""}</div>
     ${who}
     ${paidBefore?`<div class="notice">✓ Je betaalde ${eur(S.mineBase.paidTotal)}. Je keuzes liggen vast; je kan nog wel iets bijkiezen.${mp.due>0.009?` Nog <b>${eur(mp.due)}</b> bij te betalen.`:""}</div>`:""}
-    ${al.length?`<div class="card list"><div class="lockcap">${LOCK} Voor iedereen · vast</div><div class="line muted"><span>${esc(al.map(x=>x.it.name).join(", "))} <span class="t2">÷ ${c.group}</span></span><span class="num">${eur(allPP)}</span></div></div>`:""}
-    <div class="card list"><div class="col" style="padding:12px 0 4px;gap:2px"><span class="cap">Alle andere lijnen</span><span class="t2">De initialen tonen wie ${esc(e.ownerName||"de betaler")} verwacht; tik erop voor de namen. Kijk alle lijnen na: ook lijnen zonder initialen kunnen van jou zijn.</span></div>${rows||`<div class="line"><span class="t2">Geen andere lijnen.</span></div>`}</div>
+    ${al.length?`<div class="card list"><div class="lockcap">${LOCK} Voor iedereen</div><div class="line muted"><span>${esc(al.map(x=>x.it.name).join(", "))} <span class="t2">÷ ${c.group}</span></span><span class="num">${eur(allPP)}</span></div></div>`:""}
+    <div class="card list"><div class="col" style="padding:12px 0 4px;gap:2px"><span class="cap">Overige lijnen</span><span class="t2">De initialen zijn een voorstel volgens ${esc(e.ownerName||"de betaler")}. Kijk alle lijnen na: ook lijnen zonder initialen kunnen van jou zijn.</span></div>${rows||`<div class="line"><span class="t2">Geen andere lijnen.</span></div>`}</div>
     <p class="lead" style="padding:0 4px;font-size:13px">Nog door niemand gekozen: <b>${eur(othersPicked.unclaimed)}</b></p>`;
 }
 function viewProfiel(){
   const now=new Date(), m0=new Date(now.getFullYear(),now.getMonth(),1).getTime();
-  const mt=home.mine.filter(t=>t.createdAt>=m0).map(standOf);
+  const mt=home.mine.filter(t=>t.createdAt>=m0 && !t.deleted).map(standOf);
   const adv=R(mt.reduce((s,st)=>s+st.total-st.own,0)), back=R(mt.reduce((s,st)=>s+st.received,0));
   const th=getTheme(), inApp=standalone();
   return `<div class="head"><h1>Profile</h1></div><!--head-->
@@ -953,7 +999,7 @@ function renderLayerInner(){
   if(!l){ L.innerHTML=""; return; }
   if(l.kind==="reading"){
     L.innerHTML=`<div class="layer read" role="status"><div class="readbox"><img src="${S.photo}" alt=""></div>
-      <div style="display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center"><span style="font-size:18px;font-weight:600">Claude leest je ticket…</span><span style="color:rgba(255,255,255,.7);font-size:14px">Dit duurt meestal 5 à 15 seconden.</span></div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center"><span style="font-size:18px;font-weight:600">Splitticket AI leest je ticket…</span><span style="color:rgba(255,255,255,.7);font-size:14px">Dit duurt meestal 5 à 15 seconden.</span></div>
       <button class="btn" style="background:rgba(255,255,255,.14);border-color:rgba(255,255,255,.3);color:#fff" data-act="aiCancel">Annuleer</button></div>`;
     return;
   }
@@ -998,6 +1044,7 @@ function renderLayerInner(){
       <div class="grid2">${exp && !locked?`<button style="color:var(--warn)" data-act="pickMode" data-v="decline">Niet van mij</button>`:`<button data-act="closeLayer">Annuleer</button>`}<button class="btn-p" data-act="pickSave" ${tooMuch||tooLittle?"disabled":""}>Bewaar</button></div>`);
     return;
   }
+  if(l.kind==="photo"){ L.innerHTML=`<div class="layer photo"><div style="align-self:stretch;max-width:520px;width:100%;margin:0 auto"><button class="btn-link" style="color:#fff" data-act="closeLayer">‹ Sluit</button></div><img src="${l.src}" alt="Foto van het ticket"></div>`; return; }
   if(l.kind==="copy"){ L.innerHTML=`<div class="layer sheet"><div class="card" style="max-width:420px;width:100%"><span class="t1">Kopieer dit</span><textarea id="copybox" readonly>${esc(l.text)}</textarea><button class="btn-p" data-act="closeLayer">Klaar</button></div></div>`; setTimeout(()=>$("copybox")?.select(),0); return; }
   if(l.kind==="iban"){
     L.innerHTML=`<div class="layer sheet"><div class="card" style="max-width:420px;width:100%"><span class="t1">Schrijf over via je bankapp</span>
@@ -1060,7 +1107,7 @@ document.addEventListener("click", async ev=>{
     case "draftBack": navBack(); break;
     case "toLines": { const p=($("addName")?.value||"").trim(); if(p) addPerson(p); S.view="new"; S.err=""; render(); window.scrollTo(0,0); break; }
     case "toPropose": if(!cleanItems(S.draft.items).length){ S.err="Voeg minstens één lijn met een prijs toe."; render(); setFlash(el,"err"); return; } S.view="propose"; S.err=""; render(); window.scrollTo(0,0); break;
-    case "addPerson": addPerson($("addName")?.value); break;
+    case "addPerson": addPerson($("addName")?.value, true); break;
     case "addSug": addPerson(v); break;
     case "rmPerson": { const p=S.draft.people[i]; S.draft.people.splice(i,1); Object.values(S.draft.proposal).forEach(x=>{ delete x[p.pid]; }); render(); break; }
     case "toggleAll": { const it=S.draft.items[i]; it.all=!it.all; if(it.all) delete S.draft.proposal[i]; haptic(); render(); break; }
@@ -1086,6 +1133,11 @@ document.addEventListener("click", async ev=>{
 
     // betaler: ticket
     case "open": S.justMade=null; go("ticket", el.dataset.id); break;
+    case "unsureInfo": { const it=S.draft.items[i]; toast(`Niet zeker gelezen: ${it.why||"kijk deze lijn na"}. Het teken verdwijnt zodra je de lijn aanpast.`); break; }
+    case "filter": S.filter=v; store.set("filter",v); haptic(); render(); break;
+    case "restore": restoreTicket(el, el.dataset.id); break;
+    case "togglePhoto": S.draft.showPhoto=!S.draft.showPhoto; haptic(); render(); break;
+    case "viewPhoto": { ev.stopPropagation(); const src=photoSrc(el.dataset.id); if(!src){ toast("De foto wordt geladen…"); return; } S.layer={ kind:"photo", src }; render(); break; }
     case "editTicket": { const t=myTicket(S.id); if(t) editTicket(t, v==="propose"?"propose":v==="group"?"group":"new"); break; }
     case "back": navBack(); break;
     case "remind": { const t=myTicket(el.dataset.id), w=rowsOf(t).filter(r=>!r.paid);
@@ -1152,6 +1204,7 @@ document.addEventListener("input", ev=>{
   if(!S.draft) return;
   if(k==="title"){ S.draft.title=el.value; return; }
   const it=S.draft.items[+el.dataset.i];
+  if(it.unsure){ it.unsure=false; const b=el.closest(".erow")?.querySelector(".unsure"); if(b) b.remove(); } // aangepast = nagekeken
   if(k==="name") it.name=el.value;
   const i=+el.dataset.i, num=parseFloat(el.value.replace(",","."))||0;
   if(k==="qty"){ it.qty=Math.max(1,parseInt(el.value)||1); if($("el"+i)) $("el"+i).value=money(it.qty*it.unitPrice); }
@@ -1164,7 +1217,7 @@ document.addEventListener("input", ev=>{
 document.addEventListener("keydown", ev=>{
   const id=ev.target.id;
   if(ev.key==="Enter" && id==="obName"){ ev.preventDefault(); document.querySelector('[data-act="onboard"]').click(); return; }
-  if(ev.key==="Enter" && id==="addName"){ ev.preventDefault(); addPerson(ev.target.value); return; }
+  if(ev.key==="Enter" && id==="addName"){ ev.preventDefault(); addPerson(ev.target.value, true); return; }
   if(ev.key==="Enter" && id==="joinName"){ ev.preventDefault(); document.querySelector('[data-act="joinGroup"]')?.click(); return; }
   if((ev.key==="Enter"||ev.key===" ") && ev.target.getAttribute("role")==="button" && ev.target.dataset.act){ ev.preventDefault(); ev.target.click(); }
 });
