@@ -310,6 +310,9 @@ body.cam-open{overflow:hidden}
 .pline>.chev,.pline>.linkish{justify-self:end;text-align:right}
 .delrow{display:flex;flex-direction:column;align-items:center;gap:8px;padding:8px 0 4px;text-align:center}
 .unsure{flex:none;width:24px;height:24px;min-height:0;padding:0;border-radius:12px;border:none;background:var(--warn);color:var(--card);font:800 14px var(--body);display:flex;align-items:center;justify-content:center}
+.toptitle{flex:1;min-width:0;text-align:center;font-weight:600;font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;opacity:0;transform:translateY(6px);transition:opacity .2s,transform .2s;padding:0 8px}
+.toptitle.on{opacity:1;transform:none}
+.topspacer{flex:none;width:58px}
 </style>
 </head>
 <body>
@@ -786,7 +789,7 @@ function viewPropose(){
     ${al.length?`<div class="card list"><div class="lockcap">${LOCK} Voor iedereen · ${eur(c.allPP)} p.p.</div>${al.map(({it})=>`<div class="line muted pline"><span class="grow">${it.qty}× ${esc(it.name)}</span><span class="num">${eur(lineTotal(it))}</span></div>`).join("")}</div>`:""}
     ${done.length?`<div class="card list"><div class="lockcap">Voorstel · niet bindend</div>${done.map(({it,i,p})=>`<div class="line tap pline" role="button" tabindex="0" data-act="openPropose" data-i="${i}"><div class="col grow"><span class="name">${it.qty}× ${esc(it.name)}</span><div class="tags">${parties.filter(pa=>p[pa.key]).map(pa=>tag(pa,p[pa.key])).join("")}</div></div><span class="num">${eur(lineTotal(it))}</span><span class="chev">›</span></div>`).join("")}</div>`:""}
     ${open.length?`<div class="card list dashed"><div class="lockcap">Geen voorstel · iedereen kan kiezen</div>${open.map(({it,i})=>`<div class="line tap pline" role="button" tabindex="0" data-act="openPropose" data-i="${i}"><span class="name grow" style="font-weight:400">${it.qty}× ${esc(it.name)}</span><span class="num">${eur(lineTotal(it))}</span><span class="linkish">Wijs toe ›</span></div>`).join("")}</div>`:""}
-    <div class="totals">${totals.map(x=>`<div><span>${esc(x.name)}</span><b class="num">${eur(x.amt)}</b></div>`).join("")}<div class="dashedbox"><span>Zonder</span><b class="num">${eur(c.unclaimed)}</b></div></div>
+    <div class="totals">${totals.map(x=>`<div><span>${esc(x.name)}</span><b class="num">${eur(x.amt)}</b></div>`).join("")}<div class="dashedbox"><span>Zonder voorstel</span><b class="num">${eur(R(items.reduce((sum,it,i)=>{ if(it.all) return sum; const p=d.proposal[i]||{}; const used=Object.values(p).reduce((u,x)=>u+shareOf(x),0); return sum+Math.max(0,it.qty-used)*it.unitPrice; },0)))}</b></div></div>
     ${S.err?`<span class="t2 warn" style="padding:0 4px">${esc(S.err)}</span>`:""}
     <button class="btn-p btn-big" data-act="saveDraft" data-done="Opgeslagen">${d.id?"Bewaar":"Maak ticket en deel"}</button>`;
 }
@@ -925,7 +928,7 @@ function viewSelect(){
       <div class="col right"><span class="${declined?"t2":"amt"}" style="${mineP?"color:var(--accent)":""}">${declined?"Niet van mij":mineP?eur(amt):`<span style="color:var(--accent);font:600 14px var(--body)">Kies</span>`}</span><span class="t2">${mineP?fmtShare(mineP)+(mineP.w>1?"":" st."):""}</span></div>
       <span class="chev">›</span></div>`;
   }).join("");
-  return `<div class="topbar"><button class="btn-link" data-act="toDelen">‹ I owe</button></div><!--head-->
+  return `<div class="topbar"><button class="btn-link" data-act="toDelen">‹ I owe</button><span class="toptitle" aria-hidden="true">${esc(t.title)}</span><span class="topspacer"></span></div><!--head-->
     <div style="display:flex;gap:12px;align-items:center;padding:0 4px"><span class="av big" style="background:${colorFor(t.ownerId)}">${esc(initials(e.ownerName))}</span>
       <div class="col grow"><h1 style="font-size:26px">${esc(t.title)}</h1><span class="t2" style="font-size:14px">${esc(e.ownerName||"Je vriend")} betaalde · ${day(t.createdAt)}</span></div>${t.hasPhoto?photoThumb(t.id):""}</div>
     ${who}
@@ -970,7 +973,7 @@ function render(){
   S.popPid = null;
   if(vv!==lastView){ if(lastView && DETAIL.includes(vv) && !NAV) pushLevel(); NAV=""; lastView=vv; app.classList.remove("enter"); void app.offsetWidth; app.classList.add("enter"); clearTimeout(enterT); enterT=setTimeout(()=>app.classList.remove("enter"),420); }
   if(focused && $(focused) && /INPUT|TEXTAREA/.test($(focused).tagName)) $(focused).focus();
-  renderBar(); renderLayer(); applyFlash();
+  renderBar(); renderLayer(); applyFlash(); syncTopTitle();
   if(bumpSel){ document.querySelectorAll(bumpSel).forEach(x=>{ x.classList.remove("bump"); void x.offsetWidth; x.classList.add("bump"); }); bumpSel=null; }
 }
 function renderBar(){
@@ -987,7 +990,7 @@ function renderBar(){
   }
   if(["ticket","scan","new","group","propose"].includes(v)){ bar.innerHTML=""; return; }
   const tab=(id,icon,label)=>`<button class="tab" data-act="tab" data-v="${id}" ${v===id?'aria-current="page"':""}>${icon}${label}</button>`;
-  bar.innerHTML=`<div class="in"><nav class="tabs glass" aria-label="Hoofdmenu">${tab("krijgen",ICON.get,"Owed to me")}${tab("delen",ICON.share,"I owe")}${tab("profiel",ICON.me,"Profile")}</nav>
+  bar.innerHTML=`<div class="in"><nav class="tabs glass" aria-label="Hoofdmenu">${tab("krijgen",ICON.get,"Owed")}${tab("delen",ICON.share,"I owe")}${tab("profiel",ICON.me,"Profile")}</nav>
     <button class="cam" data-act="camera" aria-label="Scan ticket">${ICON.cam}</button></div>`;
 }
 function renderLayer(){
@@ -1391,7 +1394,12 @@ document.addEventListener("touchend", ()=>{
   } else setSwipe(0,"back");
 });
 document.addEventListener("touchcancel", ()=>{ if(SW.on){ SW.x0=null; SW.on=false; setSwipe(0,"back"); } });
-addEventListener("scroll", ()=>document.body.classList.toggle("scrolled", scrollY>4), { passive:true });
+function syncTopTitle(){ // titel in de balk bovenaan zodra de grote titel eronder verdwijnt
+  const tt=document.querySelector(".toptitle"); if(!tt) return;
+  const h=document.querySelector(".lbody h1"), head=document.querySelector(".lhead");
+  tt.classList.toggle("on", !!(h && head && h.getBoundingClientRect().bottom < head.getBoundingClientRect().bottom));
+}
+addEventListener("scroll", ()=>{ document.body.classList.toggle("scrolled", scrollY>4); syncTopTitle(); }, { passive:true });
 
 /* ---------- pull to refresh ---------- */
 const PTR = { y0:null, x0:0, dy:0, on:false, busy:false, ready:false };
