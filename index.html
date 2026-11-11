@@ -145,7 +145,7 @@ input.n{font-family:var(--mono);text-align:right}
 .istep .ic{width:40px;height:40px;border-radius:12px;flex:none;display:flex;align-items:center;justify-content:center;background:var(--accent-soft);color:var(--accent)}
 
 .tabbar{position:fixed;left:0;right:0;bottom:0;z-index:5;pointer-events:none;
-  padding:0 max(16px,env(safe-area-inset-right,0px)) calc(18px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
+  padding:0 max(16px,env(safe-area-inset-right,0px)) max(10px,calc(env(safe-area-inset-bottom,0px) - 6px)) max(16px,env(safe-area-inset-left,0px))}
 .tabbar .in{max-width:520px;margin:0 auto;display:flex;gap:12px;align-items:center;pointer-events:auto}
 .glass{background:var(--glass);-webkit-backdrop-filter:blur(20px) saturate(1.8);backdrop-filter:blur(20px) saturate(1.8);border:1px solid var(--glass-line);box-shadow:var(--glass-shadow)}
 .tabs{flex:1;height:64px;border-radius:32px;display:flex;align-items:center;padding:4px;gap:2px}
@@ -199,7 +199,7 @@ body.cam-open{overflow:hidden}
 .sheetcard{position:relative;max-width:520px;width:100%;border-radius:20px}
 .qrbox{padding:20px;background:#fff;border-radius:24px;box-shadow:0 20px 50px rgba(8,22,60,.35)}
 .qrbox img,.qrbox canvas{display:block;width:240px;height:240px}
-.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(100px + env(safe-area-inset-bottom,0px));z-index:30;background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:14px;font-size:14px;max-width:calc(100% - 32px);text-align:center}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(84px + env(safe-area-inset-bottom,0px));z-index:30;background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:14px;font-size:14px;max-width:calc(100% - 32px);text-align:center}
 .notice{background:var(--accent-soft);color:var(--ink);border-radius:14px;padding:12px 14px;font-size:14px}
 .copyrow{display:flex;justify-content:space-between;align-items:center;gap:10px}
 /* feedback after a tap: busy → done (green ✓) or error (shake) */
@@ -296,7 +296,9 @@ body.cam-open{overflow:hidden}
 .head .titlerow{align-items:center}
 .thumb{position:relative;width:44px;height:44px;min-height:44px;padding:0;border-radius:12px;overflow:hidden;flex:none;border:1px solid var(--line);background:var(--seg)}
 .thumb img{width:100%;height:100%;object-fit:cover;display:block}
-.thumb.toggle{width:52px;height:52px;min-height:52px;border-radius:14px}
+.photofield{flex:none;align-items:center}
+.photofield .cap{white-space:nowrap}
+.thumb.toggle{width:var(--inh,42px);height:var(--inh,42px);min-height:0;border-radius:12px}
 .thumb .eye{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#fff;background:rgba(8,14,22,.35)}
 .thumb.hidden-photo img{filter:grayscale(1) brightness(.6)}
 .thumb.hidden-photo .eye{background:rgba(8,14,22,.55)}
@@ -688,7 +690,7 @@ function photoThumb(id, label){ // vierkantje met de foto; tik = groot
 function photoToggle(d){ // bij aanmaken/bewerken: foto delen met oogje aan of uit
   if(!d.hasPhoto) return "";
   const src = d.id ? photoSrc(d.id) : S.photo;
-  return `<div class="col" style="align-items:center;gap:4px"><button class="thumb toggle${d.showPhoto?"":" hidden-photo"}" data-act="togglePhoto" aria-pressed="${!!d.showPhoto}" aria-label="${d.showPhoto?"Foto wordt gedeeld. Tik om te verbergen.":"Foto wordt niet gedeeld. Tik om te delen."}">${src?`<img src="${src}" alt="">`:""}<span class="eye">${d.showPhoto?EYE:EYE_OFF}</span></button><span class="t2" style="font-size:11px">${d.showPhoto?"zichtbaar":"verborgen"}</span></div>`;
+  return `<div class="field photofield"><span class="cap">${d.showPhoto?"Zichtbaar":"Verborgen"}</span><button class="thumb toggle${d.showPhoto?"":" hidden-photo"}" data-act="togglePhoto" aria-pressed="${!!d.showPhoto}" aria-label="${d.showPhoto?"Foto wordt gedeeld. Tik om te verbergen.":"Foto wordt niet gedeeld. Tik om te delen."}">${src?`<img src="${src}" alt="">`:""}<span class="eye">${d.showPhoto?EYE:EYE_OFF}</span></button></div>`;
 }
 async function restoreTicket(el, id){ try{ await withFlash(el, ()=>api("restoreTicket",{ id })); await refresh(); toast("Ticket teruggezet."); }catch(e){ toast(e.message); } }
 
@@ -980,7 +982,7 @@ function renderBar(){
     if(paidBefore && due<=0.009){ bar.innerHTML=`<div class="in"><div class="paybar glass"><div class="col"><span class="cap">Betaald</span><span class="v ok">✓ ${eur(S.mineBase.paidTotal)}</span></div><span class="t2" style="padding-right:12px">Alles in orde</span></div></div>`; return; }
     bar.innerHTML=`<div class="in"><div class="paybar glass"><div class="col"><span class="cap">${paidBefore?"Bij te betalen":"Jouw deel"}</span><span class="v" id="paytotal" style="display:inline-block">${eur(due)}</span></div>
       <div style="display:flex;gap:8px;align-items:center">${due>0?`<button class="btn-link" style="font-size:14px" data-act="markPaid" data-id="${esc(t.id)}" data-done="Betaald">Ik heb betaald</button>`:""}
-      ${payButton(t,due,"","Betaal via bank")}</div></div></div>`;
+      ${payButton(t,due,"","Betaal")}</div></div></div>`;
     return;
   }
   if(["ticket","scan","new","group","propose"].includes(v)){ bar.innerHTML=""; return; }
